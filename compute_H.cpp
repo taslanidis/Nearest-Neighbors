@@ -6,13 +6,10 @@
 
 using namespace std;
 
-void compute_H (vector<int>* H, vector<vector<int>> a, int d, int k){
+void compute_H (vector<int>* H, vector<vector<int>> a, int d, int k, int w){
     int m, M;
-    double power = pow(2,32);
-    m = (int)(power - 5);
+    m = w;
     M = pow(2, 32/k);
-    cout << "m is: " << m << endl;
-    cout << "M is: " << M << endl;
     int h, term;
     for (int i=0; i<a.size(); i++){
         h=0;

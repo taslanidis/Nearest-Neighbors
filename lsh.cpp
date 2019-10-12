@@ -8,6 +8,7 @@
 #include "compute_s.h"
 #include "compute_a.h"
 #include "compute_H.h"
+#include "compute_G.h"
 
 using namespace std;
 
@@ -78,7 +79,11 @@ int main(int argc, char* argv[]){
 
     vector<int> H;
     int k = 4;
-    compute_H(&H, a_projects, d, k);
+    compute_H(&H, a_projects, d, k, w);
+
+    string gx = amplify(&H);
+
+    cout << "G(x) = " << gx << endl;
 
     return 0;
 }

@@ -35,6 +35,6 @@ int compute_window(vector<vector<int>> dataset) {
         }
         distances.push_back(min_distance);
     }
-    int w = accumulate(distances.begin(), distances.end(), 0) / size;
+    int w = accumulate(distances.begin(), distances.end(), 0) / (size * d);
     return w;
 }

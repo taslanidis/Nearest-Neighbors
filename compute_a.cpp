@@ -13,7 +13,7 @@ void compute_a(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<in
     vector<int> a;
     for (int i = 0; i < x.size(); i++) {
         for (int dim = 0; dim < d; dim++) {
-            ai = floor((double)(x[i][dim] - (*s)[dim]) / w);
+            ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w;
             a.push_back(ai);
         }
         a_projects->push_back(a);

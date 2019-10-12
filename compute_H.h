@@ -11,6 +11,6 @@
 
 using namespace std;
 
-void compute_H (vector<int>*, vector<vector<int>>, int, int);
+void compute_H (vector<int>*, vector<vector<int>>, int, int, int);
 
 #endif //PROJECT_1_COMPUTE_H_H
