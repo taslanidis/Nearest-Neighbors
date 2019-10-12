@@ -7,6 +7,7 @@
 #include "window.h"
 #include "compute_s.h"
 #include "compute_a.h"
+#include "compute_H.h"
 
 using namespace std;
 
@@ -74,6 +75,10 @@ int main(int argc, char* argv[]){
 
     vector<vector<int>> a_projects;
     compute_a(&a_projects, dataset, &s, w, d);
+
+    vector<int> H;
+    int k = 4;
+    compute_H(&H, a_projects, d, k);
 
     return 0;
 }
