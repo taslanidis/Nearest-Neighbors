@@ -12,6 +12,6 @@
 
 using namespace std;
 
-void compute_s(vector<double>*, int, int);
+void compute_s(vector<int>*, int, int);
 
 #endif //PROJECT_1_COMPUTE_S_H

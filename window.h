@@ -5,6 +5,7 @@
 #define PROJECT_WINDOW_H
 
 #include <vector>
+#include <iostream>
 #include <stdlib.h>
 #include <numeric>
 

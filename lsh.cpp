@@ -6,77 +6,74 @@
 
 #include "window.h"
 #include "compute_s.h"
-
+#include "compute_a.h"
 
 using namespace std;
 
 int main(int argc, char* argv[]){
-   if(argc != 3) {
+    if(argc != 3) {
       cout << "We need input_file AND query_file!" << endl;
       return -1;
-   }
-   int line_count = 0;
-   int number_count = 0;
-   string line;
-   int number;
+    }
+    int line_count = 0;
+    int number_count = 0;
+    string line;
+    int number;
 
-   ifstream input_file(argv[1]);
-   if(!input_file){
-      cout <<"Wrong input_file!" << endl;
-      return -1;
-   }
-   ifstream query_file(argv[2]);
-   if(!query_file){
-      cout <<"Wrong query_file!" << endl;
-      return -1;
-   }
-   vector<vector<int>> dataset;
-   vector<vector<int>> searchset;
-   while (getline(input_file, line)){
-      vector<int> v;
-      stringstream ss(line);
-      ss >> number;                    //first number is the base
-      while (ss >> number) {
-        v.push_back(number);
-      }
-      dataset.push_back(v);
-      v.clear();
-      // if (line_count == 0){
-      //    stringstream ss(line);
-      //    while (ss >> number) {
-      //      ++number_count;
-      //    }
-      // }
-      // line_count++;
-   }
-   while (getline(query_file, line)){
-      vector<int> v;
-      stringstream ss(line);
-      ss >> number;                    //first number is the base
-      while (ss >> number) {
-        v.push_back(number);
-      }
-      searchset.push_back(v);
-      v.clear();
-   }
-   // cout << dataset[0].size() << endl;
-   // cout << dataset.size() << endl;
-   // cout << dataset.capacity() << endl;
-   // cout << "Lines are: " << line_count << endl;
-   // cout << "Words per line are: " << number_count << endl;
+    ifstream input_file(argv[1]);
+    if(!input_file){
+        cout <<"Wrong input_file!" << endl;
+        return -1;
+    }
+    ifstream query_file(argv[2]);
+    if(!query_file){
+        cout <<"Wrong query_file!" << endl;
+        return -1;
+    }
+    vector<vector<int>> dataset;
+    vector<vector<int>> searchset;
+    while (getline(input_file, line)){
+        vector<int> v;
+        stringstream ss(line);
+        ss >> number;                    //first number is the base
+        while (ss >> number) {
+            v.push_back(number);
+        }
+        dataset.push_back(v);
+        v.clear();
+        // if (line_count == 0){
+        //    stringstream ss(line);
+        //    while (ss >> number) {
+        //      ++number_count;
+        //    }
+        // }
+        // line_count++;
+    }
+    while (getline(query_file, line)){
+        vector<int> v;
+        stringstream ss(line);
+        ss >> number;                    //first number is the base
+        while (ss >> number) {
+            v.push_back(number);
+        }
+        searchset.push_back(v);
+        v.clear();
+    }
+    // cout << dataset[0].size() << endl;
+    // cout << dataset.size() << endl;
+    // cout << dataset.capacity() << endl;
+    // cout << "Lines are: " << line_count << endl;
+    // cout << "Words per line are: " << number_count << endl;
 
-   int d = dataset[0].size();                           //d-dimensonal vectors
+    int d = dataset[0].size();                           //d-dimensonal vectors
 
-   int w = compute_window(dataset);
-   cout << "w: " << w << endl;
+    int w = compute_window(dataset);
 
-   vector<double> s;
-   compute_s(&s, w, d);
-   for(int i=0; i<d; ++i){
-       cout << s[i] << endl;
-   }
+    vector<int> s;
+    compute_s(&s, w, d);
 
+    vector<vector<int>> a_projects;
+    compute_a(&a_projects, dataset, &s, w, d);
 
-
-   return 0;
+    return 0;
 }
