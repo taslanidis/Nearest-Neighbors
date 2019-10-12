@@ -4,6 +4,8 @@
 #include <string.h>
 #include <bits/stdc++.h>               //for stringstream
 
+#include "compute_s.h"
+
 
 using namespace std;
 
@@ -60,5 +62,17 @@ int main(int argc, char* argv[]){
    // cout << dataset.capacity() << endl;
    // cout << "Lines are: " << line_count << endl;
    // cout << "Words per line are: " << number_count << endl;
+
+   int d = dataset[0].size();                           //d-dimensonal vectors
+   int w;
+
+   // here is window function
+
+
+   vector<double> s;
+   compute_s(&s, 5, d);
+   for(int i=0; i<10; ++i){
+       cout<< s[i]<< endl;
+   }
    return 0;
 }
