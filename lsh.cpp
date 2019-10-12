@@ -4,6 +4,7 @@
 #include <string.h>
 #include <bits/stdc++.h>               //for stringstream
 
+#include "window.h"
 #include "compute_s.h"
 
 
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]){
    int number_count = 0;
    string line;
    int number;
+
    ifstream input_file(argv[1]);
    if(!input_file){
       cout <<"Wrong input_file!" << endl;
@@ -64,15 +66,17 @@ int main(int argc, char* argv[]){
    // cout << "Words per line are: " << number_count << endl;
 
    int d = dataset[0].size();                           //d-dimensonal vectors
-   int w;
 
-   // here is window function
-
+   int w = compute_window(dataset);
+   cout << "w: " << w << endl;
 
    vector<double> s;
-   compute_s(&s, 5, d);
-   for(int i=0; i<10; ++i){
-       cout<< s[i]<< endl;
+   compute_s(&s, w, d);
+   for(int i=0; i<d; ++i){
+       cout << s[i] << endl;
    }
+
+
+
    return 0;
 }
