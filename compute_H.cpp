@@ -16,6 +16,7 @@ void compute_H (vector<int>* H, vector<vector<int>> a, int d, int k, int w){
         for (int j=0; j<d; j++){
             term = a[i][d-1-j]*pow(m,j);
             h += term % M;
+            h
         }
         H->push_back(h);
     }

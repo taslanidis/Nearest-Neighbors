@@ -10,10 +10,12 @@
 #include <math.h>
 #include <cstdlib>
 #include <string>
+#include <chrono>
+#include <random>
 
 
 using namespace std;
 
-string amplify(vector<int>*);
+string amplify(vector<int>*, int);
 
 #endif //PROJECT_COMPUTE_G_H

@@ -71,6 +71,7 @@ int main(int argc, char* argv[]){
 
     int w = compute_window(dataset);
 
+    //loop for L
     vector<int> s;
     compute_s(&s, w, d);
 
@@ -81,9 +82,9 @@ int main(int argc, char* argv[]){
     int k = 4;
     compute_H(&H, a_projects, d, k, w);
 
-    string gx = amplify(&H);
+    string gx = amplify(&H, k);
 
     cout << "G(x) = " << gx << endl;
-
+    //end for
     return 0;
 }
