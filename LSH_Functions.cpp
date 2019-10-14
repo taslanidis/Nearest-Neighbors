@@ -33,7 +33,7 @@ int compute_window(vector<vector<int>> dataset) {
         }
         distances.push_back(min_distance);
     }
-    int w = accumulate(distances.begin(), distances.end(), 0) / (size * d);
+    int w = 10 * accumulate(distances.begin(), distances.end(), 0) / size;
     return w;
 }
 
@@ -63,6 +63,7 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
     for (int i = 0; i < x.size(); i++) {
         for (int dim = 0; dim < d; dim++) {
             ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w;
+//            cout << " A Projects for " << i << " item is " << ai << endl;
             a.push_back(ai);
         }
         a_projects->push_back(a);
@@ -74,7 +75,7 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    int m, M, h, term;
+    int m, M, h, term, term1, term2, fterm;
     m = w;
     M = pow(2, 32/k);
     for (int i = 0; i < a.size(); i++){
@@ -82,22 +83,32 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
         for (int j = 0; j < d; j++){
             term = a[i][d-1-j]*pow(m,j);
             h += term % M;
+//            term1 = a[i][d-1-j];
+//            term2 = modpow<int>(m,j,M);
+//            term = term1 * term2;
+//            fterm = term;
+//            h += fterm;
         }
+//        cout << " Hash for " << i << " item is " << h << endl;
         H->push_back(h);
     }
 }
 
-void amplify_hash(vector<string>* amplified_g, vector<vector<int>>* hash_functions, int k){
+void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions, int k){
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
+    int g;
+    int concat_dist = 32/k;
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
+        g=0;
         for (int j = 0; j < k; j++) {
             if (j == 0){
-                amplified_g->push_back(to_string((*hash_functions)[j][i]));
+                g = ((*hash_functions)[j][i]);
             } else{
-                (*amplified_g)[i].append(to_string((*hash_functions)[j][i]));
+                g +=  g << concat_dist | ((*hash_functions)[j][i]);
             }
         }
+        amplified_g->push_back(g);
         cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
     }
 }
