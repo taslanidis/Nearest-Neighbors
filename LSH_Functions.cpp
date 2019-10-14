@@ -63,7 +63,6 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
     for (int i = 0; i < x.size(); i++) {
         for (int dim = 0; dim < d; dim++) {
             ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w;
-//            cout << " A Projects for " << i << " item is " << ai << endl;
             a.push_back(ai);
         }
         a_projects->push_back(a);
@@ -83,13 +82,7 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
         for (int j = 0; j < d; j++){
             term = a[i][d-1-j]*pow(m,j);
             h += term % M;
-//            term1 = a[i][d-1-j];
-//            term2 = modpow<int>(m,j,M);
-//            term = term1 * term2;
-//            fterm = term;
-//            h += fterm;
         }
-//        cout << " Hash for " << i << " item is " << h << endl;
         H->push_back(h);
     }
 }
@@ -108,9 +101,7 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
                 g +=  g << concat_dist | ((*hash_functions)[j][i]);
             }
         }
-        amplified_g->push_back(g);
+        amplified_g->push_back(abs(g));
         cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
     }
 }
-
-/* TODO: create brute force function to find the actual neighbors */

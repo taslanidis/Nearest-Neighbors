@@ -4,7 +4,7 @@ using namespace std;
 
 class HashTable {
 private:
-    vector<vector<int>> ** pTable;
+    vector<vector<int>>* pTable;
     int Size;
 public:
     HashTable(int TableSize);
