@@ -25,6 +25,11 @@ int main(int argc, char* argv[]){
     /* compute window for all hash tables */
     int w = compute_window(dataset);
 
+    /* do brute force to find actual NNs */
+#ifdef BRUTE_FORCE
+    brute_force(&dataset, &searchset);
+#endif
+
     /* TODO: loop for L */
     vector<vector<int>> s;
     generate_shifts(&s, w, d, k);
@@ -55,8 +60,8 @@ int main(int argc, char* argv[]){
 
     /* Insert all items inside the Hash Table */
     for (int i = 0; i < dataset.size(); i++){
-        /* TODO: convert amplified_g to int before sending */
-        // MyHashTable.Insert(amplified_g[i], dataset[i]);
+        /* TODO: convert amplified_g can't fit in an int 32 bit */
+        // MyHashTable->Insert(stoi(amplified_g[i]), dataset[i]);
     }
 
     /* TODO: do the same for queries, and put them inside the hash table */
