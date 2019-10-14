@@ -1,6 +1,7 @@
 #include "lib/Library.h"
 #include "lib/LSH_Functions.h"
 #include "lib/Helper_Functions.h"
+#include "lib/HashTable.h"
 
 using namespace std;
 
@@ -47,6 +48,18 @@ int main(int argc, char* argv[]){
     vector<string> amplified_g;
     amplify_hash(&amplified_g, &hash_functions, k);
     /* end for */
+
+    /* Now that we have the hash codes, lets put them in the hash table */
+    int TableSize = dataset.size()/16;
+    HashTable* MyHashTable = new HashTable(TableSize);
+
+    /* Insert all items inside the Hash Table */
+    for (int i = 0; i < dataset.size(); i++){
+        /* TODO: convert amplified_g to int before sending */
+        // MyHashTable.Insert(amplified_g[i], dataset[i]);
+    }
+
+    /* TODO: do the same for queries, and put them inside the hash table */
 
     return 0;
 }

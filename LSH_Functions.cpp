@@ -4,11 +4,11 @@
 using namespace std;
 
 int compute_window(vector<vector<int>> dataset) {
-    // 1. take all points in dataset
-    // 2. find their nearest neighbor using L1 metric
-    // 3. average all distances between points
-    // L1 = sum(|P1i - P2i|) for i in 0,d-1
-    // Note: dist is a function scalable for all metrics(L1,L2,L3 etc.)
+    /* 1. take all points in dataset
+     * 2. find their nearest neighbor using L1 metric
+     * 3. average all distances between points
+     * L1 = sum(|P1i - P2i|) for i in 0,d-1
+     * Note: dist is a function scalable for all metrics(L1,L2,L3 etc.) */
     vector<int> distances;
     int L1, min_distance;
     int size = dataset.size();
@@ -38,8 +38,8 @@ int compute_window(vector<vector<int>> dataset) {
 }
 
 void generate_shifts(vector<vector<int>>* s, int w, int d, int k){
-    // Generate K * Si for every dimension
-    // At the end, s will be a vector of size (k,d)
+    /* Generate K * Si for every dimension
+     * At the end, s will be a vector of size (k,d) */
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
 
@@ -56,8 +56,8 @@ void generate_shifts(vector<vector<int>>* s, int w, int d, int k){
 }
 
 void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<int>* s, int w, int d) {
-    // Ai = (Xi - Si) / W
-    // Project every X to A in d-dimensional grid shifted by S, where every cell size = W
+    /* Ai = (Xi - Si) / W
+     * Project every X to A in d-dimensional grid shifted by S, where every cell size = W */
     int ai;
     vector<int> a;
     for (int i = 0; i < x.size(); i++) {
@@ -71,8 +71,9 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
 }
 
 void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
-    // we will compute K of hash functions for every point - item
-    // vector H at the end will have a size of (dataset.size(), k)
+    /* we will compute K of hash functions for every point - item
+     * vector H at the end will have a size of (dataset.size(), k) */
+    /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
     int m, M, h, term;
     m = w;
     M = pow(2, 32/k);
@@ -87,8 +88,8 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
 }
 
 void amplify_hash(vector<string>* amplified_g, vector<vector<int>>* hash_functions, int k){
-    // For every item it amplifies the hash from K dimensions to 1
-    // g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)]
+    /* For every item it amplifies the hash from K dimensions to 1
+     * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         for (int j = 0; j < k; j++) {
             if (j == 0){
@@ -100,3 +101,5 @@ void amplify_hash(vector<string>* amplified_g, vector<vector<int>>* hash_functio
         cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
     }
 }
+
+/* TODO: create brute force function to find the actual neighbors */
