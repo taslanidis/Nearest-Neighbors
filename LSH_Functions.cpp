@@ -47,7 +47,7 @@ void generate_shifts(vector<vector<int>>* s, int w, int d, int k){
     vector<int> Sj;
 
     for (int i = 0; i < k; i++) {
-        for (int j = 0; j < d; j++) {
+        for (int j = 1; j < d; j++) {
             Sj.push_back(distribution(generator));
         }
         s->push_back(Sj);
@@ -61,7 +61,7 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
     int ai;
     vector<int> a;
     for (int i = 0; i < x.size(); i++) {
-        for (int dim = 0; dim < d; dim++) {
+        for (int dim = 1; dim < d; dim++) {
             ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w;
             a.push_back(ai);
         }
@@ -79,7 +79,7 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
     M = pow(2, 32/k);
     for (int i = 0; i < a.size(); i++){
         h=0;
-        for (int j = 0; j < d; j++){
+        for (int j = 1; j < d; j++){
             term = a[i][d-1-j]*pow(m,j);
             h += term % M;
         }
@@ -102,6 +102,6 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
             }
         }
         amplified_g->push_back(abs(g));
-        cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
+        //cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
     }
 }

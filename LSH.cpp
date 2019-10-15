@@ -27,13 +27,12 @@ int main(int argc, char* argv[]){
 
     /* d-dimensional vectors */
     int d = dataset[0].size();
-    /* compute window for all hash tables */
+    /* compute window for all hash tables (try *4 or *10) */
     //int w = 4*compute_window(dataset);
     int w = 36;
     /* Size of Hash Table */
     int TableSize = dataset.size() / 8;
     HashTable *MyHashTable[L];
-    /* TODO: loop for L */
     /* vector containing (k,d) shifts */
     vector<vector<int>> s;
     /* H of size (k, dataset.size()) */
@@ -44,7 +43,8 @@ int main(int argc, char* argv[]){
     vector<int> H;
     /* amplified hash */
     vector <int> amplified_g;
-
+    /* results */
+    vector<vector<vector<vector<int>>>> ANN;
     /* loop for L, to create L hash tables */
     for (int l = 0; l < L; l++) {
         /* generate the random shifts */
@@ -67,7 +67,6 @@ int main(int argc, char* argv[]){
         *  Insert all items inside the Hash Table */
         MyHashTable[l] = new HashTable(TableSize);
         for (int i = 0; i < dataset.size(); i++) {
-            cout << "Insert" << amplified_g[i] << endl;
             MyHashTable[l]->Insert(amplified_g[i], dataset[i]);
         }
 
@@ -87,15 +86,25 @@ int main(int argc, char* argv[]){
         amplify_hash(&amplified_g, &hash_functions, k);
 
         /* calculate approximate nearest neighbors */
-        vector<vector<int>>** ANN = new vector<vector<int>>* [searchset.size()];
+        vector<vector<vector<int>>> ANNi;
         for (int i = 0; i < searchset.size(); i++) {
-            ANN[i] = MyHashTable[l]->Search_Neighbors(amplified_g[i]);
+            ANNi.push_back(*MyHashTable[l]->Search_Neighbors(amplified_g[i]));
         }
+        ANN.push_back(ANNi);
+    }
 
-        for (int i = 0; i < searchset.size(); i++) {
-            cout << "Query " << i << ": \t Neighbors: " << ANN[i]->size() << endl;
+    int distance = 0;
+    vector<int> nearest_neighbor;
+    /* for every hash table L */
+    for (int i = 0; i < ANN.size(); i++){
+        /* for every query */
+        for (int q = 0; q < searchset.size(); q++) {
+            /* for every vector in the same bucket (max 3*L calculations) */
+            for (int j = 0; j < ANN[i][q].size() && j < 3 * L; j++) {
+                distance = dist(&ANN[i][q][j], &searchset[q], d);
+                cout << "Query: " << searchset[q][0] << " with Neighbor: " << ANN[i][q][j][0] << " | Distance: " << distance << endl;
+            }
         }
-        getchar();
     }
 
     return 0;

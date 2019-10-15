@@ -20,8 +20,6 @@ int Read_input_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
 
     while (getline(input_file, line)) {
         stringstream ss(line);
-        /* first number is the base */
-        ss >> number;
         while (ss >> number) {
             v.push_back(number);
         }
@@ -31,8 +29,6 @@ int Read_input_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
 
     while (getline(query_file, line)) {
         stringstream ss(line);
-        /* first number is the base */
-        ss >> number;
         while (ss >> number) {
             v.push_back(number);
         }
@@ -49,7 +45,7 @@ int dist(vector<int>* P1, vector<int>* P2, int d, int Metric) {
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
     int dist = 0;
-    for (int dim = 0; dim < d; dim++)
+    for (int dim = 1; dim < d; dim++)
         dist += pow(abs((*P1)[dim] - (*P2)[dim]),Metric);
     return pow(dist,1/Metric);
 }
@@ -72,7 +68,7 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset) {
         P1 = (*searchset)[i];
         L1 = 0;
         min_distance = -1;
-        for (int j = 0; j < d_size; j++) {
+        for (int j = 1; j < d_size; j++) {
             P2 = (*dataset)[j];
             /* default is L1 metric, for Lk metric, add a 4th argument, k */
             L1 = dist(&P1, &P2, d);
