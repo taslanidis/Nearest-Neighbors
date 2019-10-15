@@ -83,7 +83,7 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset) {
         }
         distances.push_back(min_distance);
         n_neighbors.push_back(n_neighbor);
-        neighbors_file << "Item:" << i << " Distance: " << min_distance << " NNeighbor: " << n_neighbor <<  endl;
+        neighbors_file << "Item:" << i + 1 << ", Neighbor: " << n_neighbor << " | Distance: " << min_distance <<  endl;
     }
     neighbors_file.close();
 }

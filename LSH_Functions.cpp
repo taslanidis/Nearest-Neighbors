@@ -99,9 +99,9 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
                 g = ((*hash_functions)[j][i]);
             } else{
                 g +=  g << concat_dist | ((*hash_functions)[j][i]);
+                //g = g | ((*hash_functions)[j][i]); //different approach
             }
         }
         amplified_g->push_back(abs(g));
-        //cout << "Amplified Hash for " << i << " item is " << (*amplified_g)[i] << endl;
     }
 }

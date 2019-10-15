@@ -94,18 +94,39 @@ int main(int argc, char* argv[]){
     }
 
     int distance = 0;
-    vector<int> nearest_neighbor;
+    int *min_distance = new int [searchset.size()];
+    int *nearest_neighbor = new int [searchset.size()];
+
+    /* initialize arrays */
+    for (int i = 0; i < searchset.size(); i++) {
+        min_distance[i] = INT_MAX;
+        nearest_neighbor[i] = -1;
+    }
+
     /* for every hash table L */
     for (int i = 0; i < ANN.size(); i++){
         /* for every query */
         for (int q = 0; q < searchset.size(); q++) {
             /* for every vector in the same bucket (max 3*L calculations) */
-            for (int j = 0; j < ANN[i][q].size() && j < 3 * L; j++) {
+            for (int j = 0; j < ANN[i][q].size() && j < 4 * L; j++) {
+                /* TODO: I have to check for same g(x) also */
                 distance = dist(&ANN[i][q][j], &searchset[q], d);
-                cout << "Query: " << searchset[q][0] << " with Neighbor: " << ANN[i][q][j][0] << " | Distance: " << distance << endl;
+                if (distance < min_distance[q]) {
+                    min_distance[q] = distance;
+                    nearest_neighbor[q] = ANN[i][q][j][0];
+                }
             }
         }
     }
+
+    /* print results */
+    /* open file to write results */
+    ofstream neighbors_file;
+    neighbors_file.open ("nneighbors_lsh.txt");
+    for (int i = 0; i < searchset.size(); i++) {
+        neighbors_file << "Item: " << i + 1 << ", Neighbor: " << nearest_neighbor[i] << " | Distance: " << min_distance[i] << endl;
+    }
+    neighbors_file.close();
 
     return 0;
 }
