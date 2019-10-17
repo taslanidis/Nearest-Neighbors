@@ -11,9 +11,9 @@ make clean<br>
 
 ### Run commands
 #### LSH:
-./lsh.x /datasets/siftsmall/input_small_id /datasets/siftsmall/query_small_id<br>
+./lsh.x ./datasets/siftsmall/input_small_id ./datasets/siftsmall/query_small_id<br>
 #### Hypercube
-./hypercube.x /datasets/siftsmall/input_small_id /datasets/siftsmall/query_small_id<br>
+./hypercube.x ./datasets/siftsmall/input_small_id ./datasets/siftsmall/query_small_id<br>
 #### Curves
 
 

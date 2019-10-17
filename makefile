@@ -1,11 +1,14 @@
 all : lsh hypercube curves
 
-curves : HashTable.o Helper_Functions.o Curves.o
+curves : HashTable.o Helper_Functions.o Traversals.o Curves.o
 	@echo "Compile curves ...";
-	g++ -I ./lib ./build/Curves.o ./build/Helper_Functions.o -o ./build/curves.x
+	g++ -I ./lib ./build/Curves.o ./build/Helper_Functions.o ./build/Traversals.o -o ./build/curves.x
 
 Curves.o :
 	g++ -I ./lib -c ./src/Curves/Curves.cpp -o ./build/Curves.o
+
+Traversals.o :
+	g++ -I ./lib -c ./src/Curves/Traversals.cpp -o ./build/Traversals.o
 
 hypercube : HashTable.o Helper_Functions.o LSH_Functions.o BHC_Functions.o BHC.o
 	@echo "Compile hypercube ...";
