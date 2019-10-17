@@ -1,4 +1,4 @@
-#include "lib/BHC_Functions.h"
+#include "BHC_Functions.h"
 
 using namespace std;
 

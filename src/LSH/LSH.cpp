@@ -1,7 +1,7 @@
-#include "../lib/Library.h"
-#include "../lib/LSH_Functions.h"
-#include "../lib/Helper_Functions.h"
-#include "../lib/HashTable.h"
+#include "Library.h"
+#include "LSH_Functions.h"
+#include "Helper_Functions.h"
+#include "HashTable.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
     vector<vector<int>> searchset;
 
     /* read data set and query set and load them in vectors */
-    error_code = Read_input_files(&dataset, &searchset, argv[1], argv[2]);
+    error_code = Read_point_files(&dataset, &searchset, argv[1], argv[2]);
     if (error_code == -1) return -1;
 
     /* do brute force to find actual NNs */
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]){
     /* print results */
     /* open file to write results */
     ofstream neighbors_file;
-    neighbors_file.open ("nneighbors_lsh.txt");
+    neighbors_file.open ("./output/nneighbors_lsh.txt");
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Item: " << i + 1 << ", Neighbor: " << nearest_neighbor[i] << " | Distance: " << min_distance[i] << endl;
     }

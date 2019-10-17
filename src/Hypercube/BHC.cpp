@@ -1,8 +1,8 @@
-#include "lib/Library.h"
-#include "lib/LSH_Functions.h"
-#include "lib/BHC_Functions.h"
-#include "lib/Helper_Functions.h"
-#include "lib/HashTable.h"
+#include "Library.h"
+#include "LSH_Functions.h"
+#include "BHC_Functions.h"
+#include "Helper_Functions.h"
+#include "HashTable.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     vector<vector<int>> searchset;
 
     /* read data set and query set and load them in vectors */
-    error_code = Read_input_files(&dataset, &searchset, argv[1], argv[2]);
+    error_code = Read_point_files(&dataset, &searchset, argv[1], argv[2]);
     if (error_code == -1) return -1;
 
     /* do brute force to find actual NNs */
@@ -43,6 +43,8 @@ int main(int argc, char* argv[]) {
     vector<vector<int>> data_amplified_g;
     /* amplified hash for searchset */
     vector<vector<int>> query_amplified_g;
+    /* temporary g vector for push back */
+    vector<int> temp_g;
     /* map to assign every g function to 0 or 1 */
     map <int, int> dictionary;
     /* loop for L, to create L amplified functions g */
@@ -60,7 +62,9 @@ int main(int argc, char* argv[]) {
             hash_functions.push_back(H);
         } /* end for */
         /* compute the amplified hashes for every data item */
-        amplify_hash(&data_amplified_g, &hash_functions, k);
+        temp_g.clear();
+        amplify_hash(&temp_g, &hash_functions, k);
+        data_amplified_g.push_back(temp_g);
 
         /* ------------------------ SEARCH SET ----------------------------*/
         /* loop for K */
@@ -72,7 +76,9 @@ int main(int argc, char* argv[]) {
             hash_functions.push_back(H);
         } /* end for */
         /* compute the amplified hashes for every query item */
-        amplify_hash(&query_amplified_g, &hash_functions, k);
+        temp_g.clear();
+        amplify_hash(&temp_g, &hash_functions, k);
+        query_amplified_g.push_back(temp_g);
     }
 
     fill_dictionary(&dictionary, data_amplified_g);
@@ -122,7 +128,7 @@ int main(int argc, char* argv[]) {
     /* print results */
     /* open file to write results */
     ofstream neighbors_file;
-    neighbors_file.open ("nneighbors_bhc.txt");
+    neighbors_file.open ("./output/nneighbors_bhc.txt");
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Item: " << i + 1 << ", Neighbor: " << nearest_neighbor[i] << " | Distance: " << min_distance[i] << endl;
     }

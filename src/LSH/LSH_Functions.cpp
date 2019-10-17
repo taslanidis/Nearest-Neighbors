@@ -1,5 +1,5 @@
-#include "lib/LSH_Functions.h"
-#include "lib/Helper_Functions.h"
+#include "LSH_Functions.h"
+#include "Helper_Functions.h"
 
 using namespace std;
 
@@ -87,13 +87,12 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
     }
 }
 
-void amplify_hash(vector<vector<int>>* amplified_g, vector<vector<int>>* hash_functions, int k){
+void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions, int k){
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
 //    TODO: get every hi to binary form and concatenate with bitwise shifts / NO BITWISE SHIFTS AMONG NEGATIVE NUMBERS
     int g;
     int concat_dist = 32/k;
-    vector<int> temp_g;
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
         for (int j = 0; j < k; j++) {
@@ -104,7 +103,6 @@ void amplify_hash(vector<vector<int>>* amplified_g, vector<vector<int>>* hash_fu
                 //g = g | ((*hash_functions)[j][i]); //different approach
             }
         }
-        temp_g.push_back(abs(g));
+        amplified_g->push_back(abs(g));
     }
-    amplified_g->push_back(temp_g);
 }
