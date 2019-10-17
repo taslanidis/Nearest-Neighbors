@@ -88,7 +88,7 @@ int dist(vector<int>* P1, vector<int>* P2, int d, int Metric) {
     return pow(dist,1/Metric);
 }
 
-double dist(double* p, double* q, int Metric){
+double point_dist(double* p, double* q, int Metric){
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
@@ -97,10 +97,6 @@ double dist(double* p, double* q, int Metric){
     d1 = pow(p[0] - q[0], Metric);
     d2 = pow(p[1] - q[1], Metric);
     return pow(d1+d2,1/Metric);
-}
-
-double min(double x, double y, double z) {
-
 }
 
 void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, vector<int>* TrueDistances, vector<double>* TrueTimes) {
@@ -145,25 +141,4 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
         neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(4) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
     }
     neighbors_file.close();
-}
-
-void DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
-    /* Computing DTW
-     * For m1 curves P and m2 curves Q, DTW computed in O(m1*m2) time and space by DP using recursion
-     * Initialize c(1,1) = ||p1-q1||
-     * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
-     * if i > 1, then c(1,i) = c(i-1,1) + ||pi - qj||
-     * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi-qj|| */
-    int m1, m2;
-    int i,j;
-    m1 = P->size();
-    m2 = Q->size();
-    (*c)[0][0] = dist((*P)[0], (*Q)[0], 2);
-    if (j > 1 && i == 0) {
-        (*c)[i][j] = (*c)[i][j - 1] + dist((*P)[i], (*Q)[j], 2);
-    } else if (i > 1 && j == 0) {
-        (*c)[i][j] = (*c)[i - 1][j] + dist((*P)[i], (*Q)[j], 2);
-    } else {
-        (*c)[i][j] = min((*c)[i-1][j], (*c)[i-1][j-1], (*c)[i][j-1]) + dist((*P)[i], (*Q)[j], 2);
-    }
 }

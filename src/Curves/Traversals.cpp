@@ -35,3 +35,16 @@ void DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
     Traversal(c, P, Q);
     // find min traversal from c
 }
+
+void create_grid(vector<int>* orthogonal_grid, int dims) {
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator (seed);
+
+    uniform_int_distribution<int> distribution (-10*dims, 10*dims);
+    for (int i = 0; i < dims; i++)
+        orthogonal_grid->push_back(distribution(generator));
+}
+
+void shift_grid(vector<int>* orthogonal_grid, int dims) {
+
+}
