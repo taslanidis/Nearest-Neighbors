@@ -21,9 +21,10 @@ int main(int argc, char* argv[]){
     if (error_code == -1) return -1;
 
     /* do brute force to find actual NNs */
-#ifdef BRUTE_FORCE
+//#ifdef BRUTE_FORCE
+// TODO: make compilation of brute force in makefile
     brute_force(&dataset, &searchset);
-#endif
+//#endif
 
     /* d-dimensional vectors */
     int d = dataset[0].size();

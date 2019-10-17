@@ -121,6 +121,7 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset) {
         P1 = (*searchset)[i];
         L1 = 0;
         min_distance = -1;
+        auto start = chrono::high_resolution_clock::now();
         for (int j = 1; j < d_size; j++) {
             P2 = (*dataset)[j];
             /* default is L1 metric, for Lk metric, add a 4th argument, k */
@@ -134,9 +135,11 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset) {
                 n_neighbor = j;
             }
         }
+        auto finish = chrono::high_resolution_clock::now();
+        chrono::duration<double> elapsed = finish - start;
         distances.push_back(min_distance);
         n_neighbors.push_back(n_neighbor);
-        neighbors_file << "Item:" << i + 1 << ", Neighbor: " << n_neighbor << " | Distance: " << min_distance <<  endl;
+        neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(4) << setfill('0') << min_distance <<  " | Duration: " << elapsed.count() << endl;
     }
     neighbors_file.close();
 }
