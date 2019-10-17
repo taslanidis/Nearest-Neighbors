@@ -88,19 +88,18 @@ int main(int argc, char* argv[]) {
 
     int hypercube_size = pow(2,dim);
     int vertex = 0;
-    HashTable *MyHashTable;
-    MyHashTable = new HashTable(hypercube_size);
+    vector<vector<int>> MyVerticesTable[hypercube_size];
     for (int i = 0; i < dataset.size(); i++) {
         vertex = calculate_vertex(data_amplified_g, dictionary, i);
 //        cout << i << " : " << vertex << endl;
-        MyHashTable->Insert_to_Vertex(vertex, dataset[i]);
+        MyVerticesTable[vertex].push_back(dataset[i]);
     }
 
     vector<vector<vector<int>>> ANNi;
     for (int i = 0; i < searchset.size(); i++) {
         vertex = calculate_vertex(query_amplified_g, dictionary, i);
 //        cout << i << " : " << vertex << endl;
-        ANNi.push_back(*MyHashTable->Search_Neighbors(vertex));
+        ANNi.push_back(MyVerticesTable[vertex]);
     }
 
     int distance = 0;
