@@ -1,7 +1,7 @@
-#include "lib/Library.h"
-#include "lib/LSH_Functions.h"
-#include "lib/Helper_Functions.h"
-#include "lib/HashTable.h"
+#include "../lib/Library.h"
+#include "../lib/LSH_Functions.h"
+#include "../lib/Helper_Functions.h"
+#include "../lib/HashTable.h"
 
 using namespace std;
 
