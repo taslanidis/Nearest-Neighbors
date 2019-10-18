@@ -40,13 +40,14 @@ int compute_window(vector<vector<int>> dataset) {
 void generate_shifts(vector<vector<int>>* s, int w, int d, int k){
     /* Generate K * Si for every dimension
      * At the end, s will be a vector of size (k,d) */
-    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-    default_random_engine generator (seed);
+    unsigned seed;
 
     uniform_int_distribution<int> distribution (0, w);
     vector<int> Sj;
 
     for (int i = 0; i < k; i++) {
+        seed = chrono::system_clock::now().time_since_epoch().count();
+        default_random_engine generator (seed);
         for (int j = 1; j < d; j++) {
             Sj.push_back(distribution(generator));
         }
@@ -55,14 +56,14 @@ void generate_shifts(vector<vector<int>>* s, int w, int d, int k){
     }
 }
 
-void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<int>* s, int w, int d) {
+void projections(vector<vector<int>>* a_projects, vector<vector<int>>* x, vector<int>* s, int w, int d) {
     /* Ai = (Xi - Si) / W
      * Project every X to A in d-dimensional grid shifted by S, where every cell size = W */
     int ai;
     vector<int> a;
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < x->size(); i++) {
         for (int dim = 1; dim < d; dim++) {
-            ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w; // TODO : used to be + w
+            ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w) + w; // TODO : used to be + w
             a.push_back(ai);
         }
         a_projects->push_back(a);
@@ -83,22 +84,22 @@ int power_of(int m, int j, int M) {
     return res;
 }
 
-void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
+void compute_hash(vector<int>* H, vector<vector<int>> *a, int d, int k, int w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    int m, m1, m2, m3, m4, M, h, term, term1;
+    int m, m1, m2, m3, m4, M, h, term;
+    M = pow(2, 32/k);
     m1 = 2*16 % M;
     m2 = 2*8 % M;
     m3 = 2*4 % M;
     m4 = 2*2 % M;
     m = m1*m2*m3*m4*m4 % M;
-    M = pow(2, 32/k);
-    for (int i = 0; i < a.size(); i++){
+    for (int i = 0; i < a->size(); i++){
         h=0;
-        for (int j = 0; j < d; j++){
-            term = a[i][d-1-j]*power_of(m,j,M); // TODO: warning check, previously had int j = 1
-            h += term;//% M;
+        for (int j = 0; j < d - 1; j++){
+            term = (*a)[i][d-1-j]*power_of(m,j,M); // TODO: warning check, previously had int j = 1
+            h += term % M;  // moding with M to avoid overflow;
         }
         h = h % M;
         H->push_back(h);
@@ -109,7 +110,8 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
     int g;
-    int concat_dist = 32/k;
+    int concat_dist = floor(32/k);
+    /* for all points in dataset */
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
         for (int j = 0; j < k; j++) {
@@ -120,6 +122,7 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
                 //g = g | ((*hash_functions)[j][i]); // different approach
             }
         }
+        cout << g << endl;
         amplified_g->push_back(abs(g));
     }
 }
