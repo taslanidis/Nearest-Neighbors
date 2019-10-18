@@ -62,7 +62,7 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
     vector<int> a;
     for (int i = 0; i < x.size(); i++) {
         for (int dim = 1; dim < d; dim++) {
-            ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w;
+            ai = floor((double)(x[i][dim] - (*s)[dim]) / w) + w; // TODO : used to be + w
             a.push_back(ai);
         }
         a_projects->push_back(a);
@@ -70,19 +70,37 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>> x, vector<
     }
 }
 
+int power_of(int m, int j, int M) {
+    int res = 1;
+    m = m % M;
+    while (j > 0)
+    {
+        if (j & 1)
+            res = (res*m) % M;
+        j = j>>1;
+        m = (m*m) % M;
+    }
+    return res;
+}
+
 void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    int m, M, h, term, term1, term2, fterm;
-    m = w;
+    int m, m1, m2, m3, m4, M, h, term, term1;
+    m1 = 2*16 % M;
+    m2 = 2*8 % M;
+    m3 = 2*4 % M;
+    m4 = 2*2 % M;
+    m = m1*m2*m3*m4*m4 % M;
     M = pow(2, 32/k);
     for (int i = 0; i < a.size(); i++){
         h=0;
-        for (int j = 1; j < d; j++){
-            term = a[i][d-1-j]*pow(m,j);
-            h += term % M;
+        for (int j = 0; j < d; j++){
+            term = a[i][d-1-j]*power_of(m,j,M); // TODO: warning check, previously had int j = 1
+            h += term;//% M;
         }
+        h = h % M;
         H->push_back(h);
     }
 }
@@ -90,17 +108,16 @@ void compute_hash(vector<int>* H, vector<vector<int>> a, int d, int k, int w){
 void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions, int k){
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
-//    TODO: get every hi to binary form and concatenate with bitwise shifts / NO BITWISE SHIFTS AMONG NEGATIVE NUMBERS
     int g;
     int concat_dist = 32/k;
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
         for (int j = 0; j < k; j++) {
-            if (j == 0){
-                g = abs(((*hash_functions)[j][i]));
-            } else{
-                g +=  g << concat_dist | abs(((*hash_functions)[j][i]));
-                //g = g | ((*hash_functions)[j][i]); //different approach
+            if (j == 0) {
+                g = (*hash_functions)[j][i];
+            } else {
+                g +=  g << concat_dist | (*hash_functions)[j][i];
+                //g = g | ((*hash_functions)[j][i]); // different approach
             }
         }
         amplified_g->push_back(abs(g));

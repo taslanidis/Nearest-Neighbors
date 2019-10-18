@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
     int d = dataset[0].size();
     /* compute window for all hash tables (try *4 or *10) */
     //int w = 4*compute_window(dataset);
-    int w = 400;
+    int w = 36;
     /* Size of Hash Table */
     int TableSize = dataset.size() / 8;
     HashTable *MyHashTable[L];
@@ -67,6 +67,7 @@ int main(int argc, char* argv[]){
             hash_functions.push_back(H);
         } /* end for */
         /* compute the amplified hashes for every item */
+        amplified_g.clear();
         amplify_hash(&amplified_g, &hash_functions, k);
 
         /* Now that we have the hash codes, lets put them in the hash table
@@ -97,6 +98,8 @@ int main(int argc, char* argv[]){
             ANNi.push_back(*MyHashTable[l]->Search_Neighbors(amplified_g[i]));
         }
         ANN.push_back(ANNi);
+        hash_functions.clear();
+        s.clear();
     }
 
     int distance = 0;
