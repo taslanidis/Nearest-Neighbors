@@ -55,30 +55,44 @@ int main(int argc, char* argv[]) {
         /* ----------------------- DATA SET -------------------------------*/
         /* loop for K */
         for (int i = 0; i < k; i++) {
-            a_projects.clear();
-            projections(&a_projects, dataset, &(s[i]), w, d);
-            H.clear();
-            compute_hash(&H, a_projects, d, k, w);
+            projections(&a_projects, &dataset, &(s[i]), w, d);
+
+            compute_hash(&H, &a_projects, d, k, w);
             hash_functions.push_back(H);
+            H.clear();
+            H.shrink_to_fit();
+            a_projects.clear();
+            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every data item */
-        temp_g.clear();
         amplify_hash(&temp_g, &hash_functions, k);
         data_amplified_g.push_back(temp_g);
+
+        temp_g.clear();
+        temp_g.shrink_to_fit();
+        hash_functions.clear();
+        hash_functions.shrink_to_fit();
 
         /* ------------------------ SEARCH SET ----------------------------*/
         /* loop for K */
         for (int i = 0; i < k; i++) {
-            a_projects.clear();
-            projections(&a_projects, searchset, &(s[i]), w, d);
-            H.clear();
-            compute_hash(&H, a_projects, d, k, w);
+            projections(&a_projects, &searchset, &(s[i]), w, d);
+
+            compute_hash(&H, &a_projects, d, k, w);
             hash_functions.push_back(H);
+            H.clear();
+            H.shrink_to_fit();
+            a_projects.clear();
+            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every query item */
-        temp_g.clear();
         amplify_hash(&temp_g, &hash_functions, k);
         query_amplified_g.push_back(temp_g);
+
+        temp_g.clear();
+        temp_g.shrink_to_fit();
+        hash_functions.clear();
+        hash_functions.shrink_to_fit();
     }
 
     fill_dictionary(&dictionary, data_amplified_g);

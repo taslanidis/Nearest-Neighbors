@@ -59,12 +59,14 @@ int main(int argc, char* argv[]){
         /* ----------------------- DATA SET -------------------------------*/
         /* loop for K */
         for (int i = 0; i < k; i++) {
-            a_projects.clear();
             projections(&a_projects, &dataset, &(s[i]), w, d);
 
-            H.clear();
             compute_hash(&H, &a_projects, d, k, w);
             hash_functions.push_back(H);
+            H.clear();
+            H.shrink_to_fit();
+            a_projects.clear();
+            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&amplified_g, &hash_functions, k);
@@ -78,18 +80,22 @@ int main(int argc, char* argv[]){
 
         /* clear hash functions for search set */
         hash_functions.clear();
+        hash_functions.shrink_to_fit();
         amplified_g.clear();
+        amplified_g.shrink_to_fit();
 
         /* ------------------------ SEARCH SET ----------------------------*/
         /* do the same for the queries, and put them inside the hash table */
         /* loop for K */
         for (int i = 0; i < k; i++) {
-            a_projects.clear();
             projections(&a_projects, &searchset, &(s[i]), w, d);
 
-            H.clear();
             compute_hash(&H, &a_projects, d, k, w);
             hash_functions.push_back(H);
+            H.clear();
+            H.shrink_to_fit();
+            a_projects.clear();
+            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&amplified_g, &hash_functions, k);
@@ -103,8 +109,11 @@ int main(int argc, char* argv[]){
 
         /* clear hash functions and s for next iteration */
         hash_functions.clear();
+        hash_functions.shrink_to_fit();
         amplified_g.clear();
+        amplified_g.shrink_to_fit();
         s.clear();
+        s.shrink_to_fit();
     }
 
     int distance = 0;
