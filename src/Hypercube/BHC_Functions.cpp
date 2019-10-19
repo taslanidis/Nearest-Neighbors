@@ -31,16 +31,29 @@ int calculate_vertex (vector<vector<int>> amplified_g, map<int,int> dictionary, 
     return vertex;
 }
 
-bool check_compatibility(vector<vector<int>>* query_amplified_g, vector<vector<int>>* data_amplified_g, int query_index, int data_index) {
-    bool check = true;
-    for(int i = 0; i < (*query_amplified_g).size(); i++){
-        if((*query_amplified_g)[i][query_index] != (*data_amplified_g)[i][data_index]){
-//            cout << "Query = " << (*query_amplified_g)[i][query_index] << endl;
-//            cout << "Data = " << (*data_amplified_g)[i][data_index] << endl;
-//            getchar();
-            check = false;
-            break;
-        }
+int hammingDistance(int n1, int n2)
+{
+    int x = n1 ^ n2;
+    int setBits = 0;
+
+    while (x > 0) {
+        setBits += x & 1;
+        x >>= 1;
     }
-    return check;
+
+    return setBits;
 }
+
+//bool check_compatibility(vector<vector<int>>* query_amplified_g, vector<vector<int>>* data_amplified_g, int query_index, int data_index) {
+//    bool check = true;
+//    for(int i = 0; i < (*query_amplified_g).size(); i++){
+//        if((*query_amplified_g)[i][query_index] != (*data_amplified_g)[i][data_index]){
+////            cout << "Query = " << (*query_amplified_g)[i][query_index] << endl;
+////            cout << "Data = " << (*data_amplified_g)[i][data_index] << endl;
+////            getchar();
+//            check = false;
+//            break;
+//        }
+//    }
+//    return check;
+//}

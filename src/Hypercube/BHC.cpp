@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
 
     int hypercube_size = pow(2,dim);
     int vertex = 0;
+
     vector<vector<int>> MyVerticesTable[hypercube_size];
     for (int i = 0; i < dataset.size(); i++) {
         vertex = calculate_vertex(data_amplified_g, dictionary, i);
@@ -113,13 +114,23 @@ int main(int argc, char* argv[]) {
         MyVerticesTable[vertex].push_back(dataset[i]);
     }
 
-    vector<vector<vector<int>>> ANNi;
+    vector<vector<vector<vector<int>>>> ANNi;
+    vector<vector<vector<int>>> Neighbors;
+    int ham_dist = 0;
     for (int i = 0; i < searchset.size(); i++) {
         vertex = calculate_vertex(query_amplified_g, dictionary, i);
 //        cout << i << " : " << vertex << endl;
-        ANNi.push_back(MyVerticesTable[vertex]);
+        Neighbors.push_back(MyVerticesTable[vertex]);
+        for (int j = 0; j < hypercube_size && Neighbors.size() < probes; j++) {
+            ham_dist = hammingDistance(vertex, j);
+            if(ham_dist == 1){
+                Neighbors.push_back(MyVerticesTable[j]);
+            }
+        }
+        ANNi.push_back(Neighbors);
+        Neighbors.clear();
+        Neighbors.shrink_to_fit();
     }
-//    cout << ANNi.size() << endl << ANNi[0].size() << endl << ANNi[0][0].size() <<endl;
 
     int distance = 0;
     int *min_distance = new int [searchset.size()];
@@ -138,30 +149,23 @@ int main(int argc, char* argv[]) {
     }
 
 //    if (query_amplified_g[i][q] == data_amplified_g[i][ANN[i][q][j][0]])
-//    TODO: fix probes!!
     /* for every query */
+//    cout <<  ANNi.size() << ANNi[0].size() << ANNi[0][0].size() << ANNi[0][0][0].size() << endl;
     int calculations = 0;
-    int total = 0;     //NO NEED - just checking..
     for (int q = 0; q < searchset.size(); q++) {
-        /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
-        /* for every vector in the same bucket (max M calculations) */
-        calculations = 0;
-        total = 0;
-        for (int j = 0; j < ANNi[q].size() && calculations < M; j++) {
-            if (check_compatibility(&query_amplified_g, &data_amplified_g, q, ANNi[q][j][0])) {
-                distance = dist(&ANNi[q][j], &searchset[q], d);
+        //find for every query its neighbor vertices
+        for (int n = 0; n < ANNi[q].size(); n++) {
+            calculations = 0;
+            for (int j = 0; j < ANNi[q][n].size() && calculations < M; j++) {
+                distance = dist(&ANNi[q][n][j], &searchset[q], d);
                 if (distance < min_distance[q]) {
                     min_distance[q] = distance;
-                    nearest_neighbor[q] = ANNi[q][j][0] + 1;
+                    nearest_neighbor[q] = ANNi[q][n][j][0] + 1;
                 }
                 calculations++;
             }
-            total++;
         }
-//        cout << "Calculations = " << calculations <<endl;
-//        cout << "Total = " << total  << endl;
-//        getchar();
         curr_fraction = (double) min_distance[q] / TrueDistances[q];
         if (curr_fraction > max_af) max_af = curr_fraction;
         average_af += curr_fraction;
@@ -173,7 +177,7 @@ int main(int argc, char* argv[]) {
     }
     average_af = average_af / s_size;
     average_time = average_time / s_size;
-    cout << "Variables used: | k = " << k << " | dim =  " << dim << " | M = " << M << " | probes " << probes << " | w = " << w << " | " <<endl;
+    cout << "Variables used: | k = " << k << " | dim = " << dim << " | M = " << M << " | probes = " << probes << " | w = " << w << " | " <<endl;
     cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
     cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
     cout << "Average Time of LSH Distance Computation = " << setprecision(9) << showpoint << fixed << average_time << endl;
