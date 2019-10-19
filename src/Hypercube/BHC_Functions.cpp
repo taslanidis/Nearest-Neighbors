@@ -30,3 +30,17 @@ int calculate_vertex (vector<vector<int>> amplified_g, map<int,int> dictionary, 
     }
     return vertex;
 }
+
+bool check_compatibility(vector<vector<int>>* query_amplified_g, vector<vector<int>>* data_amplified_g, int query_index, int data_index) {
+    bool check = true;
+    for(int i = 0; i < (*query_amplified_g).size(); i++){
+        if((*query_amplified_g)[i][query_index] != (*data_amplified_g)[i][data_index]){
+//            cout << "Query = " << (*query_amplified_g)[i][query_index] << endl;
+//            cout << "Data = " << (*data_amplified_g)[i][data_index] << endl;
+//            getchar();
+            check = false;
+            break;
+        }
+    }
+    return check;
+}

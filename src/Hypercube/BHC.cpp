@@ -119,6 +119,7 @@ int main(int argc, char* argv[]) {
 //        cout << i << " : " << vertex << endl;
         ANNi.push_back(MyVerticesTable[vertex]);
     }
+//    cout << ANNi.size() << endl << ANNi[0].size() << endl << ANNi[0][0].size() <<endl;
 
     int distance = 0;
     int *min_distance = new int [searchset.size()];
@@ -136,22 +137,31 @@ int main(int argc, char* argv[]) {
         time[i] = 0;
     }
 
-
+//    if (query_amplified_g[i][q] == data_amplified_g[i][ANN[i][q][j][0]])
 //    TODO: fix probes!!
     /* for every query */
     int calculations = 0;
+    int total = 0;     //NO NEED - just checking..
     for (int q = 0; q < searchset.size(); q++) {
         /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
         /* for every vector in the same bucket (max M calculations) */
+        calculations = 0;
+        total = 0;
         for (int j = 0; j < ANNi[q].size() && calculations < M; j++) {
-            distance = dist(&ANNi[q][j], &searchset[q], d);
-            if (distance < min_distance[q]) {
-                min_distance[q] = distance;
-                nearest_neighbor[q] = ANNi[q][j][0] + 1;
+            if (check_compatibility(&query_amplified_g, &data_amplified_g, q, ANNi[q][j][0])) {
+                distance = dist(&ANNi[q][j], &searchset[q], d);
+                if (distance < min_distance[q]) {
+                    min_distance[q] = distance;
+                    nearest_neighbor[q] = ANNi[q][j][0] + 1;
+                }
+                calculations++;
             }
-            calculations++;
+            total++;
         }
+//        cout << "Calculations = " << calculations <<endl;
+//        cout << "Total = " << total  << endl;
+//        getchar();
         curr_fraction = (double) min_distance[q] / TrueDistances[q];
         if (curr_fraction > max_af) max_af = curr_fraction;
         average_af += curr_fraction;
@@ -166,7 +176,7 @@ int main(int argc, char* argv[]) {
     cout << "Variables used: | k = " << k << " | dim =  " << dim << " | M = " << M << " | probes " << probes << " | w = " << w << " | " <<endl;
     cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
     cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
-    cout << "Average Time of LSH Distance Computation = " << average_time << endl;
+    cout << "Average Time of LSH Distance Computation = " << setprecision(9) << showpoint << fixed << average_time << endl;
 
     /* print results */
     /* open file to write results */
