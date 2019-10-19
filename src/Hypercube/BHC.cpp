@@ -139,19 +139,18 @@ int main(int argc, char* argv[]) {
 
 //    TODO: fix probes!!
     /* for every query */
+    int calculations = 0;
     for (int q = 0; q < searchset.size(); q++) {
         /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
-        for (int i = 0; i < ANNi.size(); i++){
-            /* for every vector in the same bucket (max M calculations) */
-            for (int j = 0; j < ANNi[q].size() && j < M; j++) {
-                /* TODO: I have to check for same g(x) also */
-                distance = dist(&ANNi[q][j], &searchset[q], d);
-                if (distance < min_distance[q]) {
-                    min_distance[q] = distance;
-                    nearest_neighbor[q] = ANNi[q][j][0] + 1;
-                }
+        /* for every vector in the same bucket (max M calculations) */
+        for (int j = 0; j < ANNi[q].size() && calculations < M; j++) {
+            distance = dist(&ANNi[q][j], &searchset[q], d);
+            if (distance < min_distance[q]) {
+                min_distance[q] = distance;
+                nearest_neighbor[q] = ANNi[q][j][0] + 1;
             }
+            calculations++;
         }
         curr_fraction = (double) min_distance[q] / TrueDistances[q];
         if (curr_fraction > max_af) max_af = curr_fraction;

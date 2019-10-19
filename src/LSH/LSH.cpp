@@ -47,8 +47,12 @@ int main(int argc, char* argv[]){
     vector<vector<int>> a_projects;
     /* internal vector H for pushing */
     vector<int> H;
-    /* amplified hash */
-    vector <int> amplified_g;
+    /* amplified hash for dataset*/
+    vector<vector<int>> data_amplified_g;
+    /* amplified hash for searchset */
+    vector<vector<int>> query_amplified_g;
+    /* temporary g vector for push back */
+    vector<int> temp_g;
     /* results */
     vector<vector<vector<vector<int>>>> ANN;
     /* loop for L, to create L hash tables */
@@ -56,8 +60,6 @@ int main(int argc, char* argv[]){
         /* generate the random shifts */
         generate_shifts(&s, w, d, k);
 
-        hash_functions.clear();
-        amplified_g.clear();
         /* ----------------------- DATA SET -------------------------------*/
         /* loop for K */
         for (int i = 0; i < k; i++) {
@@ -71,20 +73,21 @@ int main(int argc, char* argv[]){
             a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
-        amplify_hash(&amplified_g, &hash_functions, k);
+        amplify_hash(&temp_g, &hash_functions, k);
+        data_amplified_g.push_back(temp_g);
 
         /* Now that we have the hash codes, lets put them in the hash table
         *  Insert all items inside the Hash Table */
         MyHashTable[l] = new HashTable(TableSize);
         for (int i = 0; i < dataset.size(); i++) {
-            MyHashTable[l]->Insert(amplified_g[i], dataset[i]);
+            MyHashTable[l]->Insert(temp_g[i], dataset[i]);
         }
 
         /* clear hash functions for search set */
         hash_functions.clear();
         hash_functions.shrink_to_fit();
-        amplified_g.clear();
-        amplified_g.shrink_to_fit();
+        temp_g.clear();
+        temp_g.shrink_to_fit();
 
         /* ------------------------ SEARCH SET ----------------------------*/
         /* do the same for the queries, and put them inside the hash table */
@@ -100,20 +103,21 @@ int main(int argc, char* argv[]){
             a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
-        amplify_hash(&amplified_g, &hash_functions, k);
+        amplify_hash(&temp_g, &hash_functions, k);
+        query_amplified_g.push_back(temp_g);
 
         /* calculate approximate nearest neighbors */
         vector<vector<vector<int>>> ANNi;
         for (int i = 0; i < searchset.size(); i++) {
-            ANNi.push_back(*MyHashTable[l]->Search_Neighbors(amplified_g[i]));
+            ANNi.push_back(*MyHashTable[l]->Search_Neighbors(temp_g[i]));
         }
         ANN.push_back(ANNi);
 
         /* clear hash functions and s for next iteration */
         hash_functions.clear();
         hash_functions.shrink_to_fit();
-        amplified_g.clear();
-        amplified_g.shrink_to_fit();
+        temp_g.clear();
+        temp_g.shrink_to_fit();
         s.clear();
         s.shrink_to_fit();
     }
@@ -135,20 +139,25 @@ int main(int argc, char* argv[]){
     }
 
     /* for every query */
+    int computations = 0;
     for (int q = 0; q < searchset.size(); q++) {
         /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
         for (int i = 0; i < ANN.size(); i++){
             /* for every vector in the same bucket (max 4*L calculations) */
-            for (int j = 0; j < ANN[i][q].size() && j < 4 * L; j++) {
-                /* TODO: I have to check for same g(x) also */
-                distance = dist(&ANN[i][q][j], &searchset[q], d);
-                if (distance < min_distance[q]) {
-                    min_distance[q] = distance;
-                    nearest_neighbor[q] = ANN[i][q][j][0] + 1;
+            computations = 0;
+            for (int j = 0; j < ANN[i][q].size() && computations < 4 * L; j++) {
+                if (query_amplified_g[i][q] == data_amplified_g[i][ANN[i][q][j][0]]) {
+                    distance = dist(&ANN[i][q][j], &searchset[q], d);
+                    if (distance < min_distance[q]) {
+                        min_distance[q] = distance;
+                        nearest_neighbor[q] = ANN[i][q][j][0] + 1;
+                    }
+                    computations++;
                 }
             }
         }
+
         curr_fraction = (double) min_distance[q] / TrueDistances[q];
         if (curr_fraction > max_af) max_af = curr_fraction;
         average_af += curr_fraction;
