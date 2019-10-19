@@ -56,6 +56,8 @@ int main(int argc, char* argv[]){
         /* generate the random shifts */
         generate_shifts(&s, w, d, k);
 
+        hash_functions.clear();
+        amplified_g.clear();
         /* ----------------------- DATA SET -------------------------------*/
         /* loop for K */
         for (int i = 0; i < k; i++) {

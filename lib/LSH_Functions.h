@@ -20,3 +20,5 @@ void generate_shifts(vector<vector<int>>*, int, int, int);
 void compute_hash(vector<int>*, vector<vector<int>>*, int, int, int);
 void amplify_hash(vector<int>*, vector<vector<int>>*, int);
 int power_of(int, int, int);
+
+long long moduloMultiplication(long long a, long long b, long long mod);

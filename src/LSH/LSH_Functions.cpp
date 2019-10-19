@@ -84,11 +84,31 @@ int power_of(int m, int j, int M) {
     return res;
 }
 
+// Returns (a * b) % mod
+long long moduloMultiplication(long long a, long long b, long long mod)
+{
+    long long res = 0; // Initialize result
+    // Update a if it is more than
+    // or equal to mod
+    a %= mod;
+    while (b)
+    {
+        // If b is odd, add a with result
+        if (b & 1)
+            res = (res + a) % mod;
+        // Here we assume that doing 2*a
+        // doesn't cause overflow
+        a = (2 * a) % mod;
+        b >>= 1; // b = b / 2
+    }
+    return res;
+}
+
 void compute_hash(vector<int>* H, vector<vector<int>> *a, int d, int k, int w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    int m, m1, m2, m3, m4, M, h, term;
+    long long m, m1, m2, m3, m4, M, h, term;
     M = pow(2, 32/k);
     m1 = 2*16 % M;
     m2 = 2*8 % M;
@@ -100,8 +120,12 @@ void compute_hash(vector<int>* H, vector<vector<int>> *a, int d, int k, int w){
         for (int j = 0; j < d - 1; j++){
             term = (*a)[i][d-1-j]*power_of(m,j,M); // TODO: warning check, previously had int j = 1
             h += term % M;  // moding with M to avoid overflow;
+//            h = moduloMultiplication((*a)[i][d-1-j], power_of(m,j,M), M);
         }
         h = h % M;
+        if (h < 0){
+            cout << h << endl;
+        }
         H->push_back(h);
     }
 }
