@@ -68,20 +68,16 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>>* x, vector
         }
         a_projects->push_back(a);
         a.clear();
+        a.shrink_to_fit();
     }
 }
 
-int power_of(int m, int j, int M) {
-    int res = 1;
-    m = m % M;
-    while (j > 0)
-    {
-        if (j & 1)
-            res = (res*m) % M;
-        j = j>>1;
-        m = (m*m) % M;
+int modulo (int a, int b){
+    int m = a % b;
+    if (m < 0){
+        m = (b < 0) ? m - b : m + b;
     }
-    return res;
+    return m;
 }
 
 // Returns (a * b) % mod
@@ -108,24 +104,26 @@ void compute_hash(vector<int>* H, vector<vector<int>> *a, int d, int k, int w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    long long m, m1, m2, m3, m4, M, h, term;
+    long long m, M, h, term, power;
     M = pow(2, 32/k);
-    m1 = 2*16 % M;
-    m2 = 2*8 % M;
-    m3 = 2*4 % M;
-    m4 = 2*2 % M;
-    m = m1*m2*m3*m4*m4 % M;
+    m = moduloMultiplication(2,32,M);
+//    cout <<" m = " << m << endl << " M = " << M << endl;
     for (int i = 0; i < a->size(); i++){
         h=0;
+        term=0;
+        power=0;
         for (int j = 0; j < d - 1; j++){
-            term = (*a)[i][d-1-j]*power_of(m,j,M); // TODO: warning check, previously had int j = 1
-            h += term % M;  // moding with M to avoid overflow;
-//            h = moduloMultiplication((*a)[i][d-1-j], power_of(m,j,M), M);
+            power = moduloMultiplication(m,j,M);
+            term = moduloMultiplication((*a)[i][d-1-j], power, M); // TODO: warning check, previously had int j = 1
+            h += modulo(term, M);  // moding with M to avoid overflow;
+//            if (h < 0){                           //no negatives since modulo!
+//                cout << h << endl;
+//            }
         }
-        h = h % M;
-        if (h < 0){
-            cout << h << endl;
-        }
+        h = modulo (h, M);
+//        if (h < 0){                           //no negatives since modulo!
+//            cout << h << endl;
+//        }
         H->push_back(h);
     }
 }
