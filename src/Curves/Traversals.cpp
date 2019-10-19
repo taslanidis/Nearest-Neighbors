@@ -36,15 +36,25 @@ void DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
     // find min traversal from c
 }
 
-void create_grid(vector<int>* orthogonal_grid, int dims) {
+void shift_grid(vector<int>* orthogonal_grid, int delta, int d) {
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
 
-    uniform_int_distribution<int> distribution (-10*dims, 10*dims);
-    for (int i = 0; i < dims; i++)
+    /* t uniformly in [0,d) */
+    uniform_int_distribution<int> distribution (0, d);
+    for (int i = 0; i < d; i++) {
         orthogonal_grid->push_back(distribution(generator));
+    }
 }
 
-void shift_grid(vector<int>* orthogonal_grid, int dims) {
-
+void hash_curve(vector<int*>* hashed_curve, vector<double*>* curve, vector<int>* orthogonal_grid, int delta, int d) {
+    double* pi;
+    int* pi_new;
+    /* first index has the id and the dimensions of the curve */
+    for (int i = 1; i < (*curve)[0][1]; i++) {
+        pi = (*curve)[i];
+        pi_new = arg_min(&pi, orthogonal_grid, delta, d);
+        /* remove consecutive duplicates pi' from the hashed_curve */
+        hashed_curve->push_back(pi_new);
+    }
 }

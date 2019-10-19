@@ -40,7 +40,7 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
     return 1;
 }
 
-int Read_curve_files(vector<vector<double*>>* dataset, char* data_filename) {
+int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, char* data_filename, char* query_filename) {
     string line;
     char bracket, comma;
     double number;
@@ -50,6 +50,12 @@ int Read_curve_files(vector<vector<double*>>* dataset, char* data_filename) {
     ifstream input_file(data_filename);
     if (!input_file) {
         cout << "Wrong input_file!" << endl;
+        return -1;
+    }
+
+    ifstream query_file(query_filename);
+    if (!query_file) {
+        cout << "Wrong query_file!" << endl;
         return -1;
     }
 
@@ -71,6 +77,27 @@ int Read_curve_files(vector<vector<double*>>* dataset, char* data_filename) {
             v.push_back(point);
         }
         dataset->push_back(v);
+        v.clear();
+    }
+
+    while (getline(query_file, line)) {
+        stringstream ss(line);
+        /* id */
+        point = new double [2];
+        ss >> point[0];
+        /* length */
+        ss >> point[1];
+        v.push_back(point);
+        /* for all data points */
+        while (ss >> bracket) {
+            point = new double [2];
+            ss >> point[0];
+            ss >> comma;
+            ss >> point[1];
+            ss >> bracket;
+            v.push_back(point);
+        }
+        searchset->push_back(v);
         v.clear();
     }
 
@@ -141,4 +168,17 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
         neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(4) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
     }
     neighbors_file.close();
+}
+
+int* arg_min(double** pi, vector<int>* orthogonal_grid, int delta, int d) {
+    double min, norm;
+    int q;
+    int* argmin = new int[d];
+    /* Point is to minimize the ||pi-q|| for all q
+     * Solve this for zero ->
+     * delta * ai + (*orthogonal_grid)[i]) - (*pi)[0] = 0*/
+    for (int i = 0; i < d; i++) {
+        argmin[i] = floor(abs((*orthogonal_grid)[i] - (*pi)[i]) / delta);
+    }
+    return argmin;
 }
