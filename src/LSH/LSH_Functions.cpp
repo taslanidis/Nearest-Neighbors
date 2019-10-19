@@ -132,7 +132,7 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
     int g;
-    int concat_dist = floor(32/k);
+    int concat_dist = floor(31/k); // TODO: check for overflow
     /* for all points in dataset */
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
@@ -140,10 +140,13 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
             if (j == 0) {
                 g = (*hash_functions)[j][i];
             } else {
-                //g +=  g << concat_dist | (*hash_functions)[j][i];
-                g = g | ((*hash_functions)[j][i]); // different approach
+                g +=  g << concat_dist | (*hash_functions)[j][i];
+//                g += g | ((*hash_functions)[j][i]); // different approach
             }
         }
-        amplified_g->push_back(abs(g));
+        if (g < 0) {
+            cout <<  g <<  endl;
+        }
+        amplified_g->push_back(g);
     }
 }
