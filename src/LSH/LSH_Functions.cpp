@@ -63,7 +63,7 @@ void projections(vector<vector<int>>* a_projects, vector<vector<int>>* x, vector
     vector<int> a;
     for (int i = 0; i < x->size(); i++) {
         for (int dim = 1; dim < d; dim++) {
-            ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w) + w; // TODO : used to be + w
+            ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w); // TODO : used to be + w
             a.push_back(ai);
         }
         a_projects->push_back(a);

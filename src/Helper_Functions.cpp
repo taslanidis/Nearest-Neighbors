@@ -170,15 +170,15 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
     neighbors_file.close();
 }
 
-int* arg_min(double** pi, vector<int>* orthogonal_grid, int delta, int d) {
+double* arg_min(double** pi, vector<int>* orthogonal_grid, double delta, int d) {
     double min, norm;
     int q;
-    int* argmin = new int[d];
+    double* argmin = new double[d];
     /* Point is to minimize the ||pi-q|| for all q
      * Solve this for zero ->
      * delta * ai + (*orthogonal_grid)[i]) - (*pi)[0] = 0*/
     for (int i = 0; i < d; i++) {
-        argmin[i] = floor(abs((*orthogonal_grid)[i] - (*pi)[i]) / delta);
+        argmin[i] = abs((*orthogonal_grid)[i] - (*pi)[i]) / delta + (*orthogonal_grid)[i];
     }
     return argmin;
 }

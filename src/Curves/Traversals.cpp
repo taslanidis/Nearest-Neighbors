@@ -47,13 +47,14 @@ void shift_grid(vector<int>* orthogonal_grid, int delta, int d) {
     }
 }
 
-void hash_curve(vector<int*>* hashed_curve, vector<double*>* curve, vector<int>* orthogonal_grid, int delta, int d) {
+void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<int>* orthogonal_grid, double delta, int d) {
     double* pi;
-    int* pi_new;
+    double* pi_new;
     /* first index has the id and the dimensions of the curve */
     for (int i = 1; i < (*curve)[0][1]; i++) {
         pi = (*curve)[i];
         pi_new = arg_min(&pi, orthogonal_grid, delta, d);
+        cout << pi_new[0] << " " << pi_new[1] << endl;
         /* remove consecutive duplicates pi' from the hashed_curve */
         hashed_curve->push_back(pi_new);
     }

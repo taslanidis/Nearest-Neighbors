@@ -13,7 +13,8 @@ int main(int argc, char* argv[]) {
 
     /* variable declaration | k = 4 default value */
     int k = 4, L = 5, d = 2;
-    int m1, m2, error_code, min, delta;
+    int m1, m2, error_code, min;
+    double delta;
     /* vectors for the data and query points */
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
@@ -27,18 +28,16 @@ int main(int argc, char* argv[]) {
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
     //delta = 4*d*min - 1;
-    delta = 1;
+    delta = 0.05;
 
     /* ------------ HASHING with ORTHOGONAL GRID ----------- */
     /* orthogonal grid of size d */
     vector<int> orthogonal_grid;
-    /* create and shift grid by random vector t */
-    vector<double> t;
     shift_grid(&orthogonal_grid, delta, d);
 
     /* vector for hashed curves */
-    vector<vector<int*>> hashed_curves;
-    vector<int*> temp_hash;
+    vector<vector<double*>> hashed_curves;
+    vector<double*> temp_hash;
     /* hash all curves */
     for (int i = 0; i < dataset.size(); i++) {
         hash_curve(&temp_hash, &dataset[i], &orthogonal_grid, delta, d);
@@ -48,7 +47,10 @@ int main(int argc, char* argv[]) {
     /* now that we have each hash, we can find by adding the orthogonal grid to the hash points
      * the equivalent points in our new grid, that the polygonal curve projects */
 
-    /* TODO: smth with the hashes to find the new points by adding the orth grid */
+    /* TODO: pad special number > max coord */
+    /* TODO: concat the 2d points in every h to make it from (x1,y1)(x2,y2) to x1,y1,x2,y2 */
+    /* TODO: now every h is a vector, and we will call lsh for those h */
+    /* TODO: store in 1d table the lsh result */
 
     /* ----------------- DTW ----------------- */
     cout << "Computed the hashes\nNow computing DTW. It might take a while ..." << endl;
