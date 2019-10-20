@@ -10,9 +10,12 @@ Curves.o :
 Traversals.o :
 	g++ -I ./lib -c ./src/Curves/Traversals.cpp -o ./build/Traversals.o
 
-hypercube : HashTable.o Helper_Functions.o LSH_Functions.o BHC_Functions.o BHC.o
+hypercube : HashTable.o Helper_Functions.o LSH_Functions.o BHC_Functions.o BHC.o BHC_main.o
 	@echo "Compile hypercube ...";
-	g++ -I ./lib ./build/BHC.o ./build/BHC_Functions.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/hypercube.x
+	g++ -I ./lib ./build/BHC_main.o ./build/BHC.o ./build/BHC_Functions.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/hypercube.x
+
+BHC_main.o :
+	g++ -I ./lib -c ./src/Hypercube/BHC_main.cpp -o ./build/BHC_main.o
 
 BHC.o :
 	g++ -I ./lib -c ./src/Hypercube/BHC.cpp -o ./build/BHC.o
