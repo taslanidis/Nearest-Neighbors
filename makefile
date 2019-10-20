@@ -20,9 +20,12 @@ BHC.o :
 BHC_Functions.o :
 	g++ -I ./lib -c ./src/Hypercube/BHC_Functions.cpp -o ./build/BHC_Functions.o
 
-lsh : HashTable.o Helper_Functions.o LSH_Functions.o LSH.o
+lsh : HashTable.o Helper_Functions.o LSH_Functions.o LSH.o LSH_main.o
 	@echo "Compile lsh ...";
-	g++ -I ./lib ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/lsh.x
+	g++ -I ./lib ./build/LSH_main.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/lsh.x
+
+LSH_main.o :
+	g++ -I ./lib -c ./src/LSH/LSH_main.cpp -o ./build/LSH_main.o
 
 LSH.o :
 	g++ -I ./lib -c ./src/LSH/LSH.cpp -o ./build/LSH.o
