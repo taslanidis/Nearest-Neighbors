@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
     vector<vector<vector<vector<int>>>> ANN;
 
     int Metric = 1; // default value for Manhattan Distance
-    LSH(dataset, searchset, k, L, &data_amplified_g, &query_amplified_g, &ANN);
+    LSH(&dataset, &searchset, k, L, &data_amplified_g, &query_amplified_g, &ANN);
 
     int distance = 0;
     int *min_distance = new int [searchset.size()];

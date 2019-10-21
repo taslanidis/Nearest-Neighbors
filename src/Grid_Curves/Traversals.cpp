@@ -33,7 +33,8 @@ void DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
     /* Computing DTW
      * For m1 curves P and m2 curves Q, DTW computed in O(m1*m2) time and space by DP using recursion */
     Traversal(c, P, Q);
-    // find min traversal from c
+    // todo: find min traversal from c
+
 }
 
 void shift_grid(vector<int>* orthogonal_grid, int delta, int d) {
@@ -51,11 +52,19 @@ void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<in
     double* pi;
     double* pi_new;
     /* first index has the id and the dimensions of the curve */
-    for (int i = 1; i < (*curve)[0][1]; i++) {
+    for (int i = 0; i < (*curve)[0][1]; i++) {
         pi = (*curve)[i];
-        pi_new = arg_min(&pi, orthogonal_grid, delta, d);
-        cout << pi_new[0] << " " << pi_new[1] << endl;
-        /* remove consecutive duplicates pi' from the hashed_curve */
+        if (i == 0) {
+            pi_new = pi;
+        } else {
+            pi_new = arg_min(&pi, orthogonal_grid, delta, d);
+        }
+        //cout << pi_new[0] << " " << pi_new[1] << endl;
+        /* TODO: remove consecutive duplicates pi' from the hashed_curve */
         hashed_curve->push_back(pi_new);
     }
+}
+
+void Relevant_Traversals(vector<vector<double*>>* Traversals) {
+
 }
