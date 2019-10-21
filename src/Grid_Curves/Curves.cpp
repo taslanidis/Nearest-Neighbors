@@ -114,11 +114,10 @@ int main(int argc, char* argv[]) {
     }
 
     /* ---------------- Hashing them again with LSH ------------------ */
-    /* TODO: now every h is a vector, and we will call lsh for those h */
     vector<vector<int>> data_amplified_g;
     vector<vector<int>> query_amplified_g;
     vector<vector<vector<vector<int>>>> ANN;
-    LSH(&data_vectored_curves, &search_vectored_curves, k, L_vec, &data_amplified_g, &query_amplified_g, &ANN);
+    //LSH(&data_vectored_curves, &search_vectored_curves, k, L_vec, &data_amplified_g, &query_amplified_g, &ANN);
 
     /* TODO: store in table the lsh result */
 

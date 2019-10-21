@@ -7,11 +7,11 @@ double min(double x, double y, double z) {
     return (z < temp) ? z : temp;
 }
 
-void Traversal(double*** c, vector<double*>* P, vector<double*>* Q) {
+double DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
     /* Initialize c(1,1) = ||p1-q1||
-     * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
-    * if i > 1, then c(1,i) = c(i-1,1) + ||pi - qj||
-    * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi-qj|| */
+    * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
+   * if i > 1, then c(1,i) = c(i-1,1) + ||pi - qj||
+   * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi-qj|| */
     /* TODO: make it with dynamic programming, not exhaustive */
     int m1 = P->size();
     int m2 = Q->size();
@@ -27,14 +27,7 @@ void Traversal(double*** c, vector<double*>* P, vector<double*>* Q) {
             }
         }
     }
-}
-
-void DTW(double *** c, vector<double*>* P, vector<double*>* Q) {
-    /* Computing DTW
-     * For m1 curves P and m2 curves Q, DTW computed in O(m1*m2) time and space by DP using recursion */
-    Traversal(c, P, Q);
-    // todo: find min traversal from c
-
+    return (*c)[m1-1][m2-1];
 }
 
 void shift_grid(vector<int>* orthogonal_grid, int delta, int d) {
@@ -59,12 +52,31 @@ void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<in
         } else {
             pi_new = arg_min(&pi, orthogonal_grid, delta, d);
         }
-        //cout << pi_new[0] << " " << pi_new[1] << endl;
         /* TODO: remove consecutive duplicates pi' from the hashed_curve */
         hashed_curve->push_back(pi_new);
     }
 }
 
-void Relevant_Traversals(vector<vector<double*>>* Traversals) {
-
+/* Find the ORANGE boxes in the array
+ * we keep the indexes of the points of every curve
+ * TODO: when dimensions are very different this doesnt go well */
+void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, int j) {
+    int * pair = new int [2];
+    pair[0] = i;
+    pair[1] = j;
+    Traversals->push_back(pair);
+    if (i == len1 && j == len2 ) {
+        return;
+    } else if ( j == len2) {
+        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
+    } else if ( i == len1 ) {
+        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+    } else if (i == j) {
+        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
+        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+    } else if (i < j) {
+        Relevant_Traversals(Traversals, len1, len2, i+1, j);
+    } else {
+        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+    }
 }

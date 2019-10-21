@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/* TODO: LSH template types */
+
 void LSH (vector<vector<int>>* dataset, vector<vector<int>>* searchset, int k, int L, vector<vector<int>>* data_amplified_g, vector<vector<int>>* query_amplified_g, vector<vector<vector<vector<int>>>>* ANN){
     int d_size = dataset->size();
     int s_size = searchset->size();

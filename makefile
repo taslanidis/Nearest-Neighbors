@@ -1,15 +1,15 @@
 all : lsh hypercube curves_grid_lsh curves_projection_lsh
 
-curves_projection_lsh : HashTable.o Helper_Functions.o Traversals.o Projections_Curves.o
+curves_projection_lsh : HashTable.o Helper_Functions.o Traversals.o LSH_Functions.o LSH.o RandomProjections.o
 	@echo "Compile projections curves ...";
-	g++ -I ./lib ./build/LSH.o ./build/Projections_Curves.o ./build/Helper_Functions.o ./build/Traversals.o -o ./build/curves.x
+	g++ -I ./lib ./build/RandomProjections.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/Traversals.o ./build/HashTable.o -o ./build/curves_projection_lsh.x
 
-Projections_Curves.o :
+RandomProjections.o :
 	g++ -I ./lib -c ./src/Projections_Curves/RandomProjections.cpp -o ./build/RandomProjections.o
 
-curves_grid_lsh : HashTable.o Helper_Functions.o Traversals.o Grid_Curves.o
+curves_grid_lsh : HashTable.o Helper_Functions.o Traversals.o LSH_Functions.o LSH.o Grid_Curves.o
 	@echo "Compile grid curves ...";
-	g++ -I ./lib ./build/Grid_Curves.o ./build/LSH.o ./build/Helper_Functions.o ./build/Traversals.o -o ./build/curves_grid_lsh.x
+	g++ -I ./lib ./build/Grid_Curves.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/Traversals.o ./build/HashTable.o -o ./build/curves_grid_lsh.x
 
 Grid_Curves.o :
 	g++ -I ./lib -c ./src/Grid_Curves/Curves.cpp -o ./build/Grid_Curves.o
