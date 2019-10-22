@@ -123,7 +123,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
                 }
             }
         }
-
         auto finish = chrono::high_resolution_clock::now();
         auto elapsed = finish - start;
         double time_elapsed = chrono::duration<double>(elapsed).count();
