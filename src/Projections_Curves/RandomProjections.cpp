@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
     /* ---------------- Hashing them again with LSH ------------------ */
     vector<vector<int>> data_amplified_g;
     vector<vector<int>> query_amplified_g;
-    vector<vector<vector<vector<int>>>> ANN;
+    vector<vector<vector<vector<double>>>> ANN;
     //LSH(&data_vectored_curves, &search_vectored_curves, k, L_vec, &data_amplified_g, &query_amplified_g, &ANN);
 
     /* TODO: store in table the lsh result */

@@ -1,7 +1,11 @@
 #include "Helper_Functions.h"
 #include "HashTable.h"
+#include "Traversals.h"
 
 using namespace std;
+
+template int dist<int>(vector<int>*, vector<int>*, int, int=1);
+template double dist<double>(vector<double>*, vector<double>*, int, int=1);
 
 int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchset, char* data_filename, char* query_filename) {
     string line;
@@ -104,15 +108,16 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
     return 1;
 }
 
-int dist(vector<int>* P1, vector<int>* P2, int d, int Metric) {
+template <typename Point>
+Point dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
-    int dist = 0;
+    Point dist = 0;
     for (int dim = 1; dim < d; dim++)
         dist += pow(abs((*P1)[dim] - (*P2)[dim]),Metric);
-    return pow(dist,1/Metric);
+    return pow(dist,1/(double)Metric);
 }
 
 double point_dist(double* p, double* q, int Metric){
@@ -121,9 +126,48 @@ double point_dist(double* p, double* q, int Metric){
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
     double d1, d2;
-    d1 = pow(p[0] - q[0], Metric);
-    d2 = pow(p[1] - q[1], Metric);
-    return pow(d1+d2,1/Metric);
+    d1 = pow(abs(p[0] - q[0]), Metric);
+    d2 = pow(abs(p[1] - q[1]), Metric);
+    return pow(d1+d2,1/(double)Metric);
+}
+
+double DTW(vector<double*>* P, vector<double*>* Q) {
+    /* Initialize c(1,1) = ||p1-q1||
+    * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
+   * if i > 1, then c(1,i) = c(i-1,1) + ||pi - qj||
+   * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi-qj|| */
+    /* TODO: make it with dynamic programming, not exhaustive */
+    int m1 = P->size() - 1;
+    int m2 = Q->size() - 1;
+
+    /* allocate space */
+    double ** c = new double* [m1];
+    for (int i = 0; i < m1; i++) {
+        c[i] = new double [m2];
+    }
+
+    c[0][0] = point_dist((*P)[0], (*Q)[0], 2);
+    for (int i = 0; i < m1; i++) {
+        for (int j = 0; j < m2; j++) {
+            if (i == 0 && j == 0) continue;
+            if (j > 0 && i == 0) {
+                c[i][j] = c[i][j - 1] + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            } else if (i > 0 && j == 0) {
+                c[i][j] = c[i - 1][j] + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            } else {
+                c[i][j] = min(c[i - 1][j], c[i - 1][j - 1], c[i][j - 1]) + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            }
+        }
+    }
+    double res = c[m1-1][m2-1];
+
+    /* Free allocated space */
+    for (int i = 0; i < m1; i++) {
+        delete(c[i]);
+    }
+    delete c;
+
+    return res;
 }
 
 int modulo (int a, int b){
@@ -135,11 +179,8 @@ int modulo (int a, int b){
 }
 
 // Returns (a * b) % mod
-long long moduloMultiplication(long long a, long long b, long long mod)
-{
-    long long res = 0; // Initialize result
-    // Update a if it is more than
-    // or equal to mod
+int moduloMultiplication(int a, int b, int mod) {
+    int res = 0;
     a %= mod;
     while (b)
     {
@@ -152,6 +193,18 @@ long long moduloMultiplication(long long a, long long b, long long mod)
         b >>= 1; // b = b / 2
     }
     return res;
+}
+
+int moduloPow(int base,int exp,int div) {
+    if (exp == 0) {
+        return 1;
+    } else if (exp == 1) {
+        return base % div;
+    } else if (exp % 2 == 0) {
+        return (moduloPow(base, exp / 2, div) * moduloPow(base, exp / 2, div)) % div;
+    } else {
+        return (moduloPow(base, exp - 1, div) * moduloPow(base, 1, div)) % div;
+    }
 }
 
 void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, vector<int>* TrueDistances, vector<double>* TrueTimes) {
@@ -198,6 +251,50 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
     neighbors_file.close();
 }
 
+void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, vector<double>* TrueDistances, vector<double>* TrueTimes) {
+    /* vectors init */
+    vector<double*> P1;
+    vector<double*> P2;
+    /* variable declaration */
+    double L1 = 0.0, min_distance = -1.0;
+    int n_neighbor = -1;
+    int d_size = dataset->size();
+    int s_size = searchset->size();
+    int d = (*dataset)[0].size();
+
+    /* open file to write results */
+    ofstream neighbors_file;
+    neighbors_file.open ("./output/curves_brute_force.txt");
+    for (int i = 0; i < s_size; i++) {
+        P1 = (*searchset)[i];
+        min_distance = -1;
+        auto start = chrono::high_resolution_clock::now();
+        for (int j = 0; j < d_size; j++) {
+            P2 = (*dataset)[j];
+            /* DTW metric for curves */
+            L1 = DTW(&P1, &P2);
+            if (min_distance == -1) {
+                min_distance = L1;
+                n_neighbor = j;
+            }
+            if (L1 < min_distance) {
+                min_distance = L1;
+                n_neighbor = j;
+            }
+        }
+
+        auto finish = chrono::high_resolution_clock::now();
+        auto elapsed = finish - start;
+        double time_elapsed = chrono::duration<double>(elapsed).count();
+
+        TrueDistances->push_back(min_distance);
+        TrueTimes->push_back(time_elapsed);
+
+        neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(7) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
+    }
+    neighbors_file.close();
+}
+
 double* arg_min(double** pi, vector<int>* orthogonal_grid, double delta, int d) {
     double min, norm;
     int q;
@@ -209,4 +306,10 @@ double* arg_min(double** pi, vector<int>* orthogonal_grid, double delta, int d) 
         argmin[i] = abs((*orthogonal_grid)[i] - (*pi)[i]) / delta + (*orthogonal_grid)[i];
     }
     return argmin;
+}
+
+double min(double x, double y, double z) {
+    /* get the min out of 3 real numbers */
+    double temp = (x < y) ? x : y;
+    return (z < temp) ? z : temp;
 }

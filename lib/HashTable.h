@@ -2,14 +2,15 @@
 
 using namespace std;
 
+template <class data>
 class HashTable {
 private:
-    vector<vector<int>>* pTable;
+    vector<vector<data>>* pTable;
     int Size;
 public:
-    HashTable(int TableSize);
-    int Hash(int HashCode);
-    void Insert(int HashCode, vector<int> Point);
-    vector<vector<int>>* Search_Neighbors(int HashCode);
+    HashTable(int);
+    int Hash(int);
+    void Insert(int, vector<data>);
+    vector<vector<data>>* Search_Neighbors(int);
     ~HashTable();
 };

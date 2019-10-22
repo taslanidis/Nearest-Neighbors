@@ -2,27 +2,35 @@
 
 using namespace std;
 
-HashTable::HashTable(int TableSize) {
-    pTable = new vector<vector<int>> [TableSize];
+template <class data>
+HashTable<data>::HashTable(int TableSize) {
+    pTable = new vector<vector<data>> [TableSize];
     Size = TableSize;
 }
 
-int HashTable::Hash(int HashCode) {
+template <class data>
+int HashTable<data>::Hash(int HashCode) {
     return HashCode % Size;
 }
 
-void HashTable::Insert(int HashCode, vector<int> Point){
+template <class data>
+void HashTable<data>::Insert(int HashCode, vector<data> point){
     int hashed = Hash(HashCode);
-    pTable[hashed].push_back(Point);
+    pTable[hashed].push_back(point);
 }
 
-vector<vector<int>>* HashTable::Search_Neighbors(int HashCode){
+template <class data>
+vector<vector<data>>* HashTable<data>::Search_Neighbors(int HashCode){
     int hashed = Hash(HashCode);
     return &pTable[hashed];
 }
 
-HashTable::~HashTable(){
+template <class data>
+HashTable<data>::~HashTable(){
     /* TODO: free memory recursively */
     delete(pTable);
     return;
 }
+
+template class HashTable<int>;
+template class HashTable<double>;

@@ -5,29 +5,35 @@
 
 using namespace std;
 
-/* TODO: LSH template types */
+template void LSH <int>(vector<vector<int>>*, vector<vector<int>>*, int, int, int, int**, double**, int**);
+template void LSH <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, double, int**, double**, int**);
 
-void LSH (vector<vector<int>>* dataset, vector<vector<int>>* searchset, int k, int L, vector<vector<int>>* data_amplified_g, vector<vector<int>>* query_amplified_g, vector<vector<vector<vector<int>>>>* ANN){
+template <typename Point>
+void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int L, Point w, int** min_distance, double** time, int** nearest_neighbor){
     int d_size = dataset->size();
     int s_size = searchset->size();
     /* d-dimensional vectors */
     int d = (*dataset)[0].size();
-    /* compute window for all hash tables (try *4 or *10) */
-    //int w = 4*compute_window(dataset);
-    int w = 4*1164;
     /* Size of Hash Table */
     int TableSize = d_size / 8;
-    HashTable *MyHashTable[L];
+    HashTable <Point> *MyHashTable[L];
     /* vector containing (k,d) shifts */
-    vector<vector<int>> s;
+    vector<vector<double>> s;
     /* H of size (k, dataset.size()) */
     vector<vector<int>> hash_functions;
     /* projections of data */
     vector<vector<int>> a_projects;
     /* internal vector H for pushing */
     vector<int> H;
+    /* amplified hash for dataset*/
+    vector<vector<int>> data_amplified_g;
+    /* amplified hash for search-set */
+    vector<vector<int>> query_amplified_g;
     /* temporary g vector for push back */
     vector<int> temp_g;
+    /* results */
+    vector<vector<vector<vector<Point>>>> ANN;
+
     /* loop for L, to create L hash tables */
     for (int l = 0; l < L; l++) {
         /* generate the random shifts */
@@ -47,11 +53,11 @@ void LSH (vector<vector<int>>* dataset, vector<vector<int>>* searchset, int k, i
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
-        data_amplified_g->push_back(temp_g);
+        data_amplified_g.push_back(temp_g);
 
         /* Now that we have the hash codes, lets put them in the hash table
         *  Insert all items inside the Hash Table */
-        MyHashTable[l] = new HashTable(TableSize);
+        MyHashTable[l] = new HashTable<Point>(TableSize);
         for (int i = 0; i < dataset->size(); i++) {
             MyHashTable[l]->Insert(temp_g[i], (*dataset)[i]);
         }
@@ -77,21 +83,50 @@ void LSH (vector<vector<int>>* dataset, vector<vector<int>>* searchset, int k, i
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
-        query_amplified_g->push_back(temp_g);
+        query_amplified_g.push_back(temp_g);
 
         /* calculate approximate nearest neighbors */
-        vector<vector<vector<int>>> ANNi;
+        vector<vector<vector<Point>>> ANNi;
         for (int i = 0; i < searchset->size(); i++) {
             ANNi.push_back(*MyHashTable[l]->Search_Neighbors(temp_g[i]));
         }
-        ANN->push_back(ANNi);
+        ANN.push_back(ANNi);
 
         /* clear hash functions and s for next iteration */
+        ANNi.clear();
+        ANNi.shrink_to_fit();
         hash_functions.clear();
         hash_functions.shrink_to_fit();
         temp_g.clear();
         temp_g.shrink_to_fit();
         s.clear();
         s.shrink_to_fit();
+    }
+
+    int distance = 0;
+    int Metric = 1; //default
+    int computations = 0;
+    for (int q = 0; q < searchset->size(); q++) {
+        /* for every hash table L */
+        auto start = chrono::high_resolution_clock::now();
+        for (int i = 0; i < ANN.size(); i++) {
+            /* for every vector in the same bucket (max 4*L calculations) */
+            computations = 0;
+            for (int j = 0; j < ANN[i][q].size() && computations < 4 * L; j++) {
+                if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
+                    distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
+                    if (distance < (*min_distance)[q]) {
+                        (*min_distance)[q] = distance;
+                        (*nearest_neighbor)[q] = ANN[i][q][j][0] + 1;
+                    }
+                    computations++;
+                }
+            }
+        }
+
+        auto finish = chrono::high_resolution_clock::now();
+        auto elapsed = finish - start;
+        double time_elapsed = chrono::duration<double>(elapsed).count();
+        (*time)[q] = time_elapsed;
     }
 }
