@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     /*  --------- TODO: Loop this L times and then dtw on those L nn sets -------- */
     /* ----------------------- HASHING with ORTHOGONAL GRID ---------------------- */
     /* orthogonal grid of size d */
-    vector<int> orthogonal_grid;
+    vector<double> orthogonal_grid;
     shift_grid(&orthogonal_grid, delta, d);
 
     /* vector for hashed curves */
@@ -145,6 +145,10 @@ int main(int argc, char* argv[]) {
 
     /* TODO: min distance vector is for the lsh hashed data, we will do DTW now on the real curves to find the
      * true distance between the approximate nearest neighbors found by lsh*/
+    for (int i = 0; i < searchset.size(); i++) {
+        /* -1 because nn starts from 1 to N */
+        min_distance[i] = DTW(&searchset[i], &dataset[nearest_neighbor[i] - 1]);
+    }
 
     /* Array for DTW metric */
     /* TODO: compare with DTW the L different neighbors for every q*/

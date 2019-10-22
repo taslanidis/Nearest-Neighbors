@@ -267,7 +267,7 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
     neighbors_file.open ("./output/curves_brute_force.txt");
     for (int i = 0; i < s_size; i++) {
         P1 = (*searchset)[i];
-        min_distance = -1;
+        min_distance = -1.0;
         auto start = chrono::high_resolution_clock::now();
         for (int j = 0; j < d_size; j++) {
             P2 = (*dataset)[j];
@@ -295,7 +295,7 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
     neighbors_file.close();
 }
 
-double* arg_min(double** pi, vector<int>* orthogonal_grid, double delta, int d) {
+double* arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
     double min, norm;
     int q;
     double* argmin = new double[d];

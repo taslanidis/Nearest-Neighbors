@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
     /* uniformly values in [0,1) */
-    uniform_int_distribution<int> distribution (0, 1);
+    normal_real_distribution<double> distribution (0, 1);
     for (int i = 0; i < K; i++) {
         G.push_back(distribution(generator));
     }

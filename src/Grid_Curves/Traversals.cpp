@@ -1,18 +1,18 @@
 #include "Traversals.h"
 #include "Helper_Functions.h"
 
-void shift_grid(vector<int>* orthogonal_grid, int delta, int d) {
+void shift_grid(vector<double>* orthogonal_grid, int delta, int d) {
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
 
     /* t uniformly in [0,d) */
-    uniform_int_distribution<int> distribution (0, d);
+    uniform_real_distribution<double> distribution (0, d);
     for (int i = 0; i < d; i++) {
         orthogonal_grid->push_back(distribution(generator));
     }
 }
 
-void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<int>* orthogonal_grid, double delta, int d) {
+void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<double>* orthogonal_grid, double delta, int d) {
     double* pi;
     double* pi_new;
     double* pi_old;
