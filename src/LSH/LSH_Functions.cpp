@@ -72,6 +72,7 @@ void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vect
         for (int dim = 1; dim < d; dim++) {
             ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w); // used to be + w
             a.push_back(ai);
+            //cout << ai << " | " << (*x)[i][dim] << " | " << (*s)[dim - 1] << endl;
         }
         a_projects->push_back(a);
         a.clear();
