@@ -33,36 +33,21 @@ int main(int argc, char* argv[]) {
 
     /* ------------------------ HASHING with RANDOM PROJECTIONS ----------------------- */
 
-    /* Let max_points be the max length of all input and possible query curves */
-    int max_points = 0;
+    /* Let M be the max length of all input and possible query curves */
+    int M = 0;
     for (int i = 0; i < dataset.size(); i++) {
-        if (2*dataset[i][0][1] > max_points) {
-            max_points = 2*dataset[i][0][1];
+        if (2*dataset[i][0][1] > M) {
+            M = 2*dataset[i][0][1];
         }
     }
     for (int i = 0; i < searchset.size(); i++) {
-        if (2*dataset[i][0][1] > max_points) {
-            max_points = 2*dataset[i][0][1];
+        if (2*dataset[i][0][1] > M) {
+            M = 2*dataset[i][0][1];
         }
     }
 
 
     /* ------------------ RELEVANT traversals ----------------- */
-
-    /* Let matrix G have real, independent, normally distributed elements ∼N(0,1)
-     * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */
-    vector<double> G;
-    double K = -d*log(epsilon)/pow(epsilon,2);
-    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-    default_random_engine generator (seed);
-    /* uniformly values in [0,1) */
-    normal_real_distribution<double> distribution (0, 1);
-    for (int i = 0; i < K; i++) {
-        G.push_back(distribution(generator));
-    }
-
-    /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
-     * by multiplying G with every point vector, then concatenating. */
 
     /* Find relevant traversals, all the pairs (Ui,Vi)
      * and we keep the indexes for every pair of curve */
@@ -78,6 +63,33 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    /* Let matrix G have real, independent, normally distributed elements ∼N(0,1)
+     * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */  //TODO: G must be Kxd
+    vector<vector<double>> G;
+    double K = -d*log(epsilon)/pow(epsilon,2);
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator (seed);
+    /* uniformly values in [0,1) */
+    vector<vector<double>> G;
+    normal_distribution<double> distribution (0, 1);
+    for (int i = 0; i < K; i++) {
+        for (int j = 0; j < d; j++) {
+            G.push_back(distribution(generator));
+        }
+    }
+
+    /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
+     * by multiplying G with every point vector, then concatenating. */
+    vector<vector<double*>> x;
+    vector<double*> curr_x;
+    double term;
+    for (int i = 0; i < relevant_traversals.size(); i++) {
+        for (int j = 0; j < G.size(); j++) {
+//            term = G[j] * relevant_traversals[i]; // TODO: find a way to do the multiplication and the concatenation
+        }
+    }
+
+    /* TODO: create M × M table: cell i, j contains all relevant traversals of length i, j curves */
     /* TODO: Multiply G with every point vector and then concatenate into a vector for lsh */
 
 
@@ -122,7 +134,7 @@ int main(int argc, char* argv[]) {
             computations = 0;
             for (int j = 0; j < ANN[i][q].size() && computations < 4 * L; j++) {
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
-                    distance = DTW(&c, &dataset[(int)ANN[i][q][j][0]], &searchset[q]);
+                    distance = DTW(&dataset[(int)ANN[i][q][j][0]], &searchset[q]);          //todo: check this again,  there was a &c before
                     if (distance < min_distance[q]) {
                         min_distance[q] = distance;
                         nearest_neighbor[q] = ANN[i][q][j][0] + 1;

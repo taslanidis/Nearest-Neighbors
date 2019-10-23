@@ -134,8 +134,8 @@ double point_dist(double* p, double* q, int Metric){
 double DTW(vector<double*>* P, vector<double*>* Q) {
     /* Initialize c(1,1) = ||p1-q1||
     * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
-   * if i > 1, then c(1,i) = c(i-1,1) + ||pi - qj||
-   * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi-qj|| */
+   * if i > 1, then c(i,1) = c(i-1,1) + ||pi - qj||
+   * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi - qj|| */
     /* TODO: make it with dynamic programming, not exhaustive */
     int m1 = P->size() - 1;
     int m2 = Q->size() - 1;

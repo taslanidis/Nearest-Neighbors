@@ -36,23 +36,46 @@ void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<do
 /* Find the ORANGE boxes in the array
  * we keep the indexes of the points of every curve
  * TODO: when dimensions are very different this doesnt go well */
+//void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, int j) {
+//    int * pair = new int [2];
+//    pair[0] = i;
+//    pair[1] = j;
+//    Traversals->push_back(pair);
+//    if (i == len1 && j == len2 ) {
+//        return;
+//    } else if ( j == len2 ) {
+//        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
+//    } else if ( i == len1 ) {
+//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+//    } else if (i == j) {
+//        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
+//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+//    } else if (i < j) {
+//        Relevant_Traversals(Traversals, len1, len2, i+1, j);
+//    } else {
+//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+//    }
+//}
+
 void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, int j) {
     int * pair = new int [2];
     pair[0] = i;
     pair[1] = j;
     Traversals->push_back(pair);
+    double stepi = len1 / len2;
+    double stepj = 1;
     if (i == len1 && j == len2 ) {
         return;
     } else if ( j == len2 ) {
-        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
+        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
     } else if ( i == len1 ) {
-        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
     } else if (i == j) {
-        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
-        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
+        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
     } else if (i < j) {
-        Relevant_Traversals(Traversals, len1, len2, i+1, j);
+        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
     } else {
-        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
+        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
     }
 }
