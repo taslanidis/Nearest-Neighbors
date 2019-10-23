@@ -21,13 +21,14 @@ void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<do
         pi = (*curve)[i];
         if (i == 0) {
             pi_new = pi;
-            pi_old = pi_new;
+            hashed_curve->push_back(pi_new);
         } else {
             pi_new = arg_min(&pi, orthogonal_grid, delta, d);
+            /* remove consecutive duplicates pi' from the hashed_curve */
+            if ((pi_new[0] != pi_old[0]) || (pi_new[1] != pi_old[1])) {
+                hashed_curve->push_back(pi_new);
+            }
         }
-        /* remove consecutive duplicates pi' from the hashed_curve
-        if (pi_new[0] != pi_old[0] && pi_new[1] != pi_old[1]) */
-        hashed_curve->push_back(pi_new);
         pi_old = pi_new;
     }
 }
@@ -42,7 +43,7 @@ void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, in
     Traversals->push_back(pair);
     if (i == len1 && j == len2 ) {
         return;
-    } else if ( j == len2) {
+    } else if ( j == len2 ) {
         Relevant_Traversals(Traversals, len1, len2, i + 1, j);
     } else if ( i == len1 ) {
         Relevant_Traversals(Traversals, len1, len2, i, j + 1);

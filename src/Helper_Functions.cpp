@@ -116,7 +116,7 @@ Point dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
      * (default value = L1 Metric) -> Manhattan distance */
     Point dist = 0;
     for (int dim = 1; dim < d; dim++)
-        dist += pow(abs((*P1)[dim] - (*P2)[dim]),Metric);
+        dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
     return pow(dist,1/(double)Metric);
 }
 
@@ -126,8 +126,8 @@ double point_dist(double* p, double* q, int Metric){
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
     double d1, d2;
-    d1 = pow(abs(p[0] - q[0]), Metric);
-    d2 = pow(abs(p[1] - q[1]), Metric);
+    d1 = pow(fabs(p[0] - q[0]), Metric);
+    d2 = pow(fabs(p[1] - q[1]), Metric);
     return pow(d1+d2,1/(double)Metric);
 }
 
@@ -195,6 +195,7 @@ int moduloMultiplication(int a, int b, int mod) {
     return res;
 }
 
+/* TODO: not our func */
 int moduloPow(int base,int exp,int div) {
     if (exp == 0) {
         return 1;
@@ -295,15 +296,17 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
     neighbors_file.close();
 }
 
+/* TODO : I smell problem here */
 double* arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
-    double min, norm;
+    double min, num, shift;
     int q;
     double* argmin = new double[d];
-    /* Point is to minimize the ||pi-q|| for all q
-     * Solve this for zero ->
-     * delta * ai + (*orthogonal_grid)[i]) - (*pi)[0] = 0*/
+    /* Point is to minimize the ||pi-q|| for all q */
     for (int i = 0; i < d; i++) {
-        argmin[i] = abs((*orthogonal_grid)[i] - (*pi)[i]) / delta + (*orthogonal_grid)[i];
+        num = (*pi)[i];
+        shift = (*orthogonal_grid)[i];
+        argmin[i] = num + (delta + shift)/2;
+        argmin[i] -= fmod(argmin[i], (delta + shift));
     }
     return argmin;
 }

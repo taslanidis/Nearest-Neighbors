@@ -2,4 +2,4 @@
 
 using namespace std;
 
-template <typename Point> void LSH (vector<vector<Point>>*, vector<vector<Point>>*, int, int, Point, int**, double**, int**);
+template <typename Point> void LSH (vector<vector<Point>>*, vector<vector<Point>>*, int, int, Point, Point**, double**, int**);
