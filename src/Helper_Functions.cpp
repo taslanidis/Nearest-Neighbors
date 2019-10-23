@@ -296,7 +296,7 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
     neighbors_file.close();
 }
 
-/* TODO : I smell problem here */
+/* TODO : I smell problem here ??! Maybe not I can see the prints ok */
 double* arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
     double min, num, shift;
     int q;
@@ -306,7 +306,7 @@ double* arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int 
         num = (*pi)[i];
         shift = (*orthogonal_grid)[i];
         argmin[i] = num + (delta + shift)/2;
-        argmin[i] -= fmod(argmin[i], (delta + shift));
+        argmin[i] -= fmod(argmin[i], delta);
     }
     return argmin;
 }

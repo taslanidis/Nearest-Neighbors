@@ -29,12 +29,12 @@ int main(int argc, char* argv[]) {
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
     //delta = 4*d*min - 1;
-    delta = 0.05;
+    delta = 0.0005;
 
 
     /* compute window for all hash tables (try *4 or *10) */
     //double w = 4*compute_window(dataset);
-    double w = 4*30; // something like that
+    double w = 4*28; // computed w and its 28
     double max_element = 0.0;
     /* maximum number of polygonal curve points */
     int max_points = 0;

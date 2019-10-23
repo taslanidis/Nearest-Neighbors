@@ -34,6 +34,10 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* results */
     vector<vector<vector<vector<Point>>>> ANN;
 
+    cout << "Computing w ... " << endl;
+    //w = 4*compute_window(dataset);
+    cout << "Computed w : " << w << endl;
+
     /* loop for L, to create L hash tables */
     for (int l = 0; l < L; l++) {
         /* generate the random shifts */
