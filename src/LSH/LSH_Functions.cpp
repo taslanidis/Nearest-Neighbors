@@ -90,7 +90,7 @@ void compute_hash(vector<int>* H, vector<vector<int>> *a, int** power, int d, in
         h=0;
         term = 0;
         for (int j = dim - 1; j >= 0; j--) {
-            term += (*a)[i][j] * (*power)[(dim - 1) - j];
+            term += moduloMultiplication((*a)[i][j], (*power)[(dim - 1) - j], M);
         }
         h = modulo(term, M);
         H->push_back(h);

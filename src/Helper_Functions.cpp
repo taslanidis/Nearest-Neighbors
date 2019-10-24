@@ -57,7 +57,7 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
 
 int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, char* data_filename, char* query_filename) {
     string line;
-    int id;
+    int id, trash;
     char bracket, comma;
     double number;
     double* point;
@@ -79,6 +79,7 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
     while (getline(input_file, line)) {
         stringstream ss(line);
         /* id */
+        ss >> trash;
         point = new double [2];
         point[0] = id;
         /* length */
@@ -102,6 +103,7 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
     while (getline(query_file, line)) {
         stringstream ss(line);
         /* id */
+        ss >> trash;
         point = new double [2];
         point[0] = id;
         /* length */
