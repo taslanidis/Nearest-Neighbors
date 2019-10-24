@@ -4,11 +4,12 @@
 
 using namespace std;
 
-template int dist<int>(vector<int>*, vector<int>*, int, int=1);
+template double dist<int>(vector<int>*, vector<int>*, int, int=1);
 template double dist<double>(vector<double>*, vector<double>*, int, int=1);
 
 int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchset, char* data_filename, char* query_filename) {
     string line;
+    int id;
     int number;
     vector<int> v;
 
@@ -23,22 +24,32 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
         return -1;
     }
 
+    id = 0;
     while (getline(input_file, line)) {
         stringstream ss(line);
+        /* discard id */
+        ss >> number;
+        v.push_back(id);
         while (ss >> number) {
             v.push_back(number);
         }
         dataset->push_back(v);
         v.clear();
+        id++;
     }
 
+    id = 0;
     while (getline(query_file, line)) {
         stringstream ss(line);
+        /* discard id */
+        ss >> number;
+        v.push_back(id);
         while (ss >> number) {
             v.push_back(number);
         }
         searchset->push_back(v);
         v.clear();
+        id++;
     }
 
     return 1;
@@ -46,6 +57,7 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
 
 int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, char* data_filename, char* query_filename) {
     string line;
+    int id;
     char bracket, comma;
     double number;
     double* point;
@@ -63,11 +75,12 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
         return -1;
     }
 
+    id = 0;
     while (getline(input_file, line)) {
         stringstream ss(line);
         /* id */
         point = new double [2];
-        ss >> point[0];
+        point[0] = id;
         /* length */
         ss >> point[1];
         v.push_back(point);
@@ -82,13 +95,15 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
         }
         dataset->push_back(v);
         v.clear();
+        id++;
     }
 
+    id = 0;
     while (getline(query_file, line)) {
         stringstream ss(line);
         /* id */
         point = new double [2];
-        ss >> point[0];
+        point[0] = id;
         /* length */
         ss >> point[1];
         v.push_back(point);
@@ -103,18 +118,19 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
         }
         searchset->push_back(v);
         v.clear();
+        id++;
     }
 
     return 1;
 }
 
 template <typename Point>
-Point dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
+double dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
-    Point dist = 0;
+    double dist = 0;
     for (int dim = 1; dim < d; dim++)
         dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
     return pow(dist,1/(double)Metric);
@@ -196,7 +212,7 @@ int moduloMultiplication(int a, int b, int mod) {
 }
 
 /* TODO: not our func */
-int moduloPow(int base,int exp,int div) {
+long moduloPow(long base,long exp,long div) {
     if (exp == 0) {
         return 1;
     } else if (exp == 1) {

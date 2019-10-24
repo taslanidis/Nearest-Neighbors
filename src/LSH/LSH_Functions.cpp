@@ -3,13 +3,13 @@
 
 using namespace std;
 
-template int compute_window<int>(vector<vector<int>>*);
+template double compute_window<int>(vector<vector<int>>*);
 template double compute_window<double>(vector<vector<double>>*);
-template void projections<int>(vector<vector<int>>*, vector<vector<int>>*, vector<double>*, int, int);
-template void projections<double>(vector<vector<int>>*, vector<vector<double>>*, vector<double>*, int, int);
+template void projections<int>(vector<vector<int>>*, vector<vector<int>>*, vector<double>*, double, int);
+template void projections<double>(vector<vector<int>>*, vector<vector<double>>*, vector<double>*, double, int);
 
 template <typename Point>
-Point compute_window(vector<vector<Point>>* dataset) {
+double compute_window(vector<vector<Point>>* dataset) {
     /* 1. take all points in dataset
      * 2. find their nearest neighbor using L1 metric
      * 3. average all distances between points
@@ -39,11 +39,11 @@ Point compute_window(vector<vector<Point>>* dataset) {
         }
         distances.push_back(min_distance);
     }
-    Point w = accumulate(distances.begin(), distances.end(), 0) / size;
+    double w = accumulate(distances.begin(), distances.end(), 0) / size;
     return w;
 }
 
-void generate_shifts(vector<vector<double>>* s, int w, int d, int k){
+void generate_shifts(vector<vector<double>>* s, double w, int d, int k){
     /* Generate K * Si for every dimension
      * At the end, s will be a vector of size (k,d) */
     unsigned seed;
@@ -63,7 +63,7 @@ void generate_shifts(vector<vector<double>>* s, int w, int d, int k){
 }
 
 template <typename Point>
-void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vector<double>* s, int w, int d) {
+void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vector<double>* s, double w, int d) {
     /* Ai = (Xi - Si) / W
      * Project every X to A in d-dimensional grid shifted by S, where every cell size = W */
     int ai;
@@ -80,24 +80,19 @@ void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vect
     }
 }
 
-void compute_hash(vector<int>* H, vector<vector<int>> *a, int d, int k, int w){
+void compute_hash(vector<int>* H, vector<vector<int>> *a, int** power, int d, int k, double w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
     /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
-    int m, M, h, term, power, dim;
-    dim = d - 1;
+    int M = 0, h = 0, term = 0, dim = d - 1;
     M = pow(2, 32/k);
-    m = moduloMultiplication(2,32,M);
     for (int i = 0; i < a->size(); i++){
         h=0;
-        term=0;
-        power=0;
+        term = 0;
         for (int j = dim - 1; j >= 0; j--) {
-            power = moduloMultiplication(m,(dim - 1) - j, M);
-            term = moduloMultiplication((*a)[i][j], power, M);
-            h += modulo(term, M);  // moding with M to avoid overflow;
+            term += (*a)[i][j] * (*power)[(dim - 1) - j];
         }
-        h = modulo (h, M);
+        h = modulo(term, M);
         H->push_back(h);
     }
 }
@@ -111,11 +106,9 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
         for (int j = 0; j < k; j++) {
-            g |=  (*hash_functions)[j][i] << j*concat_dist;
-            //g += g << concat_dist | ((*hash_functions)[j][i]); // different approach
+            //g |=  (*hash_functions)[j][i] << j*concat_dist;
+            g += (g << concat_dist) | ((*hash_functions)[j][i]); // different approach
         }
-        if (g < 0)
-            cout <<  g <<  endl;
         amplified_g->push_back(g);
     }
 }

@@ -1,4 +1,5 @@
 #include "HashTable.h"
+#include "Helper_Functions.h"
 
 using namespace std;
 

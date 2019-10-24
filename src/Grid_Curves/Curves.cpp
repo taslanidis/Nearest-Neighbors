@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* variable declaration | k = 4 default value */
-    int k = 4, L = 5, d = 2, L_vec = 5;
+    int k_vec = 4, L_grid = 4, d = 2, L_vec = 1;
     int m1, m2, error_code, min;
     double delta;
     /* vectors for the data and query points */
@@ -29,12 +29,12 @@ int main(int argc, char* argv[]) {
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
     //delta = 4*d*min - 1;
-    delta = 0.0005;
+    delta = 0.0006;
 
 
     /* compute window for all hash tables (try *4 or *10) */
     //double w = 4*compute_window(dataset);
-    double w = 4*28; // computed w and its 28
+    double w = 4*32; // computed w and its ~28-32
     double max_element = 0.0;
     int max_points = 0, elements = 0;
 
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
     vector<double> TrueDistances;
     vector<double> TrueTimes;
-    curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+    //curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
     cout << "Found exact neighbors. Proceeding to hashing ..." << endl;
 
     /* orthogonal grid of size d */
@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
     double *time;
     vector<int*> lsh_neighbors;
 
-    /*  --------- TODO: Loop this L times and then dtw on those L nn sets -------- */
-    for (int i = 0; i < L; i++) {
+    /*  ----------- Loop this L times and then dtw on those L nn sets -------- */
+    for (int i = 0; i < L_grid; i++) {
         /* ----------------------- HASHING with ORTHOGONAL GRID ---------------------- */
         shift_grid(&orthogonal_grid, delta, d);
 
@@ -167,21 +167,23 @@ int main(int argc, char* argv[]) {
         time = new double[searchset.size()];
 
         for (int i = 0; i < searchset.size(); i++) {
-            min_distance[i] = INT_MAX;
+            min_distance[i] = -1;
             nearest_neighbor[i] = -1;
             time[i] = 0;
         }
 
-        /*for (int i = 0; i < data_vectored_curves.size(); i++){
-             for (int j = 0; j < data_vectored_curves[i].size(); j++){
-                 cout << data_vectored_curves[i][j] << " | ";
+        /*
+         * for (int i = 0; i < search_vectored_curves.size(); i++){
+             for (int j = 0; j < search_vectored_curves[i].size(); j++){
+                 cout << search_vectored_curves[i][j] << " | ";
              }
              cout << endl;
              getchar();
-         }*/
+         }
+         */
 
         /* ---------------- Hashing them again with LSH ------------------ */
-        LSH(&data_vectored_curves, &search_vectored_curves, k, L_vec, w, &min_distance, &time, &nearest_neighbor);
+        LSH(&data_vectored_curves, &search_vectored_curves, k_vec, L_vec, w, &min_distance, &time, &nearest_neighbor);
 
         /* store results for all iterations of hashing */
         lsh_neighbors.push_back(nearest_neighbor);
@@ -195,7 +197,7 @@ int main(int argc, char* argv[]) {
         curve.clear();
     }
 
-    /* TODO: min distance vector is for the lsh hashed data, we will do DTW now on the real curves to find the
+    /* min distance vector is for the lsh hashed data, we will do DTW now on the real curves to find the
      * true distance between the approximate nearest neighbors found by lsh*/
     double distance = 0.0;
     double max_af = 0.0;
@@ -205,24 +207,28 @@ int main(int argc, char* argv[]) {
 
     min_distance = new double[searchset.size()];
     nearest_neighbor = new int[searchset.size()];
+    for (int i = 0; i < searchset.size(); i++) {
+        min_distance[i] = 1;
+        nearest_neighbor[i] = -1;
+    }
+
 
     for (int i = 0; i < searchset.size(); i++) {
         /* -1 because nn starts from 1 to N */
-       for (int j = 0; j < L; j++){
+       for (int j = 0; j < L_grid; j++) {
+           if (lsh_neighbors[j][i] == -1) continue;
            distance = DTW(&searchset[i], &dataset[lsh_neighbors[j][i] - 1]);
            if (j == 0) {
                min_distance[i] = distance;
                nearest_neighbor[i] = lsh_neighbors[j][i] - 1;
-           } else if (distance < min_distance[L]) {
+           } else if (distance < min_distance[i]) {
                min_distance[i] = distance;
                nearest_neighbor[i] = lsh_neighbors[j][i] - 1;
            }
        }
     }
 
-    /* Array for DTW metric */
-    /* TODO: compare with DTW the L different neighbors for every q*/
-
+    /* compare with DTW the L different neighbors for every q*/
     /* Results for every curve query */
     int computations = 0;
     for (int q = 0; q < searchset.size(); q++) {
@@ -234,7 +240,7 @@ int main(int argc, char* argv[]) {
     /* --- RESULTS --- */
     average_af = average_af / searchset.size();
     average_time = average_time / searchset.size();
-    cout << "Variables used: | k_vec = " << k << " | L = " << L << " | L_vec = " << L_vec << endl;
+    cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
     cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
     cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
 
@@ -245,9 +251,13 @@ int main(int argc, char* argv[]) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;
         neighbors_file << "HashFunction: LSH" << endl;
-        neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i]<< endl;
-        neighbors_file << "distanceFound: " << min_distance[i] << endl;
-        neighbors_file << "distanceTrue: " << TrueDistances[i] << endl << endl;
+        if (nearest_neighbor[i] != -1) {
+            neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i] << endl;
+            neighbors_file << "distanceFound: " << min_distance[i] << endl;
+            neighbors_file << "distanceTrue: " << TrueDistances[i] << endl << endl;
+        }else{
+            neighbors_file << "Found Nearest Neighbor: Fail" << endl << endl;
+        }
     }
     neighbors_file.close();
 

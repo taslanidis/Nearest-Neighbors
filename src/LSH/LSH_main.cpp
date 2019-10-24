@@ -52,10 +52,12 @@ int main(int argc, char* argv[]){
 
     /* Results for every curve query */
     for (int q = 0; q < searchset.size(); q++) {
-        curr_fraction = (double) min_distance[q] / TrueDistances[q];
-        if (curr_fraction > max_af) max_af = curr_fraction;
-        average_af += curr_fraction;
-        average_time += time[q];
+        if (min_distance[q] != INT_MAX) {
+            curr_fraction = (double) min_distance[q] / TrueDistances[q];
+            if (curr_fraction > max_af) max_af = curr_fraction;
+            average_af += curr_fraction;
+            average_time += time[q];
+        }
     }
 
     /* print results */

@@ -15,7 +15,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* d-dimensional vectors */
     int d = (*dataset)[0].size();
     /* Size of Hash Table */
-    int TableSize = d_size / 8;
+    int TableSize = d_size / 16;
     HashTable <Point> *MyHashTable[L];
     /* vector containing (k,d) shifts */
     vector<vector<double>> s;
@@ -38,6 +38,13 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     //w = 4*compute_window(dataset);
     cout << "Computed w : " << w << endl;
 
+    /* computing big numbers */
+    int M = pow(2, 32/k);
+    int m = 3;
+    int * power = new int [d-1];
+    for (int j = 0; j < d-1; j++)
+        power[j] = moduloPow(m, j, M);
+
     /* loop for L, to create L hash tables */
     for (int l = 0; l < L; l++) {
         /* generate the random shifts */
@@ -48,12 +55,11 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < k; i++) {
             projections(&a_projects, dataset, &(s[i]), w, d);
 
-            compute_hash(&H, &a_projects, d, k, w);
+            compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
+
             H.clear();
-            H.shrink_to_fit();
             a_projects.clear();
-            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
@@ -63,7 +69,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         *  Insert all items inside the Hash Table */
         MyHashTable[l] = new HashTable<Point>(TableSize);
         for (int i = 0; i < dataset->size(); i++) {
-            MyHashTable[l]->Insert(temp_g[i], (*dataset)[i]);
+            MyHashTable[l]->Insert(data_amplified_g[l][i], (*dataset)[i]);
         }
 
         /* clear hash functions for search set */
@@ -78,21 +84,20 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < k; i++) {
             projections(&a_projects, searchset, &(s[i]), w, d);
 
-            compute_hash(&H, &a_projects, d, k, w);
+            compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
             H.clear();
-            H.shrink_to_fit();
             a_projects.clear();
-            a_projects.shrink_to_fit();
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
         query_amplified_g.push_back(temp_g);
 
+
         /* calculate approximate nearest neighbors */
         vector<vector<vector<Point>>> ANNi;
         for (int i = 0; i < searchset->size(); i++) {
-            ANNi.push_back(*MyHashTable[l]->Search_Neighbors(temp_g[i]));
+            ANNi.push_back(*MyHashTable[l]->Search_Neighbors(query_amplified_g[l][i]));
         }
         ANN.push_back(ANNi);
 
@@ -107,7 +112,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         s.shrink_to_fit();
     }
 
-    int distance = 0;
+    double distance;
     int Metric = 1; //default
     int computations = 0;
     for (int q = 0; q < searchset->size(); q++) {
@@ -116,10 +121,10 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < ANN.size(); i++) {
             /* for every vector in the same bucket (max 4*L calculations) */
             computations = 0;
-            for (int j = 0; j < ANN[i][q].size() && computations < 4 * L; j++) {
+            for (int j = 0; j < ANN[i][q].size() && computations < 25; j++) {
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
                     distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
-                    if (distance < (*min_distance)[q]) {
+                    if ((distance < (*min_distance)[q]) || (*min_distance)[q] == -1) {
                         (*min_distance)[q] = distance;
                         (*nearest_neighbor)[q] = ANN[i][q][j][0] + 1;
                     }

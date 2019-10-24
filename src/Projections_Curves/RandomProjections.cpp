@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
         }
     }
     for (int i = 0; i < searchset.size(); i++) {
-        if (2*dataset[i][0][1] > M) {
-            M = 2*dataset[i][0][1];
+        if (2*searchset[i][0][1] > M) {
+            M = 2*searchset[i][0][1];
         }
     }
 
@@ -51,14 +51,21 @@ int main(int argc, char* argv[]) {
 
     /* Find relevant traversals, all the pairs (Ui,Vi)
      * and we keep the indexes for every pair of curve */
-    vector<vector<int*>> relevant_traversals;
-    vector<int*> traversals;
+    <vector<vector<int*>>** TraversalsTable = new <vector<vector<int*>>* [M];
+    for (int i = 0; i < M; i++) {
+        TraversalsTable[i] = new <vector<vector<int*>> [M];
+    }
+
+    vector<vector<int*>> traversals;
+    /* for every pair of curves */
     for (int i = 0; i < dataset.size(); i++) {
-        for (int j = 0; j < dataset.size(); j++) {
-            if (i != j) {
-                Relevant_Traversals(&traversals, dataset[i].size(), dataset[j].size(), 0, 0);
-                relevant_traversals.push_back(traversals);
-                traversals.clear();
+        for (int j = 0; j < searchset.size(); j++) {
+            /* find all relevant traversals */
+            Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size(), 0, 0);
+            /* cell li,lj contains all relevant traversals of length li,lj curves. */
+            for (int k = 0; k < traversals.size(); k++) {
+                /* push back the traversal on the appropriate index (length of the curves) */
+                TraversalsTable[dataset[i].size()][searchset[i].size()].push_back(traversals[i]);
             }
         }
     }
