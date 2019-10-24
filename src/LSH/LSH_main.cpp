@@ -75,6 +75,7 @@ int main(int argc, char* argv[]){
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i]<< endl;
         neighbors_file << "distanceLSH: " << min_distance[i] << endl;
+        neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
         neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
         neighbors_file << "tTrue: " << setprecision(9) << showpoint << fixed << TrueTimes[i] << endl << endl;
     }

@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     /* variable declaration | k = 4 default value */
-    int error_code, k = 4, dim = 3, M = 10, probes = 2;                       // k is the number of hi concatenated to form g - dim is number of hypercube's vertices
+    int error_code, k = 10, dim = 3, M = 10, probes = 20;                       // k is the number of hi concatenated to form g - dim is number of hypercube's vertices
     /* vectors for the data and query points */
     vector<vector<int>> dataset;
     vector<vector<int>> searchset;

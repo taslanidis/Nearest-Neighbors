@@ -37,6 +37,17 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* results */
     vector<vector<vector<vector<Point>>>> ANN;
 
+    cout << "Computing w ... " << endl;
+    //w = 4*compute_window(dataset);
+    cout << "Computed w : " << w << endl;
+
+    /* computing big numbers */
+    int capital_M = pow(2, 32/k);
+    int m = 3;
+    int * power = new int [d-1];
+    for (int j = 0; j < d-1; j++)
+        power[j] = moduloPow(m, j, capital_M);
+
     /* loop for L, to create L amplified functions g */
     for (int l = 0; l < dim; l++) {
         /* generate the random shifts */
@@ -47,7 +58,7 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < k; i++) {
             projections(&a_projects, dataset, &(s[i]), w, d);
 
-            compute_hash(&H, &a_projects, d, k, w);
+            compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
             H.clear();
             H.shrink_to_fit();
@@ -68,7 +79,7 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < k; i++) {
             projections(&a_projects, searchset, &(s[i]), w, d);
 
-            compute_hash(&H, &a_projects, d, k, w);
+            compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
             H.clear();
             H.shrink_to_fit();
