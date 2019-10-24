@@ -9,18 +9,72 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        cout << "We need input_file AND query_file!" << endl;
+    /* Arguments Check */
+    int k = 4, dim = 3, M = 10, probes = 2;              //Default values: k is the number of hi concatenated to form g - dim is number of hypercube's vertices
+    string data_file, search_file, results_file;
+    int df = 0, sf = 0, rf = 0;
+    for (int i = 1; i < argc; i++){
+        string arg = argv[i];
+        if(arg == "-d"){
+            if(i+1 < argc){
+                data_file = argv[++i];
+                if(access( data_file.c_str(), F_OK ) == -1){
+                    cout << "-- Wrong <input file> -- \n";
+                    show_bhc_usage(argv[0]);
+                    return -1;
+                }
+                df = 1;
+            }else{
+                cout << "-- NO <input file> -- \n";
+                show_bhc_usage(argv[0]);
+                return -1;
+            }
+        }else if (arg == "-q"){
+            if(i+1 <= argc){
+                search_file = argv[++i];
+                if(access( search_file.c_str(), F_OK ) == -1){
+                    cout << "-- Wrong <query file> -- \n";
+                    show_bhc_usage(argv[0]);
+                    return -1;
+                }
+                sf = 1;
+            }else{
+                cout << "-- NO <query file> -- \n";
+                show_bhc_usage(argv[0]);
+                return -1;
+            }
+        }else if(arg == "-o"){
+            if(i+1 <= argc){
+                results_file = argv[++i];
+                rf = 1;
+            }else{
+                cout << "-- NO <output file> -- \n";
+                show_bhc_usage(argv[0]);
+                return -1;
+            }
+        }else if(arg == "-k"){
+            dim = atoi(argv[++i]);
+        }else if(arg == "-M") {
+            M = atoi(argv[++i]);
+        }else if(arg == "-probes"){
+            probes = atoi(argv[++i]);
+        }else{
+            show_bhc_usage(argv[0]);
+            return -1;
+        }
+    }
+    if(df == 0 || sf == 0 || rf == 0){
+        cout << "-- WRONG NUMBER OF FILES -- \n";
+        show_bhc_usage(argv[0]);
         return -1;
     }
-    /* variable declaration | k = 4 default value */
-    int error_code, k = 10, dim = 3, M = 10, probes = 20;                       // k is the number of hi concatenated to form g - dim is number of hypercube's vertices
+
     /* vectors for the data and query points */
     vector<vector<int>> dataset;
     vector<vector<int>> searchset;
 
     /* read data set and query set and load them in vectors */
-    error_code = Read_point_files(&dataset, &searchset, argv[1], argv[2]);
+    int error_code = Read_point_files(&dataset, &searchset, data_file, search_file);
     if (error_code == -1) return -1;
 
     /* compute window for all hash tables (try *4 or *10) */
@@ -70,7 +124,7 @@ int main(int argc, char* argv[]) {
 
     /* open file to write results */
     ofstream neighbors_file;
-    neighbors_file.open ("./output/nneighbors_bhc.txt");
+    neighbors_file.open ("./output/"+results_file);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i]<< endl;

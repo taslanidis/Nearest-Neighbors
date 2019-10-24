@@ -2,6 +2,8 @@
 
 using namespace std;
 
+void show_lsh_usage(string name);
+
 template <typename Point> double compute_window(vector<vector<Point>>*);
 template <typename Point> void projections(vector<vector<int>>*, vector<vector<Point>>*, vector<double>*, double, int);
 

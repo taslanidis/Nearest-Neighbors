@@ -72,28 +72,38 @@ int main(int argc, char* argv[]) {
 
     /* Let matrix G have real, independent, normally distributed elements ∼N(0,1)
      * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */  //TODO: G must be Kxd
-    vector<vector<double>> G;
     double K = -d*log(epsilon)/pow(epsilon,2);
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
     /* uniformly values in [0,1) */
     vector<vector<double>> G;
+    vector<double> G_temp;
     normal_distribution<double> distribution (0, 1);
     for (int i = 0; i < K; i++) {
         for (int j = 0; j < d; j++) {
-            G.push_back(distribution(generator));
+            G_temp.push_back(distribution(generator));
         }
+        G.push_back(G_temp);
+        G_temp.clear();
+        G_temp.shrink_to_fit();
     }
 
     /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
      * by multiplying G with every point vector, then concatenating. */
-    vector<vector<double*>> x;
-    vector<double*> curr_x;
+    vector<vector<double>> x;
+    vector<double> curr_x;
     double term;
     for (int i = 0; i < relevant_traversals.size(); i++) {
         for (int j = 0; j < G.size(); j++) {
-//            term = G[j] * relevant_traversals[i]; // TODO: find a way to do the multiplication and the concatenation
+            term = 0;
+            for (int k = 0; k < d; k++){
+                term += G[j][k] * (*relevant_traversals)[i][k]; //TODO: find way to acces relevant traversals
+            }
+            curr_x.push_back(term);
         }
+        x.push_back(curr_x);
+        curr_x.clear();
+        curr_x.shrink_to_fit();
     }
 
     /* TODO: create M × M table: cell i, j contains all relevant traversals of length i, j curves */

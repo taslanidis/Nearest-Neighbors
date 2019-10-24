@@ -8,6 +8,18 @@ template double compute_window<double>(vector<vector<double>>*);
 template void projections<int>(vector<vector<int>>*, vector<vector<int>>*, vector<double>*, double, int);
 template void projections<double>(vector<vector<int>>*, vector<vector<double>>*, vector<double>*, double, int);
 
+void show_lsh_usage(string name)
+{
+    cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
+              << "Options:\n"
+              << "\t-d <input file>  (MANDATORY) Path to data file\n"
+              << "\t-q <query file>  (MANDATORY) Path to search file\n"
+              << "\t-k <int>         (OPTIONAL)  Number of hi function for construction of g function\n"
+              << "\t-L <int>         (OPTIONAL)  Number of Hash tables\n"
+              << "\t-o <output file> (MANDATORY) Path to file of results\n"
+              << endl;
+}
+
 template <typename Point>
 double compute_window(vector<vector<Point>>* dataset) {
     /* 1. take all points in dataset

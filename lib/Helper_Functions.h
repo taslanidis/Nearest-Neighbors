@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int Read_point_files(vector<vector<int>>*, vector<vector<int>>*, char*, char* );
+int Read_point_files(vector<vector<int>>*, vector<vector<int>>*, string, string );
 int Read_curve_files(vector<vector<double*>>*, vector<vector<double*>>*, char*, char*);
 template <typename Point> double dist(vector<Point>*, vector<Point>*, int, int=1);
 double point_dist(double*, double*, int);

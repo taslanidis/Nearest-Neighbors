@@ -7,22 +7,22 @@ using namespace std;
 template double dist<int>(vector<int>*, vector<int>*, int, int=1);
 template double dist<double>(vector<double>*, vector<double>*, int, int=1);
 
-int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchset, char* data_filename, char* query_filename) {
+int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchset, string data_filename, string query_filename) {
     string line;
     int id;
     int number;
     vector<int> v;
 
     ifstream input_file(data_filename);
-    if (!input_file) {
-        cout << "Wrong input_file!" << endl;
-        return -1;
-    }
+//    if (!input_file) {
+//        cout << "Wrong input_file!" << endl;
+//        return -1;
+//    }
     ifstream query_file(query_filename);
-    if (!query_file) {
-        cout << "Wrong query_file!" << endl;
-        return -1;
-    }
+//    if (!query_file) {
+//        cout << "Wrong query_file!" << endl;
+//        return -1;
+//    }
 
     id = 0;
     while (getline(input_file, line)) {
