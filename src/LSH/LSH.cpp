@@ -5,11 +5,11 @@
 
 using namespace std;
 
-template void LSH <int>(vector<vector<int>>*, vector<vector<int>>*, int, int, int, int**, double**, int**);
-template void LSH <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, double, double**, double**, int**);
+template void LSH <int>(vector<vector<int>>*, vector<vector<int>>*, int, int, int, double, vector<vector<int>>*, int**, double**, int**);
+template void LSH <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, double, double, vector<vector<int>>*, double**, double**, int**);
 
 template <typename Point>
-void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int L, Point w, Point** min_distance, double** time, int** nearest_neighbor){
+void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int L, Point w, double R, vector<vector<int>>* R_Neighbors, Point** min_distance, double** time, int** nearest_neighbor){
     int d_size = dataset->size();
     int s_size = searchset->size();
     /* d-dimensional vectors */
@@ -115,16 +115,20 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     double distance;
     int Metric = 1; //default
     int computations = 0;
+    vector<int> Curr_R_Neighbors;
     for (int q = 0; q < searchset->size(); q++) {
         /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
         for (int i = 0; i < ANN.size(); i++) {
             /* for every vector in the same bucket (max 4*L calculations) */
             computations = 0;
-            for (int j = 0; j < ANN[i][q].size() && computations < 25; j++) {
+            for (int j = 0; j < ANN[i][q].size(); j++) {
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
                     distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
-                    if ((distance < (*min_distance)[q]) || (*min_distance)[q] == -1) {
+                    if(distance <= R){
+                        Curr_R_Neighbors.push_back(ANN[i][q][j][0]);
+                    }
+                    if (((distance < (*min_distance)[q]) || (*min_distance)[q] == -1) && computations < 25) {
                         (*min_distance)[q] = distance;
                         (*nearest_neighbor)[q] = ANN[i][q][j][0];
                     }
@@ -136,5 +140,13 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         auto elapsed = finish - start;
         double time_elapsed = chrono::duration<double>(elapsed).count();
         (*time)[q] = time_elapsed;
+        sort( Curr_R_Neighbors.begin(), Curr_R_Neighbors.end() );
+        Curr_R_Neighbors.erase( unique( Curr_R_Neighbors.begin(), Curr_R_Neighbors.end() ), Curr_R_Neighbors.end() );
+        vector<int>::iterator position = find(Curr_R_Neighbors.begin(), Curr_R_Neighbors.end(), (*nearest_neighbor)[q]);
+        if (position != Curr_R_Neighbors.end())
+            Curr_R_Neighbors.erase(position);
+        R_Neighbors->push_back(Curr_R_Neighbors);
+        Curr_R_Neighbors.clear();
+        Curr_R_Neighbors.shrink_to_fit();
     }
 }
