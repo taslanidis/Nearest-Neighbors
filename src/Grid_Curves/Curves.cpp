@@ -1,6 +1,7 @@
 #include "Library.h"
 #include "Helper_Functions.h"
 #include "Traversals.h"
+#include "BHC.h"
 #include "LSH.h"
 
 using namespace std;
@@ -13,7 +14,16 @@ int main(int argc, char* argv[]) {
     }
 
     /* variable declaration | k = 4 default value */
-    int k_vec = 2, L_grid = 4, d = 2, L_vec = 1;
+    int d = 2, L_grid = 4;
+
+#ifdef _LSH_
+    int k_vec = 2, L_vec = 1;
+#endif
+
+#ifdef _BHC_
+    int k_vec = 2, M = 10, probes = 20, dim = 3;
+#endif
+
     int m1, m2, error_code, min;
     double delta;
     /* vectors for the data and query points */
@@ -59,7 +69,7 @@ int main(int argc, char* argv[]) {
     double *min_distance;
     int *nearest_neighbor;
     double *time;
-    vector<int*> lsh_neighbors;
+    vector<int*> hashed_neighbors;
 
     /*  ----------- Loop this L times and then dtw on those L nn sets -------- */
     for (int i = 0; i < L_grid; i++) {
@@ -106,8 +116,10 @@ int main(int argc, char* argv[]) {
         }
 
         /* ------------------ SEARCH SET hashing ----------------- */
+        /* clean hashed curves */
         hashed_curves.clear();
-        hashed_curves.shrink_to_fit();
+        /* end of cleaning */
+
         /* hash all curves */
         for (int i = 0; i < searchset.size(); i++) {
             hash_curve(&temp_hash, &searchset[i], &orthogonal_grid, delta, d);
@@ -147,6 +159,13 @@ int main(int argc, char* argv[]) {
             curve.shrink_to_fit();
         }
 
+        /* clear no longer used vectors for memory optimzations */
+        orthogonal_grid.clear();
+        /* clean hashed curves */
+        hashed_curves.clear();
+        /* end of cleaning */
+        temp_hash.clear();
+
         /* ----------------- PADDING for both sets ------------ */
         /* pad special number > max coord */
         for (int i = 0; i < data_vectored_curves.size(); i++) {
@@ -172,7 +191,7 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
 
-
+        /* debugging */
          /*for (int i = 0; i < search_vectored_curves.size(); i++){
              for (int j = 0; j < search_vectored_curves[i].size(); j++){
                  cout << search_vectored_curves[i][j] << " | ";
@@ -181,21 +200,26 @@ int main(int argc, char* argv[]) {
              getchar();
          }*/
 
+#ifdef _BHC_
+        /* ---------------- Hashing them again with Hypercube ------------------ */
+        BHC(&data_vectored_curves, &search_vectored_curves, k_vec, dim, M, probes, w, &min_distance, &time, &nearest_neighbor);
+#endif
+
+#ifdef _LSH_
         /* ---------------- Hashing them again with LSH ------------------ */
         LSH(&data_vectored_curves, &search_vectored_curves, k_vec, L_vec, w, &min_distance, &time, &nearest_neighbor);
+#endif
 
         /* store results for all iterations of hashing */
-        lsh_neighbors.push_back(nearest_neighbor);
+        hashed_neighbors.push_back(nearest_neighbor);
 
         /* clean vectors for next iteration */
-        orthogonal_grid.clear();
-        hashed_curves.clear();
         temp_hash.clear();
         data_vectored_curves.clear();
         search_vectored_curves.clear();
         curve.clear();
+        /* clean pointers */
     }
-    cout << "lsh ended" << endl;
 
     /* min distance vector is for the lsh hashed data, we will do DTW now on the real curves to find the
      * true distance between the approximate nearest neighbors found by lsh*/
@@ -215,41 +239,53 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < searchset.size(); i++) {
        for (int j = 0; j < L_grid; j++) {
-           if (lsh_neighbors[j][i] == -1) continue;
-           distance = DTW(&searchset[i], &dataset[lsh_neighbors[j][i]]);
+           if (hashed_neighbors[j][i] == -1) continue;
+           distance = DTW(&searchset[i], &dataset[hashed_neighbors[j][i]]);
            if (j == 0) {
                min_distance[i] = distance;
-               nearest_neighbor[i] = lsh_neighbors[j][i];
+               nearest_neighbor[i] = hashed_neighbors[j][i];
            } else if (distance < min_distance[i]) {
                min_distance[i] = distance;
-               nearest_neighbor[i] = lsh_neighbors[j][i];
+               nearest_neighbor[i] = hashed_neighbors[j][i];
            }
        }
     }
 
-//    /* compare with DTW the L different neighbors for every q*/
-//    /* Results for every curve query */
-//    int computations = 0;
-//    for (int q = 0; q < searchset.size(); q++) {
-//        curr_fraction = (double) min_distance[q] / TrueDistances[q];
-//        if (curr_fraction > max_af) max_af = curr_fraction;
-//        average_af += curr_fraction;
-//    }
-//
-//    /* --- RESULTS --- */
-//    average_af = average_af / searchset.size();
-//    average_time = average_time / searchset.size();
-//    cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
-//    cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
-//    cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
+    /* compare with DTW the L different neighbors for every q*/
+    /* Results for every curve query */
+    // int computations = 0;
+    // for (int q = 0; q < searchset.size(); q++) {
+    //     curr_fraction = (double) min_distance[q] / TrueDistances[q];
+    //     if (curr_fraction > max_af) max_af = curr_fraction;
+    //     average_af += curr_fraction;
+    // }
+    //
+    // /* --- RESULTS --- */
+    // average_af = average_af / searchset.size();
+    // average_time = average_time / searchset.size();
+    // cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
+    // cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
+    // cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
 
     /* open file to write results */
+    string Method;
+    #ifdef _LSH_
+    Method = "LSH";
+    #endif
+    #ifdef _BHC_
+    Method = "HyperCube";
+    #endif
     ofstream neighbors_file;
-    neighbors_file.open ("./output/curves_grid_lsh.txt");
+    /* filename append */
+    string filename = "./output/curves_grid_";
+    filename.append(Method);
+    filename.append(".txt");
+    /* open file to dump all query results */
+    neighbors_file.open (filename);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;
-        neighbors_file << "HashFunction: LSH" << endl;
+        neighbors_file << "HashFunction: " << Method << endl;
         if (nearest_neighbor[i] != -1) {
             neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i] << endl;
             neighbors_file << "distanceFound: " << min_distance[i] << endl << endl;
@@ -258,6 +294,15 @@ int main(int argc, char* argv[]) {
         }
     }
     neighbors_file.close();
+
+    /* clean remaining used memory */
+    delete (min_distance);
+    delete (nearest_neighbor);
+    for (int i = 0; i < hashed_neighbors.size(); i++) {
+        delete(hashed_neighbors[i]);
+    }
+    hashed_neighbors.clear();
+    /* end of cleaning */
 
     return 0;
 }

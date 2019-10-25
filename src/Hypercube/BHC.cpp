@@ -8,10 +8,10 @@
 using namespace std;
 
 template void BHC <int>(vector<vector<int>>*, vector<vector<int>>*, int, int, int, int, int, int**, double**, int**);
-template void BHC <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, int, int, double, int**, double**, int**);
+template void BHC <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, int, int, double, double**, double**, int**);
 
 template <typename Point>
-void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int dim, int M, int probes, Point w, int** min_distance, double** time, int** nearest_neighbor){
+void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int dim, int M, int probes, Point w, Point** min_distance, double** time, int** nearest_neighbor){
     int d_size = dataset->size();
     int s_size = searchset->size();
     /* d-dimensional vectors */
