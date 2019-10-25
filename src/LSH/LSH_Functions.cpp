@@ -12,11 +12,11 @@ void show_lsh_usage(string name)
 {
     cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
               << "Options:\n"
-              << "\t-d <input file>  (MANDATORY) Path to data file\n"
-              << "\t-q <query file>  (MANDATORY) Path to search file\n"
-              << "\t-k <int>         (OPTIONAL)  Number of hi function for construction of g function\n"
-              << "\t-L <int>         (OPTIONAL)  Number of Hash tables\n"
-              << "\t-o <output file> (MANDATORY) Path to file of results\n"
+              << "\t-d <input file>  Path to data file\n"
+              << "\t-q <query file>  Path to search file\n"
+              << "\t-k <int>         Number of hi function for construction of g function\n"
+              << "\t-L <int>         Number of Hash tables\n"
+              << "\t-o <output file> Path to file of results\n"
               << endl;
 }
 

@@ -34,7 +34,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* results */
     vector<vector<vector<vector<Point>>>> ANN;
 
-    cout << "Computing w ... " << endl;
+    cout << "\nComputing w ... " << endl;
     //w = 4*compute_window(dataset);
     cout << "Computed w : " << w << endl;
 
@@ -122,7 +122,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
             /* for every vector in the same bucket (max 4*L calculations) */
             computations = 0;
             for (int j = 0; j < ANN[i][q].size() && computations < 25; j++) {
-//                cout << query_amplified_g[i][q] << " " << data_amplified_g[i][(int)ANN[i][q][j][0]] << endl;
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
                     distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
                     if ((distance < (*min_distance)[q]) || (*min_distance)[q] == -1) {

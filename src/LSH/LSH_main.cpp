@@ -12,6 +12,7 @@ int main(int argc, char* argv[]){
     int k = 4, L = 5;                                           // Default Values
     string data_file, search_file, results_file;
     int df = 0, sf = 0, rf = 0;
+    char rerun;
     for (int i = 1; i < argc; i++){
         string arg = argv[i];
         if(arg == "-d"){
@@ -60,79 +61,99 @@ int main(int argc, char* argv[]){
             return -1;
         }
     }
-    if(df == 0 || sf == 0 || rf == 0){
-        cout << "-- WRONG NUMBER OF FILES -- \n";
-        show_lsh_usage(argv[0]);
-        return -1;
-    }
+    do {
+        if (df == 0) {
+            cout << "Path to data file (<input file>):" << endl;
+            cin >> data_file;
+            while (access(data_file.c_str(), F_OK) == -1) {
+                cout << "-- Wrong <input file> -- \n";
+                cin >> data_file;
+            }
+        } else df = 0;
+        if (sf == 0) {
+            cout << "Path to search file (<query file>):" << endl;
+            cin >> search_file;
+            while (access(search_file.c_str(), F_OK) == -1) {
+                cout << "-- Wrong <query file> -- \n";
+                cin >> search_file;
+            }
+        } else sf = 0;
+        if (rf == 0) {
+            cout << "Path to file of results (<output file>):" << endl;
+            cin >> results_file;
+        } else rf = 0;
 
-    /* vectors for the data and query points */
-    vector<vector<int>> dataset;
-    vector<vector<int>> searchset;
+        /* vectors for the data and query points */
+        vector <vector<int>> dataset;
+        vector <vector<int>> searchset;
 
-    /* read data set and query set and load them in vectors */
-    int error_code = Read_point_files(&dataset, &searchset, data_file, search_file);
-    if (error_code == -1) return -1;
+        /* read data set and query set and load them in vectors */
+        int error_code = Read_point_files(&dataset, &searchset, data_file, search_file);
+        if (error_code == -1) return -1;
 
-    /* compute window for all hash tables (try *4 or *10) */
-    //Point w = 4*compute_window(dataset);
-    int w = 4*1140;
+        /* compute window for all hash tables (try *4 or *10) */
+        //Point w = 4*compute_window(dataset);
+        int w = 4 * 1140;
 
-    /* do brute force to find actual NNs */
-    vector<int> TrueDistances;
-    vector<double> TrueTimes;
-    // TODO: make compilation of brute force in makefile
-    brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        /* do brute force to find actual NNs */
+        vector<int> TrueDistances;
+        vector<double> TrueTimes;
+        // TODO: make compilation of brute force in makefile
+        brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
 
-    /* results */
-    int *min_distance = new int [searchset.size()];
-    int *nearest_neighbor = new int [searchset.size()];
-    double *time = new double [searchset.size()];
-    for (int i = 0; i < searchset.size(); i++) {
-        min_distance[i] = INT_MAX;
-        nearest_neighbor[i] = -1;
-        time[i] = 0;
-    }
-
-    /* ---- CALL LSH ---- */
-    LSH(&dataset, &searchset, k, L, w, &min_distance, &time, &nearest_neighbor);
-
-    /* variables */
-    double max_af = 0.0;
-    double average_af = 0.0;
-    double curr_fraction = 0.0;
-    double average_time = 0.0;
-
-    /* Results for every curve query */
-    for (int q = 0; q < searchset.size(); q++) {
-        if (min_distance[q] != INT_MAX) {
-            curr_fraction = (double) min_distance[q] / TrueDistances[q];
-            if (curr_fraction > max_af) max_af = curr_fraction;
-            average_af += curr_fraction;
-            average_time += time[q];
+        /* results */
+        int *min_distance = new int[searchset.size()];
+        int *nearest_neighbor = new int[searchset.size()];
+        double *time = new double[searchset.size()];
+        for (int i = 0; i < searchset.size(); i++) {
+            min_distance[i] = INT_MAX;
+            nearest_neighbor[i] = -1;
+            time[i] = 0;
         }
-    }
 
-    /* print results */
-    average_af = average_af / searchset.size();
-    average_time = average_time / searchset.size();
-    cout << "Variables used: | k = " << k << " | L = " << L << endl;
-    cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
-    cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
-    cout << "Average Time of LSH Distance Computation = " << average_time << endl;
+        /* ---- CALL LSH ---- */
+        LSH(&dataset, &searchset, k, L, w, &min_distance, &time, &nearest_neighbor);
 
-    /* open file to write results */
-    ofstream neighbors_file;
-    neighbors_file.open ("./output/"+results_file);
-    for (int i = 0; i < searchset.size(); i++) {
-        neighbors_file << "Query: " << i + 1 << endl;
-        neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i]<< endl;
-        neighbors_file << "distanceLSH: " << min_distance[i] << endl;
-        neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
-        neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
-        neighbors_file << "tTrue: " << setprecision(9) << showpoint << fixed << TrueTimes[i] << endl << endl;
-    }
-    neighbors_file.close();
+        /* variables */
+        double max_af = 0.0;
+        double average_af = 0.0;
+        double curr_fraction = 0.0;
+        double average_time = 0.0;
+
+        /* Results for every curve query */
+        for (int q = 0; q < searchset.size(); q++) {
+            if (min_distance[q] != INT_MAX) {
+                curr_fraction = (double) min_distance[q] / TrueDistances[q];
+                if (curr_fraction > max_af) max_af = curr_fraction;
+                average_af += curr_fraction;
+                average_time += time[q];
+            }
+        }
+
+        /* print results */
+        average_af = average_af / searchset.size();
+        average_time = average_time / searchset.size();
+        cout << "Variables used: | k = " << k << " | L = " << L << endl;
+        cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
+        cout << "Average Approximation Fraction (LSH Distance / True Distance) = " << average_af << endl;
+        cout << "Average Time of LSH Distance Computation = " << average_time << endl;
+
+        /* open file to write results */
+        ofstream neighbors_file;
+        neighbors_file.open("./output/" + results_file);
+        for (int i = 0; i < searchset.size(); i++) {
+            neighbors_file << "Query: " << i + 1 << endl;
+            neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i] << endl;
+            neighbors_file << "distanceLSH: " << min_distance[i] << endl;
+            neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
+            neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
+            neighbors_file << "tTrue: " << setprecision(9) << showpoint << fixed << TrueTimes[i] << endl << endl;
+        }
+        neighbors_file.close();
+
+        cout<<"\nDo you want to run this program again? (y/n)\n";
+        cin>>rerun;
+    }while (rerun == 'y' || rerun == 'Y');
 
     return 0;
 }

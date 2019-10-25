@@ -37,7 +37,7 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* results */
     vector<vector<vector<vector<Point>>>> ANN;
 
-    cout << "Computing w ... " << endl;
+    cout << "\nComputing w ... " << endl;
     //w = 4*compute_window(dataset);
     cout << "Computed w : " << w << endl;
 

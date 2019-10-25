@@ -6,12 +6,12 @@ void show_bhc_usage(string name)
 {
     cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
               << "Options:\n"
-              << "\t-d <input file>  (MANDATORY) Path to data file\n"
-              << "\t-q <query file>  (MANDATORY) Path to search file\n"
-              << "\t-k <int>         (OPTIONAL)  Dimension of Hypercube\n"
-              << "\t-M <int>         (OPTIONAL)  Max allowed points to check\n"
-              << "\t-probes <int>    (OPTIONAL)  Max allowed vertices to check\n"
-              << "\t-o <output file> (MANDATORY) Path to file of results\n"
+              << "\t-d <input file>  Path to data file\n"
+              << "\t-q <query file>  Path to search file\n"
+              << "\t-k <int>         Dimension of Hypercube\n"
+              << "\t-M <int>         Max allowed points to check\n"
+              << "\t-probes <int>    Max allowed vertices to check\n"
+              << "\t-o <output file> Path to file of results\n"
               << endl;
 }
 
