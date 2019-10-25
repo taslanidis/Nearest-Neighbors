@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
         /* do brute force to find actual NNs */
         vector<int> TrueDistances;
         vector<double> TrueTimes;
-        // TODO: make compilation of brute force in makefile
+
         brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
 
         /* results */
@@ -164,6 +164,17 @@ int main(int argc, char* argv[]) {
             neighbors_file << endl;
         }
         neighbors_file.close();
+
+        /* clean memory */
+        delete[] min_distance;
+        delete[] nearest_neighbor;
+        delete[] time;
+        /* clear underlying memory of vectors for next iteration */
+        vector<vector<int>>().swap(R_neighbors);
+        vector <vector<int>>().swap(dataset);
+        vector <vector<int>>().swap(searchset);
+        vector<int>().swap(TrueDistances);
+        vector<double>().swap(TrueTimes);
 
         cout<<"\nDo you want to run this program again? (y/n)\n";
         cin>>rerun;

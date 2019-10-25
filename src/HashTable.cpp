@@ -29,7 +29,7 @@ vector<vector<data>>* HashTable<data>::Search_Neighbors(int HashCode){
 template <class data>
 HashTable<data>::~HashTable(){
     /* TODO: free memory recursively */
-    delete(pTable);
+    delete[] pTable;
     return;
 }
 

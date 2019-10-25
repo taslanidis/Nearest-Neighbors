@@ -42,19 +42,19 @@ lsh : HashTable.o Helper_Functions.o LSH_Functions.o LSH.o LSH_main.o
 	g++ -std=c++11 -I ./lib ./build/LSH_main.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/lsh.x
 
 LSH_main.o :
-	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH_main.cpp -o ./build/LSH_main.o
+	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH_main.cpp -o ./build/LSH_main.o
 
 LSH.o :
-	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH.cpp -o ./build/LSH.o
+	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH.cpp -o ./build/LSH.o
 
 LSH_Functions.o :
-	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH_Functions.cpp -o ./build/LSH_Functions.o
+	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH_Functions.cpp -o ./build/LSH_Functions.o
 
 Helper_Functions.o :
-	g++ -std=c++11 -I ./lib -c ./src/Helper_Functions.cpp -o ./build/Helper_Functions.o
+	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Helper_Functions.cpp -o ./build/Helper_Functions.o
 
 HashTable.o :
-	g++ -std=c++11 -I ./lib -c ./src/HashTable.cpp -o ./build/HashTable.o
+	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/HashTable.cpp -o ./build/HashTable.o
 
 clean:
 	-rm -f ./build/*.o

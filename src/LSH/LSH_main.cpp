@@ -106,11 +106,13 @@ int main(int argc, char* argv[]){
         int *min_distance = new int[searchset.size()];
         int *nearest_neighbor = new int[searchset.size()];
         double *time = new double[searchset.size()];
+        /* init arrays */
         for (int i = 0; i < searchset.size(); i++) {
             min_distance[i] = INT_MAX;
             nearest_neighbor[i] = -1;
             time[i] = 0;
         }
+        /* results for bonus */
         vector<vector<int>> R_neighbors;
 
         /* ---- CALL LSH ---- */
@@ -161,6 +163,17 @@ int main(int argc, char* argv[]){
             neighbors_file << endl;
         }
         neighbors_file.close();
+
+        /* clean memory */
+        delete[] min_distance;
+        delete[] nearest_neighbor;
+        delete[] time;
+        /* clear underlying memory of vectors for next iteration */
+        vector<vector<int>>().swap(R_neighbors);
+        vector <vector<int>>().swap(dataset);
+        vector <vector<int>>().swap(searchset);
+        vector<int>().swap(TrueDistances);
+        vector<double>().swap(TrueTimes);
 
         cout<<"\nDo you want to run this program again? (y/n)\n";
         cin>>rerun;

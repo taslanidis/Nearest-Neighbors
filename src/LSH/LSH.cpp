@@ -16,7 +16,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     int d = (*dataset)[0].size();
     /* Size of Hash Table */
     int TableSize = d_size / 16;
-    HashTable <Point> *MyHashTable[L];
+    HashTable <Point> **MyHashTable = new HashTable <Point>* [L];
     /* vector containing (k,d) shifts */
     vector<vector<double>> s;
     /* H of size (k, dataset.size()) */
@@ -33,6 +33,10 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     vector<int> temp_g;
     /* results */
     vector<vector<vector<vector<Point>>>> ANN;
+    /* approximate nearest neighbors for each L iter */
+    vector<vector<vector<Point>>> ANNi;
+    /* vector for bonus */
+    vector<int> Curr_R_Neighbors;
 
     cout << "\nComputing w ... " << endl;
     //w = 4*compute_window(dataset);
@@ -58,12 +62,18 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
             compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
 
-            H.clear();
-            a_projects.clear();
+            /* clear only deletes data, but does not free the underlying storage
+            so we use swap */
+            vector<int>().swap(H);
+            vector<vector<int>>().swap(a_projects);
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
         data_amplified_g.push_back(temp_g);
+
+        /* clear hash functions for search set */
+        vector<vector<int>>().swap(hash_functions);
+        vector<int>().swap(temp_g);
 
         /* Now that we have the hash codes, lets put them in the hash table
         *  Insert all items inside the Hash Table */
@@ -71,12 +81,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < dataset->size(); i++) {
             MyHashTable[l]->Insert(data_amplified_g[l][i], (*dataset)[i]);
         }
-
-        /* clear hash functions for search set */
-        hash_functions.clear();
-        hash_functions.shrink_to_fit();
-        temp_g.clear();
-        temp_g.shrink_to_fit();
 
         /* ------------------------ SEARCH SET ----------------------------*/
         /* do the same for the queries, and put them inside the hash table */
@@ -86,36 +90,34 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
 
             compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
-            H.clear();
-            a_projects.clear();
+
+            /* clear only deletes data, but does not free the underlying storage
+            so we use swap */
+            vector<int>().swap(H);
+            vector<vector<int>>().swap(a_projects);
         } /* end for */
         /* compute the amplified hashes for every item */
         amplify_hash(&temp_g, &hash_functions, k);
         query_amplified_g.push_back(temp_g);
 
+        /* clear hash functions for search set */
+        vector<vector<int>>().swap(hash_functions);
+        vector<int>().swap(temp_g);
 
         /* calculate approximate nearest neighbors */
-        vector<vector<vector<Point>>> ANNi;
         for (int i = 0; i < searchset->size(); i++) {
             ANNi.push_back(*MyHashTable[l]->Search_Neighbors(query_amplified_g[l][i]));
         }
         ANN.push_back(ANNi);
 
         /* clear hash functions and s for next iteration */
-        ANNi.clear();
-        ANNi.shrink_to_fit();
-        hash_functions.clear();
-        hash_functions.shrink_to_fit();
-        temp_g.clear();
-        temp_g.shrink_to_fit();
-        s.clear();
-        s.shrink_to_fit();
+        vector<vector<vector<Point>>>().swap(ANNi);
+        vector<vector<double>>().swap(s);
     }
 
     double distance;
     int Metric = 1; //default
     int computations = 0;
-    vector<int> Curr_R_Neighbors;
     for (int q = 0; q < searchset->size(); q++) {
         /* for every hash table L */
         auto start = chrono::high_resolution_clock::now();
@@ -146,7 +148,17 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         if (position != Curr_R_Neighbors.end())
             Curr_R_Neighbors.erase(position);
         R_Neighbors->push_back(Curr_R_Neighbors);
-        Curr_R_Neighbors.clear();
-        Curr_R_Neighbors.shrink_to_fit();
+
+        /* clean underlying memory of the vector */
+        vector<int>().swap(Curr_R_Neighbors);
     }
+
+    /* clean memory */
+    vector<vector<vector<vector<Point>>>>().swap(ANN);
+    delete[] power;
+    for (int l = 0; l < L; l++) {
+        delete MyHashTable[l];
+    }
+    delete[] MyHashTable;
+
 }

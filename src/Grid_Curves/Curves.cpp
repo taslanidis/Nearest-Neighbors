@@ -69,7 +69,10 @@ int main(int argc, char* argv[]) {
     double *min_distance;
     int *nearest_neighbor;
     double *time;
+    /* first hashing */
     vector<int*> hashed_neighbors;
+    /* bonus r radius */
+    vector<vector<int>> R_neighbors;
 
     /*  ----------- Loop this L times and then dtw on those L nn sets -------- */
     for (int i = 0; i < L_grid; i++) {
@@ -296,8 +299,8 @@ int main(int argc, char* argv[]) {
     neighbors_file.close();
 
     /* clean remaining used memory */
-    delete (min_distance);
-    delete (nearest_neighbor);
+    delete[] min_distance;
+    delete[] nearest_neighbor;
     for (int i = 0; i < hashed_neighbors.size(); i++) {
         delete(hashed_neighbors[i]);
     }
