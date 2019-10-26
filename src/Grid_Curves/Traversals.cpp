@@ -69,6 +69,7 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
     } else{
         stepi = (double) len1 / len2;
     }
+    vector<vector<int>> points;
     for (double i = 0; i < len1; i+=stepi) {
         vector<int> temp;
         int temp_i, temp_j;
@@ -76,13 +77,13 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
         vector<int> pair1;
         pair1.push_back(floor(i));
         pair1.push_back(floor(j));
-        v->push_back(pair1);
+        points.push_back(pair1);
         temp_i = pair1[0] - 1;                               // element below
         temp_j = pair1[1];
         if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
             temp.push_back(temp_i);
             temp.push_back(temp_j);
-            v->push_back(temp);
+            points.push_back(temp);
             vector<int>().swap(temp);
         }
         temp_i = pair1[0] + 1;                               // element above
@@ -90,20 +91,20 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
         if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
             temp.push_back(temp_i);
             temp.push_back(temp_j);
-            v->push_back(temp);
+            points.push_back(temp);
             vector<int>().swap(temp);
         }
         if((ceil(j) != floor(j)) && (ceil(j) < len2)) {
             vector<int> pair2;
             pair2.push_back(floor(i));
             pair2.push_back(ceil(j));
-            v->push_back(pair2);
+            points.push_back(pair2);
             temp_i = pair2[0] - 1;                               // element below
             temp_j = pair2[1];
             if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
                 temp.push_back(temp_i);
                 temp.push_back(temp_j);
-                v->push_back(temp);
+                points.push_back(temp);
                 vector<int>().swap(temp);
             }
             temp_i = pair2[0] + 1;                               // element above
@@ -111,12 +112,28 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
             if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
                 temp.push_back(temp_i);
                 temp.push_back(temp_j);
-                v->push_back(temp);
+                points.push_back(temp);
                 vector<int>().swap(temp);
             }
         }
     }
-    v->erase( unique( v->begin(), v->end() ), v->end() );
+    vector<int> temp_point;
+    int found;
+    for(int i = 0; i < points.size(); i++){
+        found = 0;
+        for ( int j = 0; j < v->size(); j++){
+            if(points[i][0] == (*v)[j][0] && points[i][1] == (*v)[j][1]){
+                found = 1;
+                break;
+            }
+        }
+        if ( found == 0 ){
+            temp_point.push_back(points[i][0]);
+            temp_point.push_back(points[i][1]);
+            v->push_back(temp_point);
+            vector<int>().swap(temp_point);
+        }
+    }
 }
 
 //points    : All points in diagonal +-1 cell
@@ -199,10 +216,12 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
 
 void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int len2) {
     vector<vector<int>> points;
+
     find_diagonal(&points, len1, len2);
+    cout << len1 << "  " << len2 << endl;
+    for ( int i = 0; i <points.size(); i++){
+        cout << points[i][0] << "  ,  " << points[i][1] << endl;
+    }
     vector<vector<int>> traversals;
     find_traversals(&points, 0, 0, len1, len2, &traversals, Traversals);
-
-//    Traversals->push_back(traversal);
-    /* find all +1 and -1 from the diagonal and push into vector */
 }
