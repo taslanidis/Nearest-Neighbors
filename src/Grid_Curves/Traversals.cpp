@@ -123,7 +123,7 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
 //i, j      : Current position of the robot (For the first call use 0,0)
 //len1, len2: Dimensions of given the matrix
 //traversal : The path traversed by robot till now (Vector to hold the path) */
-void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int len2, vector<vector<int>>* traversal)
+void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int len2, vector<vector<int>>* traversal, vector<vector<vector<int>>>* Traversals)
 {
     vector<int> temp_step;
     // Reached the top of the matrix so we are left with
@@ -136,6 +136,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
             traversal->push_back(temp_step);
             vector<int>().swap(temp_step);
         }
+        Traversals->push_back(traversal);
         return;
     }
 
@@ -149,6 +150,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
             traversal->push_back(temp_step);
             vector<int>().swap(temp_step);
         }
+        Traversals->push_back(traversal);
         return;
     }
 
@@ -199,7 +201,7 @@ void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int 
     vector<vector<int>> points;
     find_diagonal(&points, len1, len2);
     vector<vector<int>> traversals;
-    find_traversals(&points, 0, 0, len1, len2, &traversals);
+    find_traversals(&points, 0, 0, len1, len2, &traversals, Traversals);
 
 //    Traversals->push_back(traversal);
     /* find all +1 and -1 from the diagonal and push into vector */
