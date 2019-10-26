@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
                 /* clear vector */
                 vector<vector<vector<double>>>().swap(traverse_with_coords);
             }
+            vector<vector<vector<int>>>().swap(traversals);
         }
     }
 

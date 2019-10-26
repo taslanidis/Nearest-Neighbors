@@ -240,5 +240,4 @@ void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int 
         }
         cout << endl;
     }
-    getchar();
 }
