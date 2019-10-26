@@ -127,6 +127,80 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
     return 1;
 }
 
+int Read_curve_files_max_dim(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, string data_filename, string query_filename, double max_dim) {
+    string line;
+    int id, trash;
+    char bracket, comma;
+    double number;
+    double* point;
+    vector<double*> v;
+
+    ifstream input_file(data_filename);
+    ifstream query_file(query_filename);
+
+    id = 0;
+    while (getline(input_file, line)) {
+        stringstream ss(line);
+        /* id */
+        ss >> trash;
+        point = new double [2];
+        point[0] = id;
+        /* length */
+        ss >> point[1];
+        if (point[1] <= max_dim) {
+            v.push_back(point);
+            /* for all data points */
+            while (ss >> bracket) {
+                point = new double[2];
+                ss >> point[0];
+                ss >> comma;
+                ss >> point[1];
+                ss >> bracket;
+                v.push_back(point);
+            }
+            dataset->push_back(v);
+            v.clear();
+            id++;
+        }
+    }
+
+    id = 0;
+    while (getline(query_file, line)) {
+        stringstream ss(line);
+        /* id */
+        ss >> trash;
+        point = new double [2];
+        point[0] = id;
+        /* length */
+        ss >> point[1];
+        if (point[1] <= max_dim) {
+            v.push_back(point);
+            /* for all data points */
+            while (ss >> bracket) {
+                point = new double[2];
+                ss >> point[0];
+                ss >> comma;
+                ss >> point[1];
+                ss >> bracket;
+                v.push_back(point);
+            }
+            searchset->push_back(v);
+            v.clear();
+            id++;
+        }
+    }
+
+    if (dataset->size() == 0) {
+        cerr << "Error: dataset file is empty!" << endl;
+        return -1;
+    }
+    if (searchset->size() == 0) {
+        cerr << "Error: searchset file is empty!" << endl;
+        return -1;
+    }
+    return 1;
+}
+
 template <typename Point>
 double dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
     /* Lk metric
