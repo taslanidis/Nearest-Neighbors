@@ -7,40 +7,146 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    /* check arguments */
-    if (argc != 3) {
-        cout << "We need input_file and query file" << endl;
-        return -1;
-    }
-
     /* variable declaration | k = 4 default value */
-    int d = 2, L_grid = 4;
+    int L_grid = 4;
     double R = 1500;
+    /* default 2D curves */
+    int d = 2;
 
+    /* default values for LSH and Hypercube */
 #ifdef _LSH_
     int k_vec = 2, L_vec = 1;
 #endif
 
 #ifdef _BHC_
-    int k_vec = 2, M = 10, probes = 20, dim = 3;
+    int k_hypercube = 2, M = 10, probes = 20, dim = 3;
 #endif
 
+    /* read arguments */
+    string data_file, search_file, results_file;
+    int df = 0, sf = 0, rf = 0, input_flag = 0;
+    char rerun;
+    for (int i = 1; i < argc; i++){
+        string arg = argv[i];
+        if(arg == "-d"){
+            if(i+1 < argc){
+                data_file = argv[++i];
+                if(access( data_file.c_str(), F_OK ) == -1){
+                    cout << "-- Wrong <input file> -- \n";
+                    input_flag = 1;
+                    break;
+                }
+                df = 1;
+            }else{
+                cout << "-- NO <input file> -- \n";
+                input_flag = 1;
+                break;
+            }
+        }else if (arg == "-q"){
+            if(i+1 <= argc){
+                search_file = argv[++i];
+                if(access( search_file.c_str(), F_OK ) == -1){
+                    cout << "-- Wrong <query file> -- \n";
+                    input_flag = 1;
+                    break;
+                }
+                sf = 1;
+            }else{
+                cout << "-- NO <query file> -- \n";
+                input_flag = 1;
+                break;
+            }
+        }else if(arg == "-o"){
+            if(i+1 <= argc){
+                results_file = argv[++i];
+                rf = 1;
+            }else{
+                cout << "-- NO <output file> -- \n";
+                input_flag = 1;
+                break;
+            }
+        }else if(arg == "-L_grid"){
+            L_grid = atoi(argv[++i]);
+        }
+
+#ifdef _LSH_
+        else if(arg == "-k_vec"){
+            k_vec = atoi(argv[++i]);
+        }
+#endif
+
+#ifdef _BHC_
+        else if(arg == "-k_hypercube"){
+            k_hypercube = atoi(argv[++i]);
+        }
+        else if(arg == "-M"){
+            M = atoi(argv[++i]);
+        }
+        else if(arg == "-probes"){
+            probes = atoi(argv[++i]);
+        }
+#endif
+
+        else{
+            input_flag = 1;
+            break;
+        }
+    }
+
+    /* --Help: missing data -> print usage */
+    if (input_flag == 1) {
+#ifdef _LSH_
+        show_grid_lsh_usage(argv[0]);
+#endif
+#ifdef _BHC_
+        show_grid_bhc_usage(argv[0]);
+#endif
+        return -1;
+    }
+    /* end of reading data */
+
+    /* verify data */
+    if (df == 0) {
+        cout << "Path to data file (<input file>):" << endl;
+        cin >> data_file;
+        while (access(data_file.c_str(), F_OK) == -1) {
+            cout << "-- Wrong <input file> -- \n";
+            cin >> data_file;
+        }
+    } else df = 0;
+    if (sf == 0) {
+        cout << "Path to search file (<query file>):" << endl;
+        cin >> search_file;
+        while (access(search_file.c_str(), F_OK) == -1) {
+            cout << "-- Wrong <query file> -- \n";
+            cin >> search_file;
+        }
+    } else sf = 0;
+    if (rf == 0) {
+        cout << "Path to file of results (<output file>):" << endl;
+        cin >> results_file;
+    } else rf = 0;
+    /* end of verifying data */
+
+    /* start of curve hashing */
     int m1, m2, error_code, min;
     double delta;
     /* vectors for the data and query points */
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
     /* read data set and query set and load them in vectors */
-    error_code = Read_curve_files(&dataset, &searchset, argv[1], argv[2]);
-    if (error_code == -1) return -1;
+    error_code = Read_curve_files(&dataset, &searchset, data_file, search_file);
+    if (error_code == -1){
+        cout << "Exiting ..." << endl;
+        return -1;
+    }
 
     /* dataset sizes */
     m1 = dataset.size();
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    //delta = 4*d*min - 1;
-    delta = 0.15; // 0.15 gave us good results
+    delta = 0.15; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
 
 
     /* compute window for all hash tables (try *4 or *10) */
@@ -195,18 +301,9 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
 
-        /* debugging */
-         /*for (int i = 0; i < search_vectored_curves.size(); i++){
-             for (int j = 0; j < search_vectored_curves[i].size(); j++){
-                 cout << search_vectored_curves[i][j] << " | ";
-             }
-             cout << endl;
-             getchar();
-         }*/
-
 #ifdef _BHC_
         /* ---------------- Hashing them again with Hypercube ------------------ */
-        BHC(&data_vectored_curves, &search_vectored_curves, k_vec, dim, M, probes, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
+        BHC(&data_vectored_curves, &search_vectored_curves, k_hypercube, dim, M, probes, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
 #endif
 
 #ifdef _LSH_
@@ -281,12 +378,8 @@ int main(int argc, char* argv[]) {
     Method = "HyperCube";
     #endif
     ofstream neighbors_file;
-    /* filename append */
-    string filename = "./output/curves_grid_";
-    filename.append(Method);
-    filename.append(".txt");
     /* open file to dump all query results */
-    neighbors_file.open (filename);
+    neighbors_file.open(results_file);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;

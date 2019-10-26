@@ -1,6 +1,32 @@
 #include "Traversals.h"
 #include "Helper_Functions.h"
 
+void show_grid_lsh_usage(string name)
+{
+    cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
+              << "Options:\n"
+              << "\t-d <input file>  Path to data file\n"
+              << "\t-q <query file>  Path to search file\n"
+              << "\t-k_vec <int>         Number of hi function for construction of g function\n"
+              << "\t-L_grid <int>         Number of Grids\n"
+              << "\t-o <output file> Path to file of results\n"
+              << endl;
+}
+
+void show_grid_bhc_usage(string name)
+{
+    cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
+              << "Options:\n"
+              << "\t-d <input file>  Path to data file\n"
+              << "\t-q <query file>  Path to search file\n"
+              << "\t-k_hypercube <int>         Dimension of Hypercube\n"
+              << "\t-L_grid <int>         Number of Grids\n"
+              << "\t-M <int>         Max allowed points to check\n"
+              << "\t-probes <int>    Max allowed vertices to check\n"
+              << "\t-o <output file> Path to file of results\n"
+              << endl;
+}
+
 void shift_grid(vector<double>* orthogonal_grid, int delta, int d) {
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);

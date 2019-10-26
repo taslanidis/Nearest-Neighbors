@@ -14,15 +14,7 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
     vector<int> v;
 
     ifstream input_file(data_filename);
-//    if (!input_file) {
-//        cout << "Wrong input_file!" << endl;
-//        return -1;
-//    }
     ifstream query_file(query_filename);
-//    if (!query_file) {
-//        cout << "Wrong query_file!" << endl;
-//        return -1;
-//    }
 
     id = 0;
     while (getline(input_file, line)) {
@@ -52,10 +44,20 @@ int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchse
         id++;
     }
 
+    if (dataset->size() == 0) {
+        cerr << "Error: dataset file is empty!" << endl;
+        return -1;
+    }
+    /* <= 1 because first line is radius */
+    if (searchset->size() <= 1) {
+        cerr << "Error: searchset file is empty!" << endl;
+        return -1;
+    }
+
     return 1;
 }
 
-int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, char* data_filename, char* query_filename) {
+int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, string data_filename, string query_filename) {
     string line;
     int id, trash;
     char bracket, comma;
@@ -64,16 +66,7 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
     vector<double*> v;
 
     ifstream input_file(data_filename);
-    if (!input_file) {
-        cout << "Wrong input_file!" << endl;
-        return -1;
-    }
-
     ifstream query_file(query_filename);
-    if (!query_file) {
-        cout << "Wrong query_file!" << endl;
-        return -1;
-    }
 
     id = 0;
     while (getline(input_file, line)) {
@@ -123,6 +116,14 @@ int Read_curve_files(vector<vector<double*>>* dataset, vector<vector<double*>>* 
         id++;
     }
 
+    if (dataset->size() == 0) {
+        cerr << "Error: dataset file is empty!" << endl;
+        return -1;
+    }
+    if (searchset->size() == 0) {
+        cerr << "Error: searchset file is empty!" << endl;
+        return -1;
+    }
     return 1;
 }
 
