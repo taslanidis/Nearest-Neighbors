@@ -136,7 +136,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
             traversal->push_back(temp_step);
             vector<int>().swap(temp_step);
         }
-        Traversals->push_back(traversal);
+        Traversals->push_back(*traversal);
         return;
     }
 
@@ -150,7 +150,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
             traversal->push_back(temp_step);
             vector<int>().swap(temp_step);
         }
-        Traversals->push_back(traversal);
+        Traversals->push_back(*traversal);
         return;
     }
 
@@ -169,7 +169,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
         }
     }
     if (found1 == 1) {
-        find_traversals(points, i + 1, j, len1, len2, traversal);
+        find_traversals(points, i + 1, j, len1, len2, traversal,Traversals);
     }
 
     // Print all the paths that are possible after moving right
@@ -181,7 +181,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
         }
     }
     if (found2 == 1) {
-        find_traversals(points, i, j + 1, len1, len2, traversal);
+        find_traversals(points, i, j + 1, len1, len2, traversal,Traversals);
     }
 
     //Print all the paths that are possible after moving diagonal
@@ -193,7 +193,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
 //        }
 //    }
 //    if (found3 == 1) {
-//        find_traversals(points, i + 1, j + 1, len1, len2, traversal);
+//        find_traversals(points, i + 1, j + 1, len1, len2, traversal,Traversals);
 //    }
 }
 
