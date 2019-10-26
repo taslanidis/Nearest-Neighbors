@@ -156,11 +156,16 @@ int main(int argc, char* argv[]) {
     int max_points = 0, elements = 0;
 
     /* do brute force to find actual NNs */
-    cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
+    char bfsearch;
     vector<double> TrueDistances;
     vector<double> TrueTimes;
-    //curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
-    cout << "Found exact neighbors. Proceeding to hashing ..." << endl;
+    cout << "Do you want to run Brute Force for extra statistics at the end?" << endl << " (Press y or Y + enter to run, else press any other character)." << endl;
+    cin >> bfsearch;
+    if (bfsearch == 'y' || bfsearch == 'Y') {
+        cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
+        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        cout << "Found exact neighbors." << endl;
+    }
 
     /* orthogonal grid of size d */
     vector<double> orthogonal_grid;
@@ -181,6 +186,7 @@ int main(int argc, char* argv[]) {
     /* bonus r radius */
     vector<vector<int>> R_neighbors;
 
+    cout << "Preprocessing complete. Proceeding to hashing ..." << endl;
     /*  ----------- Loop this L times and then dtw on those L nn sets -------- */
     for (int i = 0; i < L_grid; i++) {
         /* ----------------------- HASHING with ORTHOGONAL GRID ---------------------- */
@@ -353,21 +359,24 @@ int main(int argc, char* argv[]) {
        }
     }
 
+    /* Statistics available only when Brute Force is on */
+    if (bfsearch == 'y' || bfsearch == 'Y') {
     /* compare with DTW the L different neighbors for every q*/
     /* Results for every curve query */
-    // int computations = 0;
-    // for (int q = 0; q < searchset.size(); q++) {
-    //     curr_fraction = (double) min_distance[q] / TrueDistances[q];
-    //     if (curr_fraction > max_af) max_af = curr_fraction;
-    //     average_af += curr_fraction;
-    // }
-    //
-    // /* --- RESULTS --- */
-    // average_af = average_af / searchset.size();
-    // average_time = average_time / searchset.size();
-    // cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
-    // cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
-    // cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
+        int computations = 0;
+        for (int q = 0; q < searchset.size(); q++) {
+            curr_fraction = (double) min_distance[q] / TrueDistances[q];
+            if (curr_fraction > max_af) max_af = curr_fraction;
+            average_af += curr_fraction;
+        }
+
+        /* --- RESULTS --- */
+        average_af = average_af / searchset.size();
+        average_time = average_time / searchset.size();
+        cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
+        cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
+        cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
+    }
 
     /* open file to write results */
     string Method;
@@ -393,6 +402,9 @@ int main(int argc, char* argv[]) {
     }
     neighbors_file.close();
 
+    cout << "Wrote results on " << results_file << endl;
+    cout << "Statistics are available only when Brute Force option is selected." << endl;
+
     /* clean remaining used memory */
     delete[] min_distance;
     delete[] nearest_neighbor;
@@ -407,5 +419,6 @@ int main(int argc, char* argv[]) {
     vector<int*>().swap(hashed_neighbors);
     /* end of cleaning */
 
+    cout << "Goodbye ..." << endl;
     return 0;
 }
