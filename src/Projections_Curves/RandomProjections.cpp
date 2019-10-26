@@ -53,9 +53,9 @@ int main(int argc, char* argv[]) {
     cout << "Creating MxM array where M is: " << M << endl;
     /* Find relevant traversals, all the pairs (Ui,Vi)
      * and we keep the indexes for every pair of curve */
-    vector<vector<vector<int>>>** TraversalsTable = new vector<vector<vector<int>>>* [M];
+    vector<vector<vector<vector<double>>>>** TraversalsTable = new vector<vector<vector<vector<double>>>>* [M];
     for (int i = 0; i < M; i++) {
-        TraversalsTable[i] = new vector<vector<vector<int>>> [M];
+        TraversalsTable[i] = new vector<vector<vector<vector<double>>>> [M];
     }
 
     vector<vector<vector<int>>> traversals;
@@ -76,16 +76,20 @@ int main(int argc, char* argv[]) {
                 /* for every pair */
                 for (int t = 0; t < traversals[k].size(); k++) {
                     /* for U and V */
-                    for (int p = 0; p < traversals[k][t].size(); p++) {
-                        index_x = traversals[k][t][p][0];
-                        index_y = traversals[k][t][p][0]
-                        coords.push_back(dataset[i][index_u][0]);
-                        coords.push_back(dataset[i][index_u][1]);
-                        pair_cords.push_back(coords);
-                    }
-                    traverse_with_cords.push_back(pair_cords);
+                    index_x = traversals[k][t][0];
+                    index_y = traversals[k][t][1];
+                    coords.push_back(dataset[i][index_x][0]);
+                    coords.push_back(dataset[i][index_x][1]);
+                    pair_coords.push_back(coords);
+                    vector<double>().swap(coords);
+                    coords.push_back(searchset[j][index_y][0]);
+                    coords.push_back(searchset[j][index_y][1]);
+                    pair_coords.push_back(coords);
+                    traverse_with_coords.push_back(pair_coords);
+                    vector<vector<double>>().swap(pair_coords);
                 }
-                traversals_to_coordinates.push_back(traverse_with_cords);
+                traversals_to_coordinates.push_back(traverse_with_coords);
+                vector<vector<vector<double>>>().swap(traverse_with_coords);
             }
             /* cell li,lj contains all relevant traversals of length li,lj curves. */
             for (int k = 0; k < traversals.size(); k++) {
@@ -148,67 +152,42 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    /* TODO: create M × M table: cell i, j contains all relevant traversals of length i, j curves */
-    /* TODO: Multiply G with every point vector and then concatenate into a vector for lsh */
+    cout << "Computed the vectored traversals" << endl;
 
 
     /* ---------------- Hashing them again with LSH ------------------ */
-    vector<vector<int>> data_amplified_g;
-    vector<vector<int>> query_amplified_g;
-    vector<vector<vector<vector<double>>>> ANN;
-    //LSH(&data_vectored_curves, &search_vectored_curves, k, L_vec, &data_amplified_g, &query_amplified_g, &ANN);
-
-    /* TODO: store in table the lsh result */
-
-    /* initializations */
-    int distance = 0;
-    int *min_distance = new int [searchset.size()];
-    int *nearest_neighbor = new int [searchset.size()];
-    double *time = new double [searchset.size()];
-    double max_af = 0.0;
-    double average_af = 0.0;
-    double curr_fraction = 0.0;
-    double average_time = 0.0;
+    double w = 600;
+    double R = 0;
+    /* results */
+    double *min_distance = new double[searchset.size()];
+    int *nearest_neighbor = new int[searchset.size()];
+    double *time = new double[searchset.size()];
+    /* init arrays */
     for (int i = 0; i < searchset.size(); i++) {
         min_distance[i] = INT_MAX;
         nearest_neighbor[i] = -1;
         time[i] = 0;
     }
+    /* results for bonus */
+    vector<vector<int>> R_neighbors;
 
-    /* Array for DTW metric */
-    cout << "Computed the hashes\nNow computing DTW. It might take a while ..." << endl;
-    /* allocate space */
-    double ** c = new double* [m1];
-    for (int i = 0; i < m1; i++) {
-        c[i] = new double [m2];
-    }
+    cout << "Calling LSH ..." << endl;
+    LSH(&Vectored_Traversals_X, &Vectored_Traversals_Y, k, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
 
-    /* for every query */
-    int computations = 0;
-    for (int q = 0; q < searchset.size(); q++) {
-        /* for every hash table L */
-        auto start = chrono::high_resolution_clock::now();
-        for (int i = 0; i < ANN.size(); i++) {
-            /* for every vector in the same bucket (max 4*L calculations) */
-            computations = 0;
-            for (int j = 0; j < ANN[i][q].size() && computations < 4 * L; j++) {
-                if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
-                    distance = DTW(&dataset[(int)ANN[i][q][j][0]], &searchset[q]);          //todo: check this again,  there was a &c before
-                    if (distance < min_distance[q]) {
-                        min_distance[q] = distance;
-                        nearest_neighbor[q] = ANN[i][q][j][0] + 1;
-                    }
-                    computations++;
-                }
-            }
-        }
-    }
+    cout << "LSH ended" << endl;
 
-    /* Free allocated space */
-    for (int i = 0; i < m1; i++) {
-        delete(c[i]);
+    double distance = 0.0;
+    double max_af = 0.0;
+    double average_af = 0.0;
+    double curr_fraction = 0.0;
+    double average_time = 0.0;
+
+    min_distance = new double[searchset.size()];
+    nearest_neighbor = new int[searchset.size()];
+    for (int i = 0; i < searchset.size(); i++) {
+        min_distance[i] = INT_MAX;
+        nearest_neighbor[i] = -1;
     }
-    delete c;
 
     return 0;
 }
