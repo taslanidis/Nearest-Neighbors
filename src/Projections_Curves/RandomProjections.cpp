@@ -59,15 +59,38 @@ int main(int argc, char* argv[]) {
     }
 
     vector<vector<vector<int>>> traversals;
+    vector<vector<vector<vector<double>>>> traversals_to_coordinates;
+    vector<vector<vector<double>>> traverse_with_coords;
+    vector<vector<double>> pair_coords;
+    vector<double> coords;
+    int index_x;
+    int index_y;
     /* for every pair of curves */
     for (int i = 0; i < dataset.size(); i++) {
         for (int j = 0; j < searchset.size(); j++) {
             /* find all relevant traversals */
             Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size());
+            /* Convert the vector of pair with indexes, to a vector with coordinates */
+            /* for all traversals of size */
+            for (int k = 0; k < traversals.size(); k++) {
+                /* for every pair */
+                for (int t = 0; t < traversals[k].size(); k++) {
+                    /* for U and V */
+                    for (int p = 0; p < traversals[k][t].size(); p++) {
+                        index_x = traversals[k][t][p][0];
+                        index_y = traversals[k][t][p][0]
+                        coords.push_back(dataset[i][index_u][0]);
+                        coords.push_back(dataset[i][index_u][1]);
+                        pair_cords.push_back(coords);
+                    }
+                    traverse_with_cords.push_back(pair_cords);
+                }
+                traversals_to_coordinates.push_back(traverse_with_cords);
+            }
             /* cell li,lj contains all relevant traversals of length li,lj curves. */
             for (int k = 0; k < traversals.size(); k++) {
                 /* push back the traversal on the appropriate index (length of the curves) */
-                TraversalsTable[(int)dataset[i][0][1]-1][(int)searchset[j][0][1]-1].push_back(traversals[k]);
+                TraversalsTable[(int)dataset[i][0][1]-1][(int)searchset[j][0][1]-1].push_back(traversals_to_coordinates[k]);
             }
         }
     }
@@ -98,8 +121,8 @@ int main(int argc, char* argv[]) {
      * by multiplying G with every point vector, then concatenating. */
     vector<double> termU;
     vector<double> termV;
-    vector<vector<double>> dataset;
-    vector<vector<double>> searchset;
+    vector<vector<double>> Vectored_Traversals_X;
+    vector<vector<double>> Vectored_Traversals_Y;
     /* for 1st dim of MxM table */
     for (int i = 0; i < M; i++) {
         /* for 2nd dim of MxM  table */
@@ -117,8 +140,8 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                dataset.push_back(termU);
-                searchset.push_back(termV);
+                Vectored_Traversals_X.push_back(termU);
+                Vectored_Traversals_Y.push_back(termV);
                 vector<double>().swap(termU);
                 vector<double>().swap(termV);
             }

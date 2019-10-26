@@ -87,5 +87,4 @@ void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int 
     find_diagonal(&traversal, len1, len2);
     Traversals->push_back(traversal);
     /* find all +1 and -1 from the diagonal and push into vector */
-
 }
