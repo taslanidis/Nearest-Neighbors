@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
     /* Arguments Check */
     int k = 4, dim = 3, M = 10, probes = 2;              //Default values: k is the number of hi concatenated to form g - dim is number of hypercube's vertices
-    double R = 1500;                                             //todo: this should be in input file
+    double R = 0;                                             //todo: this should be in input file
     string data_file, search_file, results_file;
     int df = 0, sf = 0, rf = 0;
     char rerun;
@@ -153,13 +153,15 @@ int main(int argc, char* argv[]) {
             neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
             neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
             neighbors_file << "tTrue: " << setprecision(9) << showpoint << fixed << TrueTimes[i] << endl;
-            neighbors_file << "R-near neighbors: "<< endl;
-            if (R_neighbors[i].size() != 0){
-                for (int j = 0; j < R_neighbors[i].size(); j++){
-                    neighbors_file << R_neighbors[i][j] << endl;
+            if (R != 0) {
+                neighbors_file << "R-near neighbors: " << endl;
+                if (R_neighbors[i].size() != 0) {
+                    for (int j = 0; j < R_neighbors[i].size(); j++) {
+                        neighbors_file << R_neighbors[i][j] << endl;
+                    }
+                } else {
+                    neighbors_file << "No R-near neighbors available" << endl;
                 }
-            }else{
-                neighbors_file << "No R-near neighbors available"<< endl;
             }
             neighbors_file << endl;
         }

@@ -125,6 +125,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
             /* for every vector in the same bucket (max 4*L calculations) */
             computations = 0;
             for (int j = 0; j < ANN[i][q].size(); j++) {
+                if (computations == 25 && R == 0) break;
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
                     distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
                     if(distance <= R){

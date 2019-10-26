@@ -137,6 +137,7 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int n = 0; n < ANN[q].size(); n++) {
             computations = 0;
             for (int j = 0; j < ANN[q][n].size(); j++) {
+                if (computations == 25 && R == 0) break;
                 distance = dist(&ANN[q][n][j], &searchset->at(q), dataset->at(0).size(), Metric);
                 if(distance <= R){
                     Curr_R_Neighbors.push_back(ANN[q][n][j][0]);
