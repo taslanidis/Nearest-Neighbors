@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
 
     /* variable declaration | k = 4 default value */
     int d = 2, L_grid = 4;
+    double R = 1500;
 
 #ifdef _LSH_
     int k_vec = 2, L_vec = 1;
@@ -58,11 +59,11 @@ int main(int argc, char* argv[]) {
     /* orthogonal grid of size d */
     vector<double> orthogonal_grid;
     /* vector for hashed curves */
-    vector <vector<double *>> hashed_curves;
-    vector<double *> temp_hash;
+    vector<vector<vector<double>>> hashed_curves;
+    vector<vector<double>> temp_hash;
     /* vectored curves */
-    vector <vector<double>> data_vectored_curves;
-    vector <vector<double>> search_vectored_curves;
+    vector<vector<double>> data_vectored_curves;
+    vector<vector<double>> search_vectored_curves;
     /* temp */
     vector<double> curve;
     /* RESULTS storing */
@@ -84,13 +85,15 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < dataset.size(); i++) {
             hash_curve(&temp_hash, &dataset[i], &orthogonal_grid, delta, d);
             hashed_curves.push_back(temp_hash);
-            temp_hash.clear();
+            /* clean temp hash */
+            vector<vector<double>>().swap(temp_hash);
         }
 
         /* now that we have each hash, we can find by adding the orthogonal grid to the hash points
          * the equivalent points in our new grid, that the polygonal curve projects */
         elements = 0;
         max_points = 0;
+        max_element = 0.0;
         /* concat the 2d points in every h to make it from (x1,y1)(x2,y2) to x1,y1,x2,y2 */
         for (int i = 0; i < hashed_curves.size(); i++) {
             for (int j = 0; j < hashed_curves[i].size(); j++) {
@@ -114,20 +117,20 @@ int main(int argc, char* argv[]) {
             }
             elements = 0;
             data_vectored_curves.push_back(curve);
-            curve.clear();
-            curve.shrink_to_fit();
+            vector<double>().swap(curve);
         }
 
         /* ------------------ SEARCH SET hashing ----------------- */
         /* clean hashed curves */
-        hashed_curves.clear();
+        vector<vector<vector<double>>>().swap(hashed_curves);
         /* end of cleaning */
 
         /* hash all curves */
         for (int i = 0; i < searchset.size(); i++) {
             hash_curve(&temp_hash, &searchset[i], &orthogonal_grid, delta, d);
             hashed_curves.push_back(temp_hash);
-            temp_hash.clear();
+            /* clean temp hash */
+            vector<vector<double>>().swap(temp_hash);
         }
 
         /* now that we have each hash, we can find by adding the orthogonal grid to the hash points
@@ -158,16 +161,14 @@ int main(int argc, char* argv[]) {
             }
             elements = 0;
             search_vectored_curves.push_back(curve);
-            curve.clear();
-            curve.shrink_to_fit();
+            vector<double>().swap(curve);
         }
 
         /* clear no longer used vectors for memory optimzations */
-        orthogonal_grid.clear();
+        vector<double>().swap(orthogonal_grid);
         /* clean hashed curves */
-        hashed_curves.clear();
+        vector<vector<vector<double>>>().swap(hashed_curves);
         /* end of cleaning */
-        temp_hash.clear();
 
         /* ----------------- PADDING for both sets ------------ */
         /* pad special number > max coord */
@@ -184,9 +185,9 @@ int main(int argc, char* argv[]) {
         /* ----------- end of padding ------------ */
 
         /* --- initializations for LSH --- */
-        min_distance = new double[searchset.size()];
-        nearest_neighbor = new int[searchset.size()];
-        time = new double[searchset.size()];
+        min_distance = new double [searchset.size()];
+        nearest_neighbor = new int [searchset.size()];
+        time = new double [searchset.size()];
 
         for (int i = 0; i < searchset.size(); i++) {
             min_distance[i] = -1;
@@ -205,23 +206,24 @@ int main(int argc, char* argv[]) {
 
 #ifdef _BHC_
         /* ---------------- Hashing them again with Hypercube ------------------ */
-        BHC(&data_vectored_curves, &search_vectored_curves, k_vec, dim, M, probes, w, &min_distance, &time, &nearest_neighbor);
+        BHC(&data_vectored_curves, &search_vectored_curves, k_vec, dim, M, probes, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
 #endif
 
 #ifdef _LSH_
         /* ---------------- Hashing them again with LSH ------------------ */
-        LSH(&data_vectored_curves, &search_vectored_curves, k_vec, L_vec, w, &min_distance, &time, &nearest_neighbor);
+        LSH(&data_vectored_curves, &search_vectored_curves, k_vec, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
 #endif
 
         /* store results for all iterations of hashing */
         hashed_neighbors.push_back(nearest_neighbor);
 
         /* clean vectors for next iteration */
-        temp_hash.clear();
-        data_vectored_curves.clear();
-        search_vectored_curves.clear();
-        curve.clear();
+        vector<vector<double>>().swap(data_vectored_curves);
+        vector<vector<double>>().swap(search_vectored_curves);
+        vector<vector<int>>().swap(R_neighbors);
         /* clean pointers */
+        delete[] min_distance;
+        delete[] time;
     }
 
     /* min distance vector is for the lsh hashed data, we will do DTW now on the real curves to find the
@@ -301,10 +303,15 @@ int main(int argc, char* argv[]) {
     /* clean remaining used memory */
     delete[] min_distance;
     delete[] nearest_neighbor;
-    for (int i = 0; i < hashed_neighbors.size(); i++) {
-        delete(hashed_neighbors[i]);
-    }
-    hashed_neighbors.clear();
+    for (int i = 0; i < hashed_neighbors.size(); i++)
+            delete[] hashed_neighbors[i];
+    for (int i = 0; i < dataset.size(); i++)
+        for (int j = 0; j < dataset[i].size(); j++)
+            delete[] dataset[i][j];
+    for ( int i = 0; i  < searchset.size(); i++)
+        for (int j = 0; j < searchset[i].size(); j++)
+            delete[] searchset[i][j];
+    vector<int*>().swap(hashed_neighbors);
     /* end of cleaning */
 
     return 0;

@@ -12,15 +12,16 @@ void shift_grid(vector<double>* orthogonal_grid, int delta, int d) {
     }
 }
 
-void hash_curve(vector<double*>* hashed_curve, vector<double*>* curve, vector<double>* orthogonal_grid, double delta, int d) {
+void hash_curve(vector<vector<double>>* hashed_curve, vector<double*>* curve, vector<double>* orthogonal_grid, double delta, int d) {
     double* pi;
-    double* pi_new;
-    double* pi_old;
+    vector<double> pi_new;
+    vector<double> pi_old;
     /* first index has the id and the dimensions of the curve */
     for (int i = 0; i < (*curve)[0][1]; i++) {
         pi = (*curve)[i];
         if (i == 0) {
-            pi_new = pi;
+            pi_new.push_back(pi[0]);
+            pi_new.push_back(pi[1]);
             hashed_curve->push_back(pi_new);
         } else {
             pi_new = arg_min(&pi, orthogonal_grid, delta, d);

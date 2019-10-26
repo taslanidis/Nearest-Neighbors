@@ -181,9 +181,9 @@ double DTW(vector<double*>* P, vector<double*>* Q) {
 
     /* Free allocated space */
     for (int i = 0; i < m1; i++) {
-        delete(c[i]);
+        delete[] c[i];
     }
-    delete c;
+    delete[] c;
 
     return res;
 }
@@ -315,15 +315,15 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
 }
 
 /* TODO : I smell problem here ??! Maybe not I can see the prints ok */
-double* arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
+vector<double> arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
     double min, num, shift;
     int q;
-    double* argmin = new double[d];
+    vector<double> argmin;
     /* Point is to minimize the ||pi-q|| for all q */
     for (int i = 0; i < d; i++) {
         num = (*pi)[i];
         shift = (*orthogonal_grid)[i];
-        argmin[i] = num + (delta + shift)/2;
+        argmin.push_back(num + (delta + shift)/2);
         argmin[i] -= fmod(argmin[i], delta);
     }
     return argmin;

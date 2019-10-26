@@ -12,6 +12,5 @@ int moduloMultiplication(int, int, int);
 long moduloPow(long, long, long);
 void brute_force(vector<vector<int>>*, vector<vector<int>>*, vector<int>*, vector<double>*);
 void curves_brute_force(vector<vector<double*>>*, vector<vector<double*>>*, vector<double>*, vector<double>*);
-double* arg_min(double**, vector<double>*, double, int);
+vector<double> arg_min(double**, vector<double>*, double, int);
 double min(double, double, double);
-
