@@ -145,37 +145,41 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
     vector<int> temp_step;
     // Reached the top of the matrix so we are left with
     // only option to move right
-    if (i == len1 - 1)
-    {
-        for (int k = j; k < len2; k++){
-            temp_step.push_back(i);
-            temp_step.push_back(k);
-            traversal->push_back(temp_step);
-            vector<int>().swap(temp_step);
-        }
-        Traversals->push_back(*traversal);
-        return;
-    }
 
-    // Reached the right corner of the matrix we are left with
-    // only the upward movement.
-    if (j == len2 - 1)
-    {
-        for (int k = i; k < len1; k++) {
-            temp_step.push_back(k);
-            temp_step.push_back(j);
-            traversal->push_back(temp_step);
-            vector<int>().swap(temp_step);
-        }
-        Traversals->push_back(*traversal);
-        return;
-    }
 
     // Add the current cell to the path being generated
     temp_step.push_back(i);
     temp_step.push_back(j);
     traversal->push_back(temp_step);
     vector<int>().swap(temp_step);
+
+if (i == len1 - 1)
+{
+for (int k = j+1; k < len2; k++){
+temp_step.push_back(i);
+temp_step.push_back(k);
+traversal->push_back(temp_step);
+vector<int>().swap(temp_step);
+}
+Traversals->push_back(*traversal);
+traversal->erase(traversal->end());
+return;
+}
+
+// Reached the right corner of the matrix we are left with
+// only the upward movement.
+if (j == len2 - 1)
+{
+for (int k = i+1; k < len1; k++) {
+temp_step.push_back(k);
+temp_step.push_back(j);
+traversal->push_back(temp_step);
+vector<int>().swap(temp_step);
+}
+Traversals->push_back(*traversal);
+traversal->erase(traversal->end());
+return;
+}
 
     // Print all the paths that are possible after moving up
     int found1 = 0;
@@ -187,6 +191,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
     }
     if (found1 == 1) {
         find_traversals(points, i + 1, j, len1, len2, traversal,Traversals);
+        traversal->erase(traversal->end());
     }
 
     // Print all the paths that are possible after moving right
@@ -199,6 +204,7 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
     }
     if (found2 == 1) {
         find_traversals(points, i, j + 1, len1, len2, traversal,Traversals);
+        traversal->erase(traversal->end());
     }
 
     //Print all the paths that are possible after moving diagonal
@@ -224,4 +230,13 @@ void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int 
     }
     vector<vector<int>> traversals;
     find_traversals(&points, 0, 0, len1, len2, &traversals, Traversals);
+    for (int k = 0; k < Traversals->size(); k++) {
+        /* for every pair */
+        cout << "Traversal: \n";
+        for (int t = 0; t < (*Traversals)[k].size(); t++) {
+            cout << "(" << (*Traversals)[k][t][0] << ", " << (*Traversals)[k][t][1] << ")  ";
+        }
+        cout << endl;
+    }
+    getchar();
 }
