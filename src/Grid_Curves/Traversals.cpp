@@ -153,33 +153,35 @@ void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int le
     traversal->push_back(temp_step);
     vector<int>().swap(temp_step);
 
-if (i == len1 - 1)
-{
-for (int k = j+1; k < len2; k++){
-temp_step.push_back(i);
-temp_step.push_back(k);
-traversal->push_back(temp_step);
-vector<int>().swap(temp_step);
-}
-Traversals->push_back(*traversal);
-traversal->erase(traversal->end());
-return;
-}
+    if (i == len1 - 1)
+    {
+        for (int k = j+1; k < len2; k++){
+            temp_step.push_back(i);
+            temp_step.push_back(k);
+            traversal->push_back(temp_step);
+            vector<int>().swap(temp_step);
+        }
+        Traversals->push_back(*traversal);
+        for (int k = j+1; k < len2; k++)
+            traversal->erase(traversal->end());
+        return;
+    }
 
-// Reached the right corner of the matrix we are left with
-// only the upward movement.
-if (j == len2 - 1)
-{
-for (int k = i+1; k < len1; k++) {
-temp_step.push_back(k);
-temp_step.push_back(j);
-traversal->push_back(temp_step);
-vector<int>().swap(temp_step);
-}
-Traversals->push_back(*traversal);
-traversal->erase(traversal->end());
-return;
-}
+    // Reached the right corner of the matrix we are left with
+    // only the upward movement.
+    if (j == len2 - 1)
+    {
+        for (int k = i+1; k < len1; k++) {
+            temp_step.push_back(k);
+            temp_step.push_back(j);
+            traversal->push_back(temp_step);
+            vector<int>().swap(temp_step);
+        }
+        Traversals->push_back(*traversal);
+        for (int k = i+1; k < len1; k++)
+            traversal->erase(traversal->end());
+        return;
+    }
 
     // Print all the paths that are possible after moving up
     int found1 = 0;

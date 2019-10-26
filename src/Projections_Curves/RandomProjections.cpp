@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
     //delta = 4*d*min - 1;
-    delta = 0.15;
+    delta = 0.12;
 
     /* ------------------------ HASHING with RANDOM PROJECTIONS ----------------------- */
 
@@ -74,27 +74,30 @@ int main(int argc, char* argv[]) {
             /* for all traversals of size */
             for (int k = 0; k < traversals.size(); k++) {
                 /* for every pair */
-                for (int t = 0; t < traversals[k].size(); k++) {
+                for (int t = 0; t < traversals[k].size(); t++) {
                     /* for U and V */
                     index_x = traversals[k][t][0];
                     index_y = traversals[k][t][1];
+                    if (index_x  >= dataset[i].size()) {
+                        cout << "Kosta ti traversal einai auto????!" << endl;
+                    }
                     coords.push_back(dataset[i][index_x][0]);
                     coords.push_back(dataset[i][index_x][1]);
                     pair_coords.push_back(coords);
                     vector<double>().swap(coords);
+                    if (index_y  >= searchset[j].size()) {
+                        cout << "Kosta ti traversal einai auto????!" << endl;
+                    }
                     coords.push_back(searchset[j][index_y][0]);
                     coords.push_back(searchset[j][index_y][1]);
                     pair_coords.push_back(coords);
                     traverse_with_coords.push_back(pair_coords);
                     vector<vector<double>>().swap(pair_coords);
                 }
-                traversals_to_coordinates.push_back(traverse_with_coords);
+                /* push back the traversal */
+                TraversalsTable[(int)dataset[i][0][1]-1][(int)searchset[j][0][1]-1].push_back(traverse_with_coords);
+                /* clear vector */
                 vector<vector<vector<double>>>().swap(traverse_with_coords);
-            }
-            /* cell li,lj contains all relevant traversals of length li,lj curves. */
-            for (int k = 0; k < traversals.size(); k++) {
-                /* push back the traversal on the appropriate index (length of the curves) */
-                TraversalsTable[(int)dataset[i][0][1]-1][(int)searchset[j][0][1]-1].push_back(traversals_to_coordinates[k]);
             }
         }
     }
@@ -102,7 +105,7 @@ int main(int argc, char* argv[]) {
     cout << "Array MxM is ready" << endl;
 
     /* Let matrix G have real, independent, normally distributed elements ∼N(0,1)
-     * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */  //TODO: G must be Kxd
+     * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */
     double K = -d*log2(epsilon)/pow(epsilon,2);
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);

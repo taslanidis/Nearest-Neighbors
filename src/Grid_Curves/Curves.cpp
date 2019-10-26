@@ -9,17 +9,17 @@ using namespace std;
 int main(int argc, char* argv[]) {
     /* variable declaration | k = 4 default value */
     int L_grid = 4;
-    double R = 1500;
+    double R = 0;
     /* default 2D curves */
     int d = 2;
 
     /* default values for LSH and Hypercube */
 #ifdef _LSH_
-    int k_vec = 2, L_vec = 1;
+    int k_vec = 1, L_vec = 1;
 #endif
 
 #ifdef _BHC_
-    int k_hypercube = 2, M = 10, probes = 20, dim = 3;
+    int k_hypercube = 3, M = 10, probes = 10, dim = 3;
 #endif
 
     /* read arguments */
@@ -146,12 +146,12 @@ int main(int argc, char* argv[]) {
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    delta = 0.15; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
+    delta = 0.0016; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
 
 
     /* compute window for all hash tables (try *4 or *10) */
     //double w = 4*compute_window(dataset);
-    double w = 10*60; // computed w and its ~28-32
+    double w = 10*30; // computed w and its ~28-32
     double max_element = 0.0;
     int max_points = 0, elements = 0;
 
