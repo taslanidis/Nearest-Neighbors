@@ -226,18 +226,6 @@ void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int 
     vector<vector<int>> points;
 
     find_diagonal(&points, len1, len2);
-    cout << len1 << "  " << len2 << endl;
-    for ( int i = 0; i <points.size(); i++){
-        cout << points[i][0] << "  ,  " << points[i][1] << endl;
-    }
     vector<vector<int>> traversals;
     find_traversals(&points, 0, 0, len1, len2, &traversals, Traversals);
-    for (int k = 0; k < Traversals->size(); k++) {
-        /* for every pair */
-        cout << "Traversal: \n";
-        for (int t = 0; t < (*Traversals)[k].size(); t++) {
-            cout << "(" << (*Traversals)[k][t][0] << ", " << (*Traversals)[k][t][1] << ")  ";
-        }
-        cout << endl;
-    }
 }
