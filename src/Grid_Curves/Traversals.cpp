@@ -60,49 +60,32 @@ void hash_curve(vector<vector<double>>* hashed_curve, vector<double*>* curve, ve
     }
 }
 
-/* Find the ORANGE boxes in the array
- * we keep the indexes of the points of every curve
- * TODO: when dimensions are very different this doesnt go well */
-//void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, int j) {
-//    int * pair = new int [2];
-//    pair[0] = i;
-//    pair[1] = j;
-//    Traversals->push_back(pair);
-//    if (i == len1 && j == len2 ) {
-//        return;
-//    } else if ( j == len2 ) {
-//        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
-//    } else if ( i == len1 ) {
-//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
-//    } else if (i == j) {
-//        Relevant_Traversals(Traversals, len1, len2, i + 1, j);
-//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
-//    } else if (i < j) {
-//        Relevant_Traversals(Traversals, len1, len2, i+1, j);
-//    } else {
-//        Relevant_Traversals(Traversals, len1, len2, i, j + 1);
-//    }
-//}
-
-void Relevant_Traversals(vector<int*>* Traversals, int len1, int len2, int i, int j) {
-    int * pair = new int [2];
-    pair[0] = i;
-    pair[1] = j;
-    Traversals->push_back(pair);
-    double stepi = len1 / len2;
-    double stepj = 1;
-    if (i == len1 && j == len2 ) {
-        return;
-    } else if ( j == len2 ) {
-        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
-    } else if ( i == len1 ) {
-        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
-    } else if (i == j) {
-        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
-        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
-    } else if (i < j) {
-        Relevant_Traversals(Traversals, len1, len2, i + stepi, j);
-    } else {
-        Relevant_Traversals(Traversals, len1, len2, i, j + stepj);
+void find_diagonal(vector<vector<int>>* v, int len1, int len2){
+    double j = 0;
+    double lamda = (double) len2 / len1;
+    double stepi;
+    if (len1>len2){
+        stepi = (double) len2 / len1;
+    } else{
+        stepi = (double) len1 / len2;
     }
+    for (double i = 0; i < len1; i+=stepi){
+        j = lamda * i;
+        vector<int> pair1;
+        pair1.push_back(floor(i));
+        pair1.push_back(floor(j));;
+        vector<int> pair2;
+        pair2.push_back(floor(i));
+        pair2.push_back(floor(j));
+        v->push_back(pair1);
+        if((ceil(j) != floor(j)) && (ceil(j) < len2)) v->push_back(pair2);
+    }
+}
+
+void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int len2) {
+    vector<vector<int>> traversal;
+    find_diagonal(&traversal, len1, len2);
+    Traversals->push_back(traversal);
+    /* find all +1 and -1 from the diagonal and push into vector */
+
 }

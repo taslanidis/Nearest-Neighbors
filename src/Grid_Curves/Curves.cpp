@@ -373,7 +373,6 @@ int main(int argc, char* argv[]) {
         /* --- RESULTS --- */
         average_af = average_af / searchset.size();
         average_time = average_time / searchset.size();
-        cout << "Variables used: | k_vec = " << k_vec << " | L_grid = " << L_grid << " | L_vec = " << L_vec << endl;
         cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
         cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
     }

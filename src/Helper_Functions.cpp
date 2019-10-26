@@ -239,7 +239,7 @@ double DTW(vector<double*>* P, vector<double*>* Q) {
         c[i] = new double [m2];
     }
 
-    c[0][0] = point_dist((*P)[0], (*Q)[0], 2);
+    c[0][0] = point_dist((*P)[1], (*Q)[1], 2);
     for (int i = 0; i < m1; i++) {
         for (int j = 0; j < m2; j++) {
             if (i == 0 && j == 0) continue;

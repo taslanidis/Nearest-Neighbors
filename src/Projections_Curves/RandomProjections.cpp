@@ -13,14 +13,15 @@ int main(int argc, char* argv[]) {
     }
 
     /* variable declaration | k = 4 default value */
-    int k = 4, L = 5, d = 2, L_vec = 1, epsilon = 0.5;
+    int k = 4, L = 5, d = 2, L_vec = 1;
+    double epsilon = 0.5;
     int m1, m2, error_code, min;
     double delta;
     /* vectors for the data and query points */
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
     /* read data set and query set and load them in vectors */
-    error_code = Read_curve_files(&dataset, &searchset, argv[1], argv[2]);
+    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 15.00);
     if (error_code == -1) return -1;
 
     /* dataset sizes */
@@ -29,50 +30,53 @@ int main(int argc, char* argv[]) {
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
     //delta = 4*d*min - 1;
-    delta = 0.05;
+    delta = 0.15;
 
     /* ------------------------ HASHING with RANDOM PROJECTIONS ----------------------- */
 
     /* Let M be the max length of all input and possible query curves */
     int M = 0;
     for (int i = 0; i < dataset.size(); i++) {
-        if (2*dataset[i][0][1] > M) {
-            M = 2*dataset[i][0][1];
+        if (dataset[i][0][1] > M) {
+            M = dataset[i][0][1];
         }
     }
     for (int i = 0; i < searchset.size(); i++) {
-        if (2*searchset[i][0][1] > M) {
-            M = 2*searchset[i][0][1];
+        if (searchset[i][0][1] > M) {
+            M = searchset[i][0][1];
         }
     }
 
 
     /* ------------------ RELEVANT traversals ----------------- */
 
+    cout << "Creating MxM array where M is: " << M << endl;
     /* Find relevant traversals, all the pairs (Ui,Vi)
      * and we keep the indexes for every pair of curve */
-    <vector<vector<int*>>** TraversalsTable = new <vector<vector<int*>>* [M];
+    vector<vector<vector<int>>>** TraversalsTable = new vector<vector<vector<int>>>* [M];
     for (int i = 0; i < M; i++) {
-        TraversalsTable[i] = new <vector<vector<int*>> [M];
+        TraversalsTable[i] = new vector<vector<vector<int>>> [M];
     }
 
-    vector<vector<int*>> traversals;
+    vector<vector<vector<int>>> traversals;
     /* for every pair of curves */
     for (int i = 0; i < dataset.size(); i++) {
         for (int j = 0; j < searchset.size(); j++) {
             /* find all relevant traversals */
-            Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size(), 0, 0);
+            Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size());
             /* cell li,lj contains all relevant traversals of length li,lj curves. */
             for (int k = 0; k < traversals.size(); k++) {
                 /* push back the traversal on the appropriate index (length of the curves) */
-                TraversalsTable[dataset[i].size()][searchset[i].size()].push_back(traversals[i]);
+                TraversalsTable[(int)dataset[i][0][1]-1][(int)searchset[j][0][1]-1].push_back(traversals[k]);
             }
         }
     }
 
+    cout << "Array MxM is ready" << endl;
+
     /* Let matrix G have real, independent, normally distributed elements ∼N(0,1)
      * and dimensions K × d, where K = −d*log(epsilon) / epsilon2 */  //TODO: G must be Kxd
-    double K = -d*log(epsilon)/pow(epsilon,2);
+    double K = -d*log2(epsilon)/pow(epsilon,2);
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator (seed);
     /* uniformly values in [0,1) */
@@ -88,22 +92,37 @@ int main(int argc, char* argv[]) {
         G_temp.shrink_to_fit();
     }
 
+    cout << "Vector G is ready" << endl;
+
     /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
      * by multiplying G with every point vector, then concatenating. */
-    vector<vector<double>> x;
-    vector<double> curr_x;
-    double term;
-    for (int i = 0; i < relevant_traversals.size(); i++) {
-        for (int j = 0; j < G.size(); j++) {
-            term = 0;
-            for (int k = 0; k < d; k++){
-                term += G[j][k] * (*relevant_traversals)[i][k]; //TODO: find way to acces relevant traversals
+    vector<double> termU;
+    vector<double> termV;
+    vector<vector<double>> dataset;
+    vector<vector<double>> searchset;
+    /* for 1st dim of MxM table */
+    for (int i = 0; i < M; i++) {
+        /* for 2nd dim of MxM  table */
+        for (int j = 0; j < M; j++) {
+            /* For all traversals of size (i,j) */
+            for (int h = 0; h < TraversalsTable[i][j].size(); h++) {
+                /* For all pairs of traversal h */
+                for (int t = 0; t < TraversalsTable[i][j][h].size(); t++) {
+                    vector<double> U = TraversalsTable[i][j][h][t][0];
+                    vector<double> V = TraversalsTable[i][j][h][t][1];
+                    for (int k = 0; k < G.size(); k++){
+                        for (int dim = 0; dim < d; dim++) {
+                            termU.push_back(G[k][d] * U[dim]);
+                            termV.push_back(G[k][d] * V[dim]);
+                        }
+                    }
+                }
+                dataset.push_back(termU);
+                searchset.push_back(termV);
+                vector<double>().swap(termU);
+                vector<double>().swap(termV);
             }
-            curr_x.push_back(term);
         }
-        x.push_back(curr_x);
-        curr_x.clear();
-        curr_x.shrink_to_fit();
     }
 
     /* TODO: create M × M table: cell i, j contains all relevant traversals of length i, j curves */
