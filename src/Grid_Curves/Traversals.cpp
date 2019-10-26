@@ -69,22 +69,138 @@ void find_diagonal(vector<vector<int>>* v, int len1, int len2){
     } else{
         stepi = (double) len1 / len2;
     }
-    for (double i = 0; i < len1; i+=stepi){
+    for (double i = 0; i < len1; i+=stepi) {
+        vector<int> temp;
+        int temp_i, temp_j;
         j = lamda * i;
         vector<int> pair1;
         pair1.push_back(floor(i));
-        pair1.push_back(floor(j));;
-        vector<int> pair2;
-        pair2.push_back(floor(i));
-        pair2.push_back(floor(j));
+        pair1.push_back(floor(j));
         v->push_back(pair1);
-        if((ceil(j) != floor(j)) && (ceil(j) < len2)) v->push_back(pair2);
+        temp_i = pair1[0] - 1;                               // element below
+        temp_j = pair1[1];
+        if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
+            temp.push_back(temp_i);
+            temp.push_back(temp_j);
+            v->push_back(temp);
+            vector<int>().swap(temp);
+        }
+        temp_i = pair1[0] + 1;                               // element above
+        temp_j = pair1[1];
+        if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
+            temp.push_back(temp_i);
+            temp.push_back(temp_j);
+            v->push_back(temp);
+            vector<int>().swap(temp);
+        }
+        if((ceil(j) != floor(j)) && (ceil(j) < len2)) {
+            vector<int> pair2;
+            pair2.push_back(floor(i));
+            pair2.push_back(ceil(j));
+            v->push_back(pair2);
+            temp_i = pair2[0] - 1;                               // element below
+            temp_j = pair2[1];
+            if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
+                temp.push_back(temp_i);
+                temp.push_back(temp_j);
+                v->push_back(temp);
+                vector<int>().swap(temp);
+            }
+            temp_i = pair2[0] + 1;                               // element above
+            temp_j = pair2[1];
+            if((temp_i >= 0) && (temp_i < len1) && (temp_j >= 0) && (temp_j < len2)){
+                temp.push_back(temp_i);
+                temp.push_back(temp_j);
+                v->push_back(temp);
+                vector<int>().swap(temp);
+            }
+        }
     }
+    v->erase( unique( v->begin(), v->end() ), v->end() );
+}
+
+//points    : All points in diagonal +-1 cell
+//i, j      : Current position of the robot (For the first call use 0,0)
+//len1, len2: Dimensions of given the matrix
+//traversal : The path traversed by robot till now (Vector to hold the path) */
+void find_traversals(vector<vector<int>>* points, int i, int j, int len1, int len2, vector<vector<int>>* traversal)
+{
+    vector<int> temp_step;
+    // Reached the top of the matrix so we are left with
+    // only option to move right
+    if (i == len1 - 1)
+    {
+        for (int k = j; k < len2; k++){
+            temp_step.push_back(i);
+            temp_step.push_back(k);
+            traversal->push_back(temp_step);
+            vector<int>().swap(temp_step);
+        }
+        return;
+    }
+
+    // Reached the right corner of the matrix we are left with
+    // only the upward movement.
+    if (j == len2 - 1)
+    {
+        for (int k = i; k < len1; k++) {
+            temp_step.push_back(k);
+            temp_step.push_back(j);
+            traversal->push_back(temp_step);
+            vector<int>().swap(temp_step);
+        }
+        return;
+    }
+
+    // Add the current cell to the path being generated
+    temp_step.push_back(i);
+    temp_step.push_back(j);
+    traversal->push_back(temp_step);
+    vector<int>().swap(temp_step);
+
+    // Print all the paths that are possible after moving up
+    int found1 = 0;
+    for (int k = 0; k < (*points).size(); k++){
+        if (((*points)[k][0] == i+1) && ((*points)[k][1] == j)) {
+            found1 = 1;
+            break;
+        }
+    }
+    if (found1 == 1) {
+        find_traversals(points, i + 1, j, len1, len2, traversal);
+    }
+
+    // Print all the paths that are possible after moving right
+    int found2 = 0;
+    for (int k = 0; k < (*points).size(); k++){
+        if (((*points)[k][0] == i) && ((*points)[k][1] == j+1)) {
+            found2 = 1;
+            break;
+        }
+    }
+    if (found2 == 1) {
+        find_traversals(points, i, j + 1, len1, len2, traversal);
+    }
+
+    //Print all the paths that are possible after moving diagonal
+//    int found3 = 0;
+//    for (int k = 0; k < (*points).size(); k++){
+//        if (((*points)[k][0] == i+1) && ((*points)[k][1] == j+1)) {
+//            found3 = 1;
+//            break;
+//        }
+//    }
+//    if (found3 == 1) {
+//        find_traversals(points, i + 1, j + 1, len1, len2, traversal);
+//    }
 }
 
 void Relevant_Traversals(vector<vector<vector<int>>>* Traversals, int len1, int len2) {
-    vector<vector<int>> traversal;
-    find_diagonal(&traversal, len1, len2);
-    Traversals->push_back(traversal);
+    vector<vector<int>> points;
+    find_diagonal(&points, len1, len2);
+    vector<vector<int>> traversals;
+    find_traversals(&points, 0, 0, len1, len2, &traversals);
+
+//    Traversals->push_back(traversal);
     /* find all +1 and -1 from the diagonal and push into vector */
 }
