@@ -51,11 +51,12 @@ int main(int argc, char* argv[]) {
     char bfsearch;
     vector<double> TrueDistances;
     vector<double> TrueTimes;
+    vector<int> TrueNeighbors;
     cout << "Do you want to run Brute Force for extra statistics at the end?" << endl << "(Press y or Y + enter to run, else press any other character)." << endl;
     cin >> bfsearch;
     if (bfsearch == 'y' || bfsearch == 'Y') {
         cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
-        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes, &TrueNeighbors);
         cout << "Found exact neighbors." << endl;
     }
 
@@ -85,13 +86,13 @@ int main(int argc, char* argv[]) {
             /* for all traversals of size */
             for (int k = 0; k < traversals.size(); k++) {
                 /* for every pair */
+                vector<double> pair_ids;
+                pair_ids.push_back((double)i);
+                pair_ids.push_back((double)j);
+                pair_coords.push_back(pair_ids);
+                traverse_with_coords.push_back(pair_coords);
                 for (int t = 0; t < traversals[k].size(); t++) {
                     /* for U and V */
-                    vector<double> pair_ids;
-                    pair_ids.push_back(i);
-                    pair_ids.push_back(j);
-                    pair_coords.push_back(pair_ids);
-                    traverse_with_coords.push_back(pair_coords);
                     vector<vector<double>>().swap(pair_coords);
                     index_x = traversals[k][t][0];
                     index_y = traversals[k][t][1];
@@ -145,7 +146,7 @@ int main(int argc, char* argv[]) {
     /* results for bonus */
     vector<vector<int>> R_neighbors;
     /* ids of traversals */
-    vector<int*> traversal_neighbors;
+    vector<vector<vector<int>>> traversal_neighbors;
 
     /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
      * by multiplying G with every point vector, then concatenating. */
@@ -161,8 +162,8 @@ int main(int argc, char* argv[]) {
             for (int h = 0; h < TraversalsTable[i][j].size(); h++) {
                 /* For all pairs of traversal h -- index 0 there are ids */
                 for (int t = 1; t < TraversalsTable[i][j][h].size(); t++) {
-                    termU.push_back(TraversalsTable[i][j][h][0][0]);
-                    termV.push_back(TraversalsTable[i][j][h][0][1]);
+                    termU.push_back(TraversalsTable[i][j][h][0][0][0]);
+                    termV.push_back(TraversalsTable[i][j][h][0][0][1]);
                     vector<double> U = TraversalsTable[i][j][h][t][0];
                     vector<double> V = TraversalsTable[i][j][h][t][1];
                     for (int k = 0; k < G.size(); k++){
@@ -194,7 +195,16 @@ int main(int argc, char* argv[]) {
         vector<vector<double>>().swap(Vectored_Traversals_X);
         vector<vector<double>>().swap(Vectored_Traversals_Y);
         /* index the nearest neighbor traversal to nearest neighbor id */
-        traversal_neighbors.push_back(nearest_neighbor);
+        vector<vector<int>> pair_ids;
+        vector<int> ids;
+        for (int n = 0; n < Vectored_Traversals_Y.size(); n++) {
+            ids.push_back((int)Vectored_Traversals_Y[n][0]);
+            ids.push_back((int)Vectored_Traversals_X[nearest_neighbor[n]][0]);
+            pair_ids.push_back(ids);
+            traversal_neighbors.push_back(pair_ids);
+            vector<int>().swap(ids);
+            vector<vector<int>>().swap(pair_ids);
+        }
         delete[] min_distance;
         delete[] time;
         delete[] nearest_neighbor;
@@ -216,7 +226,21 @@ int main(int argc, char* argv[]) {
     }
 
     /* ---- edit the results of the lsh ----*/
-
+    double dtw_dist;
+    /* for all lengths */
+    for (int i = 0; i < traversal_neighbors.size(); i++){
+        /* for all traversal curves */
+        for (int j = 0; j < traversal_neighbors[i].size(); j++){
+            dtw_dist = DTW(&dataset[traversal_neighbors[i][j][0]], &searchset[traversal_neighbors[i][j][1]]);
+            if (min_distance[traversal_neighbors[i][j][1]] == INT_MAX) {
+                min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+                nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+            } else if (distance < min_distance[traversal_neighbors[i][j][1]]) {
+                min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+                nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+            }
+        }
+    }
     /* ----- */
 
     /* Statistics available only when Brute Force is on */
@@ -236,6 +260,40 @@ int main(int argc, char* argv[]) {
         cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
         cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
     }
+
+    string Method = "LSH";
+    ofstream neighbors_file;
+    /* open file to dump all query results */
+    neighbors_file.open("./output/curve_projection_lsh.txt");
+    for (int i = 0; i < searchset.size(); i++) {
+        neighbors_file << "Query: " << i + 1 << endl;
+        neighbors_file << "Method: LSH" << endl;
+        neighbors_file << "HashFunction: " << Method << endl;
+        if (nearest_neighbor[i] != -1) {
+            neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i] + 1 << endl;
+        }else{
+            neighbors_file << "Found Nearest Neighbor: Fail" << endl;
+        }
+        if (bfsearch == 'y' || bfsearch == 'Y') {
+            neighbors_file << "True Nearest Neighbor: " << TrueNeighbors[i] + 1 << endl;
+        }
+        if (nearest_neighbor[i] != -1) {
+            neighbors_file << "distanceFound: " << min_distance[i] << endl;
+        }else{
+            neighbors_file << "distanceFound: None" << endl;
+        }
+        if (bfsearch == 'y' || bfsearch == 'Y') {
+            neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
+        }
+        neighbors_file << endl;
+    }
+    neighbors_file.close();
+
+    cout << "Statistics are available only when Brute Force option is selected." << endl;
+
+    /* clean remaining used memory */
+    delete[] min_distance;
+    delete[] nearest_neighbor;
 
     return 0;
 }
