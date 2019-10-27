@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    delta = 0.05; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
+    delta = 0.0005; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
 
 
     /* compute window for all hash tables (try *4 or *10) */

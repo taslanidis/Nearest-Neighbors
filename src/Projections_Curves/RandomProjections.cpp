@@ -87,6 +87,12 @@ int main(int argc, char* argv[]) {
                 /* for every pair */
                 for (int t = 0; t < traversals[k].size(); t++) {
                     /* for U and V */
+                    vector<double> pair_ids;
+                    pair_ids.push_back(i);
+                    pair_ids.push_back(j);
+                    pair_coords.push_back(pair_ids);
+                    traverse_with_coords.push_back(pair_coords);
+                    vector<vector<double>>().swap(pair_coords);
                     index_x = traversals[k][t][0];
                     index_y = traversals[k][t][1];
                     coords.push_back(dataset[i][index_x][0]);
@@ -153,8 +159,10 @@ int main(int argc, char* argv[]) {
         for (int j = 0; j < M; j++) {
             /* For all traversals of size (i,j) */
             for (int h = 0; h < TraversalsTable[i][j].size(); h++) {
-                /* For all pairs of traversal h */
-                for (int t = 0; t < TraversalsTable[i][j][h].size(); t++) {
+                /* For all pairs of traversal h -- index 0 there are ids */
+                for (int t = 1; t < TraversalsTable[i][j][h].size(); t++) {
+                    termU.push_back(TraversalsTable[i][j][h][0][0]);
+                    termV.push_back(TraversalsTable[i][j][h][0][1]);
                     vector<double> U = TraversalsTable[i][j][h][t][0];
                     vector<double> V = TraversalsTable[i][j][h][t][1];
                     for (int k = 0; k < G.size(); k++){
