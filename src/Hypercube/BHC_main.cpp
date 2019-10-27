@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
         neighbors_file.open("./output/" + results_file);
         for (int i = 0; i < searchset.size(); i++) {
             neighbors_file << "Query: " << i + 1 << endl;
-            neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i] << endl;
+            neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i] + 1<< endl;
             neighbors_file << "distanceLSH: " << min_distance[i] << endl;
             neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
             neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
                 neighbors_file << "R-near neighbors: " << endl;
                 if (R_neighbors[i].size() != 0) {
                     for (int j = 0; j < R_neighbors[i].size(); j++) {
-                        neighbors_file << R_neighbors[i][j] << endl;
+                        neighbors_file << R_neighbors[i][j] + 1<< endl;
                     }
                 } else {
                     neighbors_file << "No R-near neighbors available" << endl;

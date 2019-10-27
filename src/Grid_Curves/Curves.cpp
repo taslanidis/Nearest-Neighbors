@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    delta = 0.0016; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
+    delta = 0.05; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
 
 
     /* compute window for all hash tables (try *4 or *10) */
@@ -159,11 +159,12 @@ int main(int argc, char* argv[]) {
     char bfsearch;
     vector<double> TrueDistances;
     vector<double> TrueTimes;
+    vector<int> TrueNeighbors;
     cout << "Do you want to run Brute Force for extra statistics at the end?" << endl << " (Press y or Y + enter to run, else press any other character)." << endl;
     cin >> bfsearch;
     if (bfsearch == 'y' || bfsearch == 'Y') {
         cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
-        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes, &TrueNeighbors);
         cout << "Found exact neighbors." << endl;
     }
 
@@ -387,17 +388,28 @@ int main(int argc, char* argv[]) {
     #endif
     ofstream neighbors_file;
     /* open file to dump all query results */
-    neighbors_file.open(results_file);
+    neighbors_file.open("./output/" + results_file);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;
         neighbors_file << "HashFunction: " << Method << endl;
         if (nearest_neighbor[i] != -1) {
-            neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i] << endl;
-            neighbors_file << "distanceFound: " << min_distance[i] << endl << endl;
+            neighbors_file << "Found Nearest Neighbor: " << nearest_neighbor[i] + 1 << endl;
         }else{
-            neighbors_file << "Found Nearest Neighbor: Fail" << endl << endl;
+            neighbors_file << "Found Nearest Neighbor: Fail" << endl;
         }
+        if (bfsearch == 'y' || bfsearch == 'Y') {
+            neighbors_file << "True Nearest Neighbor: " << TrueNeighbors[i] + 1 << endl;
+        }
+        if (nearest_neighbor[i] != -1) {
+            neighbors_file << "distanceFound: " << min_distance[i] << endl;
+        }else{
+            neighbors_file << "distanceFound: None" << endl;
+        }
+        if (bfsearch == 'y' || bfsearch == 'Y') {
+            neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
+        }
+        neighbors_file << endl;
     }
     neighbors_file.close();
 
@@ -418,6 +430,5 @@ int main(int argc, char* argv[]) {
     vector<int*>().swap(hashed_neighbors);
     /* end of cleaning */
 
-    cout << "Goodbye ..." << endl;
     return 0;
 }

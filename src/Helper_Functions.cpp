@@ -345,7 +345,7 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
     neighbors_file.close();
 }
 
-void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, vector<double>* TrueDistances, vector<double>* TrueTimes) {
+void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, vector<double>* TrueDistances, vector<double>* TrueTimes, vector<int>* TrueNeighbors) {
     /* vectors init */
     vector<double*> P1;
     vector<double*> P2;
@@ -383,6 +383,7 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
 
         TrueDistances->push_back(min_distance);
         TrueTimes->push_back(time_elapsed);
+        TrueNeighbors->push_back(n_neighbor);
 
         neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(7) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
     }
