@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
     /* read data set and query set and load them in vectors */
-    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 15.00);
+    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 4.00);
     if (error_code == -1) return -1;
 
     /* dataset sizes */
@@ -47,6 +47,17 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    /* do brute force to find actual NNs */
+    char bfsearch;
+    vector<double> TrueDistances;
+    vector<double> TrueTimes;
+    cout << "Do you want to run Brute Force for extra statistics at the end?" << endl << "(Press y or Y + enter to run, else press any other character)." << endl;
+    cin >> bfsearch;
+    if (bfsearch == 'y' || bfsearch == 'Y') {
+        cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
+        curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        cout << "Found exact neighbors." << endl;
+    }
 
     /* ------------------ RELEVANT traversals ----------------- */
 
@@ -68,7 +79,7 @@ int main(int argc, char* argv[]) {
     /* for every pair of curves */
     for (int i = 0; i < dataset.size(); i++) {
         for (int j = 0; j < searchset.size(); j++) {
-            /* find all relevant traversals */
+            /* find all relevant traversals TODO: store them in an array */
             Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size());
             /* Convert the vector of pair with indexes, to a vector with coordinates */
             /* for all traversals of size */
@@ -78,16 +89,10 @@ int main(int argc, char* argv[]) {
                     /* for U and V */
                     index_x = traversals[k][t][0];
                     index_y = traversals[k][t][1];
-                    if (index_x  >= dataset[i].size()) {
-                        cout << "Kosta ti traversal einai auto????!" << endl;
-                    }
                     coords.push_back(dataset[i][index_x][0]);
                     coords.push_back(dataset[i][index_x][1]);
                     pair_coords.push_back(coords);
                     vector<double>().swap(coords);
-                    if (index_y  >= searchset[j].size()) {
-                        cout << "Kosta ti traversal einai auto????!" << endl;
-                    }
                     coords.push_back(searchset[j][index_y][0]);
                     coords.push_back(searchset[j][index_y][1]);
                     pair_coords.push_back(coords);
@@ -122,8 +127,19 @@ int main(int argc, char* argv[]) {
         G_temp.clear();
         G_temp.shrink_to_fit();
     }
-
     cout << "Vector G is ready" << endl;
+
+    /* -- LSH structures -- */
+    double w = 600;
+    double R = 0;
+    /* results */
+    double *min_distance;
+    int *nearest_neighbor;
+    double *time;
+    /* results for bonus */
+    vector<vector<int>> R_neighbors;
+    /* ids of traversals */
+    vector<int*> traversal_neighbors;
 
     /* We project the Ui’s to vector x = [G·U1|···|G·Uu] ∈ R^uK
      * by multiplying G with every point vector, then concatenating. */
@@ -143,42 +159,40 @@ int main(int argc, char* argv[]) {
                     vector<double> V = TraversalsTable[i][j][h][t][1];
                     for (int k = 0; k < G.size(); k++){
                         for (int dim = 0; dim < d; dim++) {
-                            termU.push_back(G[k][d] * U[dim]);
-                            termV.push_back(G[k][d] * V[dim]);
+                            termU.push_back(G[k][dim] * U[dim]);
+                            termV.push_back(G[k][dim] * V[dim]);
                         }
                     }
                 }
                 Vectored_Traversals_X.push_back(termU);
-                Vectored_Traversals_Y.push_back(termV);
+                /* window is 4 | constant */
+                if (abs(i - j) < 4)
+                    Vectored_Traversals_Y.push_back(termV);
                 vector<double>().swap(termU);
                 vector<double>().swap(termV);
             }
         }
+        min_distance = new double [Vectored_Traversals_Y.size()];
+        time = new double [Vectored_Traversals_Y.size()];
+        nearest_neighbor = new int [Vectored_Traversals_Y.size()];
+        /* init arrays */
+        for (int i = 0; i < Vectored_Traversals_Y.size(); i++) {
+            min_distance[i] = INT_MAX;
+            nearest_neighbor[i] = -1;
+            time[i] = 0;
+        }
+        cout << "Calling LSH ... " << Vectored_Traversals_X.size() << " " << Vectored_Traversals_Y.size() << endl;
+        LSH(&Vectored_Traversals_X, &Vectored_Traversals_Y, k, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
+        vector<vector<double>>().swap(Vectored_Traversals_X);
+        vector<vector<double>>().swap(Vectored_Traversals_Y);
+        /* index the nearest neighbor traversal to nearest neighbor id */
+        traversal_neighbors.push_back(nearest_neighbor);
+        delete[] min_distance;
+        delete[] time;
+        delete[] nearest_neighbor;
     }
 
-    cout << "Computed the vectored traversals" << endl;
-
-
-    /* ---------------- Hashing them again with LSH ------------------ */
-    double w = 600;
-    double R = 0;
-    /* results */
-    double *min_distance = new double[searchset.size()];
-    int *nearest_neighbor = new int[searchset.size()];
-    double *time = new double[searchset.size()];
-    /* init arrays */
-    for (int i = 0; i < searchset.size(); i++) {
-        min_distance[i] = INT_MAX;
-        nearest_neighbor[i] = -1;
-        time[i] = 0;
-    }
-    /* results for bonus */
-    vector<vector<int>> R_neighbors;
-
-    cout << "Calling LSH ..." << endl;
-    LSH(&Vectored_Traversals_X, &Vectored_Traversals_Y, k, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
-
-    cout << "LSH ended" << endl;
+    cout << "LSH traversals neighbors ready" << endl;
 
     double distance = 0.0;
     double max_af = 0.0;
@@ -191,6 +205,28 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < searchset.size(); i++) {
         min_distance[i] = INT_MAX;
         nearest_neighbor[i] = -1;
+    }
+
+    /* ---- edit the results of the lsh ----*/
+
+    /* ----- */
+
+    /* Statistics available only when Brute Force is on */
+    if (bfsearch == 'y' || bfsearch == 'Y') {
+    /* compare with DTW the L different neighbors for every q*/
+    /* Results for every curve query */
+        int computations = 0;
+        for (int q = 0; q < searchset.size(); q++) {
+            curr_fraction = (double) min_distance[q] / TrueDistances[q];
+            if (curr_fraction > max_af) max_af = curr_fraction;
+            average_af += curr_fraction;
+        }
+
+        /* --- RESULTS --- */
+        average_af = average_af / searchset.size();
+        average_time = average_time / searchset.size();
+        cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
+        cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
     }
 
     return 0;
