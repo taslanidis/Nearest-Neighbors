@@ -22,17 +22,19 @@ void show_lsh_usage(string name)
 
 template <typename Point>
 double compute_window(vector<vector<Point>>* dataset) {
-    /* 1. take all points in dataset
-     * 2. find their nearest neighbor using L1 metric
-     * 3. average all distances between points
+    /* 1. Take all points in dataset
+     * 2. Find their nearest neighbor using L1 metric
+     * 3. Average all distances between points
      * L1 = sum(|P1i - P2i|) for i in 0,d-1
      * Note: dist is a function scalable for all metrics(L1,L2,L3 etc.) */
+
     vector<Point> distances;
     Point L1, min_distance;
     int size = dataset->size();
     int d = dataset->at(0).size();
     vector<Point> P1;
     vector<Point> P2;
+
     for (int i = 0; i < size; i++) {
         P1 = dataset->at(i);
         L1 = 0;
@@ -40,7 +42,7 @@ double compute_window(vector<vector<Point>>* dataset) {
         for (int j = 0; j < size; j++) {
             if (i != j) {
                 P2 = dataset->at(j);
-                /* default is L1 metric, for Lk metric, add a 4th argument, k */
+                /* Default is L1 metric, for Lk metric, add a 4th argument*/
                 L1 = dist(&P1, &P2, d);
                 if (min_distance == -1)
                     min_distance = L1;
@@ -52,14 +54,15 @@ double compute_window(vector<vector<Point>>* dataset) {
         distances.push_back(min_distance);
     }
     double w = accumulate(distances.begin(), distances.end(), 0) / size;
+
     return w;
 }
 
 void generate_shifts(vector<vector<double>>* s, double w, int d, int k){
     /* Generate K * Si for every dimension
      * At the end, s will be a vector of size (k,d) */
-    unsigned seed;
 
+    unsigned seed;
     uniform_real_distribution<double> distribution (0, w);
     vector<double> Sj;
 
@@ -78,8 +81,10 @@ template <typename Point>
 void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vector<double>* s, double w, int d) {
     /* Ai = (Xi - Si) / W
      * Project every X to A in d-dimensional grid shifted by S, where every cell size = W */
+
     int ai;
     vector<int> a;
+
     for (int i = 0; i < x->size(); i++) {
         for (int dim = 1; dim < d; dim++) {
             ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w); // used to be + w
@@ -92,10 +97,13 @@ void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vect
 }
 
 void compute_hash(vector<int>* H, vector<vector<int>> *a, int** power, int d, int k, double w){
-    /* we will compute K of hash functions for every point - item
-     * vector H at the end will have a size of (dataset.size(), k) */
+    /* Compute K of hash functions hi for every point
+     * Vector H at the end will have a size of (dataset.size(), k)
+     * Usage of moduloMultiplication and modulo functions was necessary to avoid overflow */
+
     int M = 0, h = 0, term = 0, dim = d - 1;
     M = pow(2, 32/k);
+
     for (int i = 0; i < a->size(); i++){
         h=0;
         term = 0;
@@ -110,14 +118,15 @@ void compute_hash(vector<int>* H, vector<vector<int>> *a, int** power, int d, in
 void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions, int k){
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
+
     int g;
     int concat_dist = 31/k;
+
     /* for all points in dataset */
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;
         for (int j = 0; j < k; j++) {
-            //g |=  (*hash_functions)[j][i] << j*concat_dist;
-            g += (g << concat_dist) | ((*hash_functions)[j][i]); // different approach
+            g += (g << concat_dist) | ((*hash_functions)[j][i]);
         }
         amplified_g->push_back(g);
     }

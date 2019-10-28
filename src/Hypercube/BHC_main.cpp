@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         int error_code = Read_point_files(&dataset, &searchset, &R, data_file, search_file);
         if (error_code == -1) return -1;
 
-        /* deafault w*/
+        /* Default w*/
         int w = 4 * 1140;
         bool computed_window = false;
 
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
 
-        /* compute w */
+        /* Compute w */
         while (!computed_window) {
             char chw;
             cout << "- Press 'W' or 'w' to compute window automatically." << endl << "- Press 'I' or 'i' to insert your value manually below." << endl << "- Press 'D' or 'd' for default value." << endl;

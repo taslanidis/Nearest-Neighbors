@@ -8,6 +8,8 @@ template double dist<int>(vector<int>*, vector<int>*, int, int=1);
 template double dist<double>(vector<double>*, vector<double>*, int, int=1);
 
 int Read_point_files(vector<vector<int>>* dataset, vector<vector<int>>* searchset, double* R, string data_filename, string query_filename) {
+    /* Create dataset and searchset vectors from files */
+
     string line;
     int id;
     int number;
