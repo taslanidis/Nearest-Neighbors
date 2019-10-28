@@ -3,6 +3,7 @@
 #include "Traversals.h"
 #include "BHC.h"
 #include "LSH.h"
+#include "LSH_Functions.h"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 #ifdef _BHC_
+        /* k_hypercube(=d') as stated in the discussions */
         else if(arg == "-k_hypercube"){
             dim = atoi(argv[++i]);
         }
@@ -147,9 +149,10 @@ int main(int argc, char* argv[]) {
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    delta = 0.000025; // ~(4*d*min - 1)/1000 -> 0.000006, 0.000025
+    /* delta = very small value to slice the grid in relevant with our dataset chunks */
+    delta = 0.00006;
 
-    double w = 40; /* a value that seems to work quite well */
+    double w = 120; /* default value that seems to work quite well */
     double max_element = 0.0;
     int max_points = 0, elements = 0;
 
@@ -195,7 +198,7 @@ int main(int argc, char* argv[]) {
     /* bonus r radius */
     vector<vector<int>> R_neighbors;
 
-    cout << "Preprocessing complete. Proceeding to hashing ..." << endl;
+    cout << "Running with default delta = " << delta << endl << "Proceeding to preprocessing and hashing ..." << endl;
     /*  ----------- Loop this L times and then dtw on those L nn sets -------- */
     for (int i = 0; i < L_grid; i++) {
         /* ----------------------- HASHING with ORTHOGONAL GRID ---------------------- */
@@ -316,19 +319,27 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
 
-        if (!computed_window) {
+        while (!computed_window) {
             char chw;
-            cout << "Press 'W' or 'w' to compute window automatically." << " Else insert your value manually below." << endl;
+            cout << "- Press 'W' or 'w' to compute window automatically." << endl << "- Press 'I' or 'i' to insert your value manually below." << endl << "- Press 'D' or 'd' for default value." << endl;
             cin >> chw;
-            if (chw = 'w' || chw = 'W') {
-                cout << "Computing w ..."
-                w = 4*compute_window(dataset);
-                cout << "w = " << w << endl;
+            if (chw == 'w' || chw == 'W') {
+                cout << "Computing w ..." << endl;
+                w = 4*compute_window(&data_vectored_curves);
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
+            } else if (chw == 'I' || chw == 'i') {
+                cout << "Insert w: ";
+                cin >> w;
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
+            } else if (chw == 'D' || chw == 'd') {
+                cout << "Default value for w" << endl;
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
             } else {
-                w = atoi(chw);
-                cout << "w = " << w << endl;
+                cout << "<Unknown command>" << endl;
             }
-            compute_window = true;
         }
 
 #ifdef _BHC_
@@ -364,14 +375,16 @@ int main(int argc, char* argv[]) {
     double average_af = 0.0;
     double curr_fraction = 0.0;
 
+    /* initialize arrays to keep the results */
     min_distance = new double[searchset.size()];
     nearest_neighbor = new int[searchset.size()];
     for (int i = 0; i < searchset.size(); i++) {
-        min_distance[i] = INT_MAX;
+        min_distance[i] = -1;
         nearest_neighbor[i] = -1;
     }
 
-
+    /* search on the results fo the LSH\Hypercube with DTW
+     * for the closest of the L nearest neighbors */
     for (int i = 0; i < searchset.size(); i++) {
        for (int j = 0; j < L_grid; j++) {
            if (hashed_neighbors[j][i] == -1) continue;
@@ -390,20 +403,18 @@ int main(int argc, char* argv[]) {
        }
     }
 
-    /* compare with DTW the L different neighbors for every q*/
-    /* Results for every curve query */
-    int computations = 0;
+    /* computing the statistics */
     for (int q = 0; q < searchset.size(); q++) {
+        if (min_distance[q] == -1 || TrueDistances[q] == 0) continue;
         curr_fraction = (double) min_distance[q] / TrueDistances[q];
         if (curr_fraction > max_af) max_af = curr_fraction;
-        average_af += curr_fraction;
+        average_af += curr_fraction / searchset.size();
     }
 
     /* --- RESULTS --- */
-    average_af = average_af / searchset.size();
     average_time = average_time / searchset.size();
-    cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
-    cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
+    cout << "MAX Approximation Fraction (Grid Curves Distance / True Distance) = " << max_af << endl;
+    cout << "Average Approximation Fraction (Grid Curves Distance / True Distance) = " << average_af << endl;
     cout << "Average Time for Nearest Neighbor = " << average_time << endl;
 
     /* open file to write results */
@@ -438,7 +449,6 @@ int main(int argc, char* argv[]) {
     neighbors_file.close();
 
     cout << "Wrote results on " << results_file << endl;
-    cout << "Statistics are available only when Brute Force option is selected." << endl;
 
     /* clean remaining used memory */
     delete[] min_distance;

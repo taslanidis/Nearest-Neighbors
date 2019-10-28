@@ -465,6 +465,7 @@ void read_curves_brute_force_file(string bffile, vector<double>* TrueDistances, 
     }
 }
 
+/* function for snapping a point onto the grid */
 vector<double> arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
     double min, num, shift;
     int q;

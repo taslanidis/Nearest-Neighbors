@@ -94,10 +94,9 @@ int main(int argc, char* argv[]){
         int error_code = Read_point_files(&dataset, &searchset, &R, data_file, search_file);
         if (error_code == -1) return -1;
 
-        //todo: fix w!
-        /* compute window for all hash tables (try *4 or *10) */
-        //Point w = 4*compute_window(dataset);
-        int w = 4 * 1140;
+        /* default w */
+        int w = 4 * 1164;
+        bool computed_window = false;
 
         /* Brute Force for actual NNs */
         char bfsearch;
@@ -130,6 +129,30 @@ int main(int argc, char* argv[]){
             min_distance[i] = INT_MAX;
             nearest_neighbor[i] = -1;
             time[i] = 0;
+        }
+
+        /* compute w */
+        while (!computed_window) {
+            char chw;
+            cout << "- Press 'W' or 'w' to compute window automatically." << endl << "- Press 'I' or 'i' to insert your value manually below." << endl << "- Press 'D' or 'd' for default value." << endl;
+            cin >> chw;
+            if (chw == 'w' || chw == 'W') {
+                cout << "Computing w ..." << endl;
+                w = 4*compute_window(&dataset);
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
+            } else if (chw == 'I' || chw == 'i') {
+                cout << "Insert w: ";
+                cin >> w;
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
+            } else if (chw == 'D' || chw == 'd') {
+                cout << "Default value for w" << endl;
+                cout << "Proceeding with w = " << w << endl;
+                computed_window = true;
+            } else {
+                cout << "<Unknown command>" << endl;
+            }
         }
 
         /* Vector for R-Neighbors (BONUS) */
