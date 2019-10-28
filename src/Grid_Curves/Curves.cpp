@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
     /* variable declaration | L_grid = 4 default value */
     int L_grid = 4;
     double R = 0;
+    bool computed_window = false;
     /* default 2D curves */
     int d = 2;
 
@@ -327,7 +328,7 @@ int main(int argc, char* argv[]) {
                 w = atoi(chw);
                 cout << "w = " << w << endl;
             }
-
+            compute_window = true;
         }
 
 #ifdef _BHC_
