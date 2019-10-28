@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     /* for every pair of curves */
     for (int i = 0; i < dataset.size(); i++) {
         for (int j = 0; j < searchset.size(); j++) {
-            /* find all relevant traversals TODO: store them in an array */
+            /* find all relevant traversals */
             Relevant_Traversals(&traversals, dataset[i].size(), searchset[j].size());
             /* Convert the vector of pair with indexes, to a vector with coordinates */
             /* for all traversals of size */

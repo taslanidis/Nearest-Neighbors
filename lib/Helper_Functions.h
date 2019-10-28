@@ -8,9 +8,9 @@ int Read_curve_files_max_dim(vector<vector<double*>>*, vector<vector<double*>>*,
 template <typename Point> double dist(vector<Point>*, vector<Point>*, int, int=1);
 double point_dist(double*, double*, int);
 double DTW(vector<double*>*, vector<double*>*);
-int modulo (int a, int b);
+int modulo (int, int);
 int moduloMultiplication(int, int, int);
-long moduloPow(long, long, long);
+int moduloPower(int, int, int);
 void brute_force(vector<vector<int>>*, vector<vector<int>>*, vector<int>*, vector<double>*);
 void read_vectors_brute_force_file(string, vector<int>*, vector<double>*);
 void curves_brute_force(vector<vector<double*>>*, vector<vector<double*>>*, vector<double>*, vector<double>*, vector<int>*);

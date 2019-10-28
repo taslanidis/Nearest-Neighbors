@@ -236,7 +236,6 @@ double DTW(vector<double*>* P, vector<double*>* Q) {
     * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
    * if i > 1, then c(i,1) = c(i-1,1) + ||pi - qj||
    * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi - qj|| */
-    /* TODO: make it with dynamic programming, not exhaustive */
     int m1 = P->size() - 1;
     int m2 = Q->size() - 1;
 
@@ -294,18 +293,27 @@ int moduloMultiplication(int a, int b, int mod) {
     }
     return res;
 }
-
-/* TODO: not our func */
-long moduloPow(long base,long exp,long div) {
-    if (exp == 0) {
+int moduloPower(int base, int exp, int mod)
+{
+    // Base cases
+    if (base == 0)
+        return 0;
+    if (exp == 0)
         return 1;
-    } else if (exp == 1) {
-        return base % div;
-    } else if (exp % 2 == 0) {
-        return (moduloPow(base, exp / 2, div) * moduloPow(base, exp / 2, div)) % div;
-    } else {
-        return (moduloPow(base, exp - 1, div) * moduloPow(base, 1, div)) % div;
+
+    // If B is even
+    long y;
+    if (exp % 2 == 0) {
+        y = moduloPower(base, exp / 2, mod);
+        y = (y * y) % mod;
     }
+    // If B is odd
+    else {
+        y = base % mod;
+        y = (y * moduloPower(base, exp - 1, mod) % mod) % mod;
+    }
+
+    return (int)((y + mod) % mod);
 }
 
 void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, vector<int>* TrueDistances, vector<double>* TrueTimes) {
@@ -457,7 +465,6 @@ void read_curves_brute_force_file(string bffile, vector<double>* TrueDistances, 
     }
 }
 
-/* TODO : I smell problem here ??! Maybe not I can see the prints ok */
 vector<double> arg_min(double** pi, vector<double>* orthogonal_grid, double delta, int d) {
     double min, num, shift;
     int q;

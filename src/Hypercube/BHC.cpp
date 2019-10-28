@@ -46,7 +46,7 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     int m = 3;
     int * power = new int [d-1];
     for (int j = 0; j < d-1; j++)
-        power[j] = moduloPow(m, j, capital_M);
+        power[j] = moduloPower(m, j, capital_M);
 
     /* loop for L, to create L amplified functions g */
     for (int l = 0; l < dim; l++) {

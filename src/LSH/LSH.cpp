@@ -43,7 +43,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     int m = 3;
     int * power = new int [d-1];
     for (int j = 0; j < d-1; j++)
-        power[j] = moduloPow(m, j, M);
+        power[j] = moduloPower(m, j, M);
 
     /* loop for L, to create L hash tables */
     for (int l = 0; l < L; l++) {
