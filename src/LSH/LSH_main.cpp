@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 
     /* Arguments Check */
     int k = 4, L = 5;                                            // Default Values
-    double R = 0;                                             //todo: this should be in input file
+    double R;
     string data_file, search_file, results_file;
     int df = 0, sf = 0, rf = 0;
     char rerun;
@@ -89,9 +89,8 @@ int main(int argc, char* argv[]){
         vector <vector<int>> searchset;
 
         /* read data set and query set and load them in vectors */
-        int error_code = Read_point_files(&dataset, &searchset, data_file, search_file);
+        int error_code = Read_point_files(&dataset, &searchset, &R, data_file, search_file);
         if (error_code == -1) return -1;
-
         /* compute window for all hash tables (try *4 or *10) */
         //Point w = 4*compute_window(dataset);
         int w = 4 * 1140;
