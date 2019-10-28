@@ -182,6 +182,7 @@ int main(int argc, char* argv[]) {
     double *min_distance;
     int *nearest_neighbor;
     double *time;
+    double average_time = 0.0;
     /* first hashing */
     vector<int*> hashed_neighbors;
     /* bonus r radius */
@@ -320,7 +321,11 @@ int main(int argc, char* argv[]) {
 
         /* store results for all iterations of hashing */
         hashed_neighbors.push_back(nearest_neighbor);
-
+        /* compute average_time */
+        double sum_times = 0.0;
+        for (int s = 0; s < searchset.size(); s++)
+            sum_times += time[s];
+        average_time += sum_times / searchset.size();
         /* clean vectors for next iteration */
         vector<vector<double>>().swap(data_vectored_curves);
         vector<vector<double>>().swap(search_vectored_curves);
@@ -336,7 +341,6 @@ int main(int argc, char* argv[]) {
     double max_af = 0.0;
     double average_af = 0.0;
     double curr_fraction = 0.0;
-    double average_time = 0.0;
 
     min_distance = new double[searchset.size()];
     nearest_neighbor = new int[searchset.size()];
@@ -349,6 +353,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < searchset.size(); i++) {
        for (int j = 0; j < L_grid; j++) {
            if (hashed_neighbors[j][i] == -1) continue;
+           auto start = chrono::high_resolution_clock::now();
            distance = DTW(&searchset[i], &dataset[hashed_neighbors[j][i]]);
            if (j == 0) {
                min_distance[i] = distance;
@@ -357,6 +362,9 @@ int main(int argc, char* argv[]) {
                min_distance[i] = distance;
                nearest_neighbor[i] = hashed_neighbors[j][i];
            }
+           auto finish = chrono::high_resolution_clock::now();
+           auto elapsed = finish - start;
+           average_time += chrono::duration<double>(elapsed).count() / searchset.size();
        }
     }
 
@@ -377,6 +385,7 @@ int main(int argc, char* argv[]) {
         cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
         cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
     }
+    cout << "Average Time for Nearest Neighbor = " << average_time << endl;
 
     /* open file to write results */
     string Method;
