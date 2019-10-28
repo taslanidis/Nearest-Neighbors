@@ -385,9 +385,40 @@ void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>
         TrueTimes->push_back(time_elapsed);
         TrueNeighbors->push_back(n_neighbor);
 
-        neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(7) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
+        neighbors_file << "Item:" << setw(floor(log10(s_size) + 1)) << setfill('0') << i + 1 << ", Neighbor: " << setw(floor(log10(d_size) + 1)) << setfill('0') << n_neighbor + 1 << " | Distance: " << setw(10) << setprecision(9) << setfill('0') << min_distance <<  " | Duration: " << time_elapsed << endl;
     }
     neighbors_file.close();
+}
+
+void read_curves_brute_force_file(string bffile, vector<double>* TrueDistances, vector<double>* TrueTimes, vector<int>* TrueNeighbors){
+    ifstream brute_force_file(bffile);
+    string line, trash;
+    double tdistance, ttime;
+    int tneighbor;
+    while (getline(brute_force_file, line)) {
+        stringstream ss(line);
+        /* Item */
+        ss >> trash;
+        /* Neighbor: */
+        ss >> trash;
+        /* True Neighbor */
+        ss >> tneighbor;
+        TrueNeighbors->push_back(tneighbor);
+        /* |*/
+        ss >> trash;
+        /* Distance: */
+        ss >> trash;
+        /* True Distance */
+        ss >> tdistance;
+        TrueDistances->push_back(tdistance);
+        /* |*/
+        ss >> trash;
+        /* Duration: */
+        ss >> trash;
+        /* True Time */
+        ss >> ttime;
+        TrueTimes->push_back(ttime);
+    }
 }
 
 /* TODO : I smell problem here ??! Maybe not I can see the prints ok */

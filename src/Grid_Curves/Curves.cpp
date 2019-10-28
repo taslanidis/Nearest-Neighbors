@@ -160,12 +160,21 @@ int main(int argc, char* argv[]) {
     vector<double> TrueDistances;
     vector<double> TrueTimes;
     vector<int> TrueNeighbors;
-    cout << endl << "Do you want to run Brute Force for extra statistics at the end?" << endl << "(Press y or Y + enter to run, else press any other character)." << endl;
+    cout << endl << "Do you want to run Brute Force? (y/n)\n" ;
     cin >> bfsearch;
     if (bfsearch == 'y' || bfsearch == 'Y') {
         cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
         curves_brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes, &TrueNeighbors);
         cout << "Found exact neighbors." << endl;
+    }else{
+        string brute_force_file;
+        cout << "Path to brute force file:" << endl;
+        cin >> brute_force_file;
+        while (access(brute_force_file.c_str(), F_OK) == -1) {
+            cout << "-- Wrong brute force file -- \n";
+            cin >> brute_force_file;
+        }
+        read_curves_brute_force_file(brute_force_file, &TrueDistances, &TrueTimes, &TrueNeighbors);
     }
 
     /* orthogonal grid of size d */
@@ -397,7 +406,7 @@ int main(int argc, char* argv[]) {
     #endif
     ofstream neighbors_file;
     /* open file to dump all query results */
-    neighbors_file.open(results_file);
+    neighbors_file.open("./output/" + results_file);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;
@@ -407,17 +416,13 @@ int main(int argc, char* argv[]) {
         }else{
             neighbors_file << "Found Nearest Neighbor: Fail" << endl;
         }
-        if (bfsearch == 'y' || bfsearch == 'Y') {
-            neighbors_file << "True Nearest Neighbor: " << TrueNeighbors[i] + 1 << endl;
-        }
+        neighbors_file << "True Nearest Neighbor: " << TrueNeighbors[i]<< endl;
         if (nearest_neighbor[i] != -1) {
             neighbors_file << "distanceFound: " << min_distance[i] << endl;
         }else{
             neighbors_file << "distanceFound: None" << endl;
         }
-        if (bfsearch == 'y' || bfsearch == 'Y') {
-            neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
-        }
+        neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
         neighbors_file << endl;
     }
     neighbors_file.close();
