@@ -9,9 +9,10 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
     /* Arguments Check */
-    int k = 4, dim = 3, M = 10, probes = 2;              //Default values: k is the number of hi concatenated to form g - dim is number of hypercube's vertices
-    double R;
+    int k = 4, dim = 3, M = 10, probes = 2;             //Default values: k is the number of hi concatenated to form g - dim is number of hypercube's vertices
+    double R;                                           //BONUS: Read from Query Input File
     string data_file, search_file, results_file;
     int df = 0, sf = 0, rf = 0;
     char rerun;
@@ -65,7 +66,9 @@ int main(int argc, char* argv[]) {
             return -1;
         }
     }
-    do {
+    do {                                                                    //Loop to rerun program with different files
+
+        /* File Check if not given as arguments */
         if (df == 0) {
             cout << "Path to data file (<input file>):" << endl;
             cin >> data_file;
@@ -87,19 +90,20 @@ int main(int argc, char* argv[]) {
             cin >> results_file;
         } else rf = 0;
 
-        /* vectors for the data and query points */
+        /* Data & Query vectors */
         vector <vector<int>> dataset;
         vector <vector<int>> searchset;
 
-        /* read data set and query set and load them in vectors */
+        /* Read data set and query set and load them in vectors - Also read Radius */
         int error_code = Read_point_files(&dataset, &searchset, &R, data_file, search_file);
         if (error_code == -1) return -1;
 
+        //todo: fix w!
         /* compute window for all hash tables (try *4 or *10) */
         //Point w = 4*compute_window(dataset);
         int w = 4 * 1140;
 
-        /* do brute force to find actual NNs */
+        /* Brute Force for actual NNs */
         char bfsearch;
         vector<int> TrueDistances;
         vector<double> TrueTimes;
@@ -120,37 +124,41 @@ int main(int argc, char* argv[]) {
             read_vectors_brute_force_file(brute_force_file, &TrueDistances, &TrueTimes);
         }
 
-        /* results */
+        /* Arrays for results */
         int *min_distance = new int[searchset.size()];
         int *nearest_neighbor = new int[searchset.size()];
         double *time = new double[searchset.size()];
+
+        /* Initialize arrays */
         for (int i = 0; i < searchset.size(); i++) {
             min_distance[i] = INT_MAX;
             nearest_neighbor[i] = -1;
             time[i] = 0;
         }
+
+        /* Vector for R-Neighbors (BONUS) */
         vector<vector<int>> R_neighbors;
 
         /* ---- CALL BHC ---- */
         BHC(&dataset, &searchset, k, dim, M, probes, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
 
-        /* variables */
+        /* Variables for effectiveness and time*/
         double max_af = 0.0;
         double average_af = 0.0;
         double curr_fraction = 0.0;
         double average_time = 0.0;
 
-        /* Results for every curve query */
+        /* Results for every query */
         for (int q = 0; q < searchset.size(); q++) {
             curr_fraction = (double) min_distance[q] / TrueDistances[q];
             if (curr_fraction > max_af) max_af = curr_fraction;
             average_af += curr_fraction;
             average_time += time[q];
         }
-
-        /* print results */
         average_af = average_af / searchset.size();
         average_time = average_time / searchset.size();
+
+        /* Print used variables and results */
         cout << "Variables used: | k = " << k << " | dim = " << dim << " | M = " << M << " | probes = " << probes
              << endl;
         cout << "MAX Approximation Fraction (LSH Distance / True Distance) = " << max_af << endl;
@@ -158,12 +166,12 @@ int main(int argc, char* argv[]) {
         cout << "Average Time of LSH Distance Computation = " << setprecision(9) << showpoint << fixed << average_time
              << endl;
 
-        /* open file to write results */
+        /* Write results in file */
         ofstream neighbors_file;
         neighbors_file.open("./output/" + results_file);
         for (int i = 0; i < searchset.size(); i++) {
             neighbors_file << "Query: " << i + 1 << endl;
-            neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i] + 1<< endl;
+            neighbors_file << "Nearest Neighbor: " << nearest_neighbor[i] + 1 << endl;
             neighbors_file << "distanceLSH: " << min_distance[i] << endl;
             neighbors_file << "distanceTrue: " << TrueDistances[i] << endl;
             neighbors_file << "tLSH: " << setprecision(9) << showpoint << fixed << time[i] << endl;
@@ -172,7 +180,7 @@ int main(int argc, char* argv[]) {
                 neighbors_file << "R-near neighbors: " << endl;
                 if (R_neighbors[i].size() != 0) {
                     for (int j = 0; j < R_neighbors[i].size(); j++) {
-                        neighbors_file << R_neighbors[i][j] + 1<< endl;
+                        neighbors_file << R_neighbors[i][j] + 1 << endl;
                     }
                 } else {
                     neighbors_file << "No R-near neighbors available" << endl;
@@ -182,17 +190,19 @@ int main(int argc, char* argv[]) {
         }
         neighbors_file.close();
 
-        /* clean memory */
+        /* Clean Memory */
         delete[] min_distance;
         delete[] nearest_neighbor;
         delete[] time;
-        /* clear underlying memory of vectors for next iteration */
+
+        /* Clear underlying memory of vectors for next iteration */
         vector<vector<int>>().swap(R_neighbors);
         vector <vector<int>>().swap(dataset);
         vector <vector<int>>().swap(searchset);
         vector<int>().swap(TrueDistances);
         vector<double>().swap(TrueTimes);
 
+        /* Option to rerun program with different files */
         cout<<"\nDo you want to run this program again? (y/n)\n";
         cin>>rerun;
     }while (rerun == 'y' || rerun == 'Y');

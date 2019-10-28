@@ -12,52 +12,55 @@ template void BHC <double>(vector<vector<double>>*, vector<vector<double>>*, int
 
 template <typename Point>
 void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int dim, int M, int probes, Point w, double R, vector<vector<int>>* R_Neighbors, Point** min_distance, double** time, int** nearest_neighbor){
+
+    /* Size of dataset and searchset */
     int d_size = dataset->size();
     int s_size = searchset->size();
-    /* d-dimensional vectors */
+    /* Size of Vectors (d-dimensional vectors) */
     int d = (*dataset)[0].size();
-    /* Size of Hash Table */
-    int TableSize = d_size / 8;
-    /* vector containing (k,d) shifts */
+    /* Vector containing shifts of size(k,d) */
     vector<vector<double>> s;
-    /* H of size (k, dataset.size()) */
+    /* Vector containing H of size (k, d_size) */
     vector<vector<int>> hash_functions;
-    /* projections of data */
+    /* Vector containing projections of data */
     vector<vector<int>> a_projects;
     /* internal vector H for pushing */
     vector<int> H;
-    /* amplified hash for dataset*/
+    /* Amplified hash for dataset*/
     vector<vector<int>> data_amplified_g;
-    /* amplified hash for search-set */
+    /* Amplified hash for searchset */
     vector<vector<int>> query_amplified_g;
-    /* temporary g vector for push back */
+    /* Temporary g vector for push back */
     vector<int> temp_g;
-    /* map to assign every g function to 0 or 1 */
-    map <int, int> dictionary;
-    /* results */
+    /* ANN results */
     vector<vector<vector<vector<Point>>>> ANN;
-    /* store neighbors from probes */
+    /* Neighbors from probes */
     vector<vector<vector<Point>>> Neighbors;
-    /* vector for bonus to store neighbors with radius r */
+    /* Map to assign every g function to 0 or 1 */
+    map <int, int> dictionary;
+    /* Vector for R-Neighbors (BONUS) */
     vector<int> Curr_R_Neighbors;
 
-    /* computing big numbers */
+    /* Computing big numbers */
     int capital_M = pow(2, 32/k);
-    int m = 3;
+    int m = 3;                              //chosen after testing because of the results that it gave us
     int * power = new int [d-1];
     for (int j = 0; j < d-1; j++)
         power[j] = moduloPower(m, j, capital_M);
 
-    /* loop for L, to create L amplified functions g */
+    /* Loop for creation of dim(d') amplified functions g */
     for (int l = 0; l < dim; l++) {
-        /* generate the random shifts */
+
+        /* Shifts Generation */
         generate_shifts(&s, w, d, k);
 
         /* ----------------------- DATA SET -------------------------------*/
-        /* loop for K */
-        for (int i = 0; i < k; i++) {
-            projections(&a_projects, dataset, &(s[i]), w, d);
 
+        /* Loop for creation of K hi to create amplified g*/
+        for (int i = 0; i < k; i++) {
+            /* Projections Computation */
+            projections(&a_projects, dataset, &(s[i]), w, d);
+            /* Hash Computation */
             compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
 
@@ -65,50 +68,56 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
             so we use swap */
             vector<int>().swap(H);
             vector<vector<int>>().swap(a_projects);
-        } /* end for */
-        /* compute the amplified hashes for every data item */
+        }
+
+        /* Amplified hash computation */
         amplify_hash(&temp_g, &hash_functions, k);
         data_amplified_g.push_back(temp_g);
 
-        /* clear hash functions for search set */
         vector<vector<int>>().swap(hash_functions);
         vector<int>().swap(temp_g);
 
         /* ------------------------ SEARCH SET ----------------------------*/
-        /* loop for K */
-        for (int i = 0; i < k; i++) {
-            projections(&a_projects, searchset, &(s[i]), w, d);
 
+        /* Loop for creation of K hi to create amplified g*/
+        for (int i = 0; i < k; i++) {
+            /* Projections Computation */
+            projections(&a_projects, searchset, &(s[i]), w, d);
+            /* Hash Computation */
             compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
 
-            /* clear only deletes data, but does not free the underlying storage
-            so we use swap */
             vector<int>().swap(H);
             vector<vector<int>>().swap(a_projects);
-        } /* end for */
-        /* compute the amplified hashes for every query item */
+        }
+
+        /* Amplified hash computation */
         amplify_hash(&temp_g, &hash_functions, k);
         query_amplified_g.push_back(temp_g);
 
-        /* clear hash functions for search set */
         vector<vector<int>>().swap(hash_functions);
         vector<int>().swap(temp_g);
+
+        vector<vector<double>>().swap(s);
     }
-    /* free memory from the exponents array */
+
+    /* clean memory */
     delete[] power;
 
+    /* Mapping every amplified g function to 0 or 1 */
     fill_dictionary(&dictionary, data_amplified_g);
 
     int hypercube_size = pow(2,dim);
     int vertex = 0;
 
+    /* Mapping every dataset point to a hypercube's vertex */
     vector<vector<Point>> MyVerticesTable[hypercube_size];
     for (int i = 0; i < dataset->size(); i++) {
         vertex = calculate_vertex(data_amplified_g, dictionary, i);
         MyVerticesTable[vertex].push_back((*dataset)[i]);
     }
 
+    /* Finding for every searchset point its neighbors in their vertex and vertices of hamming distance = 1 */
     int ham_dist = 0;
     for (int i = 0; i < searchset->size(); i++) {
         vertex = calculate_vertex(query_amplified_g, dictionary, i);
@@ -123,21 +132,25 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         vector<vector<vector<Point>>>().swap(Neighbors);
     }
 
-    int distance = 0;
+    double distance;
     /* default metric L1 Manhattan */
     int Metric = 1;
     int computations = 0;
+    /* For every query in searchset */
     for (int q = 0; q < searchset->size(); q++) {
         auto start = chrono::high_resolution_clock::now();
-        /* find for every query its neighbor vertices */
+        /* For every probe */
         for (int n = 0; n < ANN[q].size(); n++) {
             computations = 0;
+            /* For every vector in the same probe (max M calculations) */
             for (int j = 0; j < ANN[q][n].size(); j++) {
                 if (computations == M && R == 0) break;
                 distance = dist(&ANN[q][n][j], &searchset->at(q), dataset->at(0).size(), Metric);
+                /* Find R-Neighbors */
                 if(distance <= R){
                     Curr_R_Neighbors.push_back(ANN[q][n][j][0]);
                 }
+                /* Find Nearest Neighbor */
                 if (((distance < (*min_distance)[q]) || (*min_distance)[q] == -1) && computations < M) {
                     (*min_distance)[q] = distance;
                     (*nearest_neighbor)[q] = ANN[q][n][j][0];
