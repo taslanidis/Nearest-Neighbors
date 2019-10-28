@@ -5,7 +5,7 @@ curves_projection_lsh : HashTable.o Helper_Functions.o Traversals.o LSH_Function
 	g++ -std=c++11 -I ./lib ./build/RandomProjections.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/Traversals.o ./build/HashTable.o -o ./build/curves_projection_lsh.x
 
 RandomProjections.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Projections_Curves/RandomProjections.cpp -o ./build/RandomProjections.o
+	g++ -std=c++11 -I ./lib -c ./src/Projections_Curves/RandomProjections.cpp -o ./build/RandomProjections.o
 
 curves_grid_hypercube : HashTable.o Helper_Functions.o Traversals.o BHC_Functions.o LSH_Functions.o LSH.o BHC.o Grid_Curves_bhc_main.o
 	@echo "Compile grid curves hypercube ...";
@@ -16,13 +16,13 @@ curves_grid_lsh : HashTable.o Helper_Functions.o Traversals.o LSH_Functions.o LS
 	g++ -std=c++11 -I ./lib ./build/Grid_Curves_lsh_main.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/Traversals.o ./build/HashTable.o -o ./build/curves_grid_lsh.x
 
 Grid_Curves_lsh_main.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Grid_Curves/Curves.cpp -D _LSH_ -o ./build/Grid_Curves_lsh_main.o
+	g++ -std=c++11 -I ./lib -c ./src/Grid_Curves/Curves.cpp -D _LSH_ -o ./build/Grid_Curves_lsh_main.o
 
 Grid_Curves_bhc_main.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Grid_Curves/Curves.cpp -D _BHC_ -o ./build/Grid_Curves_bhc_main.o
+	g++ -std=c++11 -I ./lib -c ./src/Grid_Curves/Curves.cpp -D _BHC_ -o ./build/Grid_Curves_bhc_main.o
 
 Traversals.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Grid_Curves/Traversals.cpp -o ./build/Traversals.o
+	g++ -std=c++11 -I ./lib -c ./src/Grid_Curves/Traversals.cpp -o ./build/Traversals.o
 
 hypercube : HashTable.o Helper_Functions.o LSH_Functions.o BHC_Functions.o BHC.o BHC_main.o
 	@echo "Compile hypercube ...";
@@ -42,19 +42,19 @@ lsh : HashTable.o Helper_Functions.o LSH_Functions.o LSH.o LSH_main.o
 	g++ -std=c++11 -I ./lib ./build/LSH_main.o ./build/LSH.o ./build/LSH_Functions.o ./build/Helper_Functions.o ./build/HashTable.o -o ./build/lsh.x
 
 LSH_main.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH_main.cpp -o ./build/LSH_main.o
+	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH_main.cpp -o ./build/LSH_main.o
 
 LSH.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH.cpp -o ./build/LSH.o
+	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH.cpp -o ./build/LSH.o
 
 LSH_Functions.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/LSH/LSH_Functions.cpp -o ./build/LSH_Functions.o
+	g++ -std=c++11 -I ./lib -c ./src/LSH/LSH_Functions.cpp -o ./build/LSH_Functions.o
 
 Helper_Functions.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/Helper_Functions.cpp -o ./build/Helper_Functions.o
+	g++ -std=c++11 -I ./lib -c ./src/Helper_Functions.cpp -o ./build/Helper_Functions.o
 
 HashTable.o :
-	g++ -std=c++11 -ggdb3 -I ./lib -c ./src/HashTable.cpp -o ./build/HashTable.o
+	g++ -std=c++11 -I ./lib -c ./src/HashTable.cpp -o ./build/HashTable.o
 
 clean:
 	-rm -f ./build/*.o
