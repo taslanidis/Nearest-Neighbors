@@ -7,7 +7,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    /* variable declaration | k = 4 default value */
+    /* variable declaration | L_grid = 4 default value */
     int L_grid = 4;
     double R = 0;
     /* default 2D curves */
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 #ifdef _BHC_
-    int k_hypercube = 3, M = 10, probes = 10, dim = 3;
+    int k_hypercube = 1, M = 10, probes = 10, dim = 3;
 #endif
 
     /* read arguments */
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
 #ifdef _BHC_
         else if(arg == "-k_hypercube"){
-            k_hypercube = atoi(argv[++i]);
+            dim = atoi(argv[++i]);
         }
         else if(arg == "-M"){
             M = atoi(argv[++i]);
@@ -148,10 +148,7 @@ int main(int argc, char* argv[]) {
     min = (m1 < m2) ? m1 : m2;
     delta = 0.000025; // ~(4*d*min - 1)/1000 -> 0.000006, 0.000025
 
-
-    /* compute window for all hash tables (try *4 or *10) */
-    //double w = 4*compute_window(dataset);
-    double w = 40; // computed w, 25, 125
+    double w = 40; /* a value that seems to work quite well */
     double max_element = 0.0;
     int max_points = 0, elements = 0;
 
@@ -318,6 +315,21 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
 
+        if (!computed_window) {
+            char chw;
+            cout << "Press 'W' or 'w' to compute window automatically." << " Else insert your value manually below." << endl;
+            cin >> chw;
+            if (chw = 'w' || chw = 'W') {
+                cout << "Computing w ..."
+                w = 4*compute_window(dataset);
+                cout << "w = " << w << endl;
+            } else {
+                w = atoi(chw);
+                cout << "w = " << w << endl;
+            }
+
+        }
+
 #ifdef _BHC_
         /* ---------------- Hashing them again with Hypercube ------------------ */
         BHC(&data_vectored_curves, &search_vectored_curves, k_hypercube, dim, M, probes, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
@@ -377,23 +389,20 @@ int main(int argc, char* argv[]) {
        }
     }
 
-    /* Statistics available only when Brute Force is on */
-    if (bfsearch == 'y' || bfsearch == 'Y') {
     /* compare with DTW the L different neighbors for every q*/
     /* Results for every curve query */
-        int computations = 0;
-        for (int q = 0; q < searchset.size(); q++) {
-            curr_fraction = (double) min_distance[q] / TrueDistances[q];
-            if (curr_fraction > max_af) max_af = curr_fraction;
-            average_af += curr_fraction;
-        }
-
-        /* --- RESULTS --- */
-        average_af = average_af / searchset.size();
-        average_time = average_time / searchset.size();
-        cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
-        cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
+    int computations = 0;
+    for (int q = 0; q < searchset.size(); q++) {
+        curr_fraction = (double) min_distance[q] / TrueDistances[q];
+        if (curr_fraction > max_af) max_af = curr_fraction;
+        average_af += curr_fraction;
     }
+
+    /* --- RESULTS --- */
+    average_af = average_af / searchset.size();
+    average_time = average_time / searchset.size();
+    cout << "MAX Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << max_af << endl;
+    cout << "Average Approximation Fraction (Grid/HyperCube Distance / True Distance) = " << average_af << endl;
     cout << "Average Time for Nearest Neighbor = " << average_time << endl;
 
     /* open file to write results */

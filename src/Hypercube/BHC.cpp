@@ -41,10 +41,6 @@ void BHC (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* vector for bonus to store neighbors with radius r */
     vector<int> Curr_R_Neighbors;
 
-    cout << "\nComputing w ... " << endl;
-    //w = 4*compute_window(dataset);
-    cout << "Computed w : " << w << endl;
-
     /* computing big numbers */
     int capital_M = pow(2, 32/k);
     int m = 3;

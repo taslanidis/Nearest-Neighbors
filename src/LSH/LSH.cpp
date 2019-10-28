@@ -15,7 +15,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* d-dimensional vectors */
     int d = (*dataset)[0].size();
     /* Size of Hash Table */
-    int TableSize = d_size / 16;
+    int TableSize = d_size / 8;
     HashTable <Point> **MyHashTable = new HashTable <Point>* [L];
     /* vector containing (k,d) shifts */
     vector<vector<double>> s;
@@ -37,10 +37,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     vector<vector<vector<Point>>> ANNi;
     /* vector for bonus */
     vector<int> Curr_R_Neighbors;
-
-    cout << "\nComputing w ... " << endl;
-    //w = 4*compute_window(dataset);
-    cout << "Computed w : " << w << endl;
 
     /* computing big numbers */
     int M = pow(2, 32/k);

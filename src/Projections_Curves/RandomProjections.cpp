@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
     /* read data set and query set and load them in vectors */
-    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 3.00);
+    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 5.00);
     if (error_code == -1) return -1;
 
     /* dataset sizes */
@@ -208,9 +208,6 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
         cout << "Calling LSH ... " << Vectored_Traversals_X.size() << " " << Vectored_Traversals_Y.size() << endl;
-        // for (int m = 0; m < Vectored_Traversals_X.size(); m++ ) {
-        //     cout << Vectored_Traversals_X[m].size() << endl;
-        // }
         LSH(&Vectored_Traversals_X, &Vectored_Traversals_Y, k, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
         /* index the nearest neighbor traversal to nearest neighbor id */
         vector<vector<int>> pair_ids;
@@ -257,22 +254,22 @@ int main(int argc, char* argv[]) {
     }
     /* ---- edit the results of the lsh ----*/
     double dtw_dist;
-    // /* for all lengths */
-    // for (int i = 0; i < traversal_neighbors.size(); i++){
-    //     /* for all traversal curves */
-    //     for (int j = 0; j < traversal_neighbors[i].size(); j++){
-    //         if (traversal_neighbors[i][j][1] != -1 ) {
-        //         dtw_dist = DTW(&dataset[traversal_neighbors[i][j][1]], &searchset[traversal_neighbors[i][j][0]]);
-        //         if (min_distance[traversal_neighbors[i][j][1]] == -1) {
-        //             min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
-        //             nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
-        //         } else if (distance < min_distance[traversal_neighbors[i][j][1]]) {
-        //             min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
-        //             nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
-        //         }
-    //          }
-    //     }
-    // }
+    /* for all lengths */
+    for (int i = 0; i < traversal_neighbors.size(); i++){
+        /* for all traversal curves */
+        for (int j = 0; j < traversal_neighbors[i].size(); j++){
+            if (traversal_neighbors[i][j][1] != -1 ) {
+                dtw_dist = DTW(&dataset[traversal_neighbors[i][j][1]], &searchset[traversal_neighbors[i][j][0]]);
+                if (min_distance[traversal_neighbors[i][j][1]] == -1) {
+                    min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+                    nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+                } else if (distance < min_distance[traversal_neighbors[i][j][1]]) {
+                    min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+                    nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+                }
+             }
+        }
+    }
     /* ----- */
 
     /* Statistics available only when Brute Force is on */
