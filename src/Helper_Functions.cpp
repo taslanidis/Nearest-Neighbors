@@ -352,6 +352,35 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
     neighbors_file.close();
 }
 
+void read_vectors_brute_force_file(string bffile, vector<int>* TrueDistances, vector<double>* TrueTimes){
+    ifstream brute_force_file(bffile);
+    string line, trash;
+    double tdistance, ttime;
+    while (getline(brute_force_file, line)) {
+        stringstream ss(line);
+        /* Item */
+        ss >> trash;
+        /* Neighbor: */
+        ss >> trash;
+        /* True Neighbor */
+        ss >> trash;
+        /* |*/
+        ss >> trash;
+        /* Distance: */
+        ss >> trash;
+        /* True Distance */
+        ss >> tdistance;
+        TrueDistances->push_back(tdistance);
+        /* |*/
+        ss >> trash;
+        /* Duration: */
+        ss >> trash;
+        /* True Time */
+        ss >> ttime;
+        TrueTimes->push_back(ttime);
+    }
+}
+
 void curves_brute_force(vector<vector<double*>>* dataset, vector<vector<double*>>* searchset, vector<double>* TrueDistances, vector<double>* TrueTimes, vector<int>* TrueNeighbors) {
     /* vectors init */
     vector<double*> P1;

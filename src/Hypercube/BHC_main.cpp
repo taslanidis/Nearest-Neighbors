@@ -100,10 +100,25 @@ int main(int argc, char* argv[]) {
         int w = 4 * 1140;
 
         /* do brute force to find actual NNs */
+        char bfsearch;
         vector<int> TrueDistances;
         vector<double> TrueTimes;
-
-        brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+        cout << endl << "Do you want to run Brute Force? (y/n)\n" ;
+        cin >> bfsearch;
+        if (bfsearch == 'y' || bfsearch == 'Y') {
+            cout << "Starting Exhaustive Search..." << endl;
+            brute_force(&dataset, &searchset, &TrueDistances, &TrueTimes);
+            cout << "Exhaustive Search completed." << endl;
+        }else{
+            string brute_force_file;
+            cout << "Path to brute force file:" << endl;
+            cin >> brute_force_file;
+            while (access(brute_force_file.c_str(), F_OK) == -1) {
+                cout << "-- Wrong brute force file -- \n";
+                cin >> brute_force_file;
+            }
+            read_vectors_brute_force_file(brute_force_file, &TrueDistances, &TrueTimes);
+        }
 
         /* results */
         int *min_distance = new int[searchset.size()];
