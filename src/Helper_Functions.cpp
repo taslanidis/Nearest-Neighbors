@@ -399,6 +399,7 @@ vector<double> arg_min(double** pi, vector<double>* orthogonal_grid, double delt
     for (int i = 0; i < d; i++) {
         num = (*pi)[i];
         shift = (*orthogonal_grid)[i];
+        /* snapping */
         argmin.push_back(num + (delta + shift)/2);
         argmin[i] -= fmod(argmin[i], delta);
     }

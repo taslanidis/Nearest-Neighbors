@@ -43,18 +43,17 @@ void hash_curve(vector<vector<double>>* hashed_curve, vector<double*>* curve, ve
     vector<double> pi_new;
     vector<double> pi_old;
     /* first index has the id and the dimensions of the curve */
-    for (int i = 0; i < (*curve)[0][1]; i++) {
+    pi = (*curve)[0];
+    pi_new.push_back(pi[0]);
+    pi_new.push_back(pi[1]);
+    hashed_curve->push_back(pi_new);
+    pi_old = pi_new;
+    for (int i = 1; i < (*curve)[0][1]; i++) {
         pi = (*curve)[i];
-        if (i == 0) {
-            pi_new.push_back(pi[0]);
-            pi_new.push_back(pi[1]);
+        pi_new = arg_min(&pi, orthogonal_grid, delta, d);
+        /* remove consecutive duplicates pi' from the hashed_curve */
+        if ((pi_new[0] != pi_old[0]) || (pi_new[1] != pi_old[1])) {
             hashed_curve->push_back(pi_new);
-        } else {
-            pi_new = arg_min(&pi, orthogonal_grid, delta, d);
-            /* remove consecutive duplicates pi' from the hashed_curve */
-            if ((pi_new[0] != pi_old[0]) || (pi_new[1] != pi_old[1])) {
-                hashed_curve->push_back(pi_new);
-            }
         }
         pi_old = pi_new;
     }

@@ -84,7 +84,6 @@ void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vect
         for (int dim = 1; dim < d; dim++) {
             ai = floor((double)((*x)[i][dim] - (*s)[dim - 1]) / w); // used to be + w
             a.push_back(ai);
-            //cout << ai << " | " << (*x)[i][dim] << " | " << (*s)[dim - 1] << endl;
         }
         a_projects->push_back(a);
         a.clear();
@@ -95,7 +94,6 @@ void projections(vector<vector<int>>* a_projects, vector<vector<Point>>* x, vect
 void compute_hash(vector<int>* H, vector<vector<int>> *a, int** power, int d, int k, double w){
     /* we will compute K of hash functions for every point - item
      * vector H at the end will have a size of (dataset.size(), k) */
-    /* TODO: we need to check for the size of every number -> has to be small, output G has to be 32bit */
     int M = 0, h = 0, term = 0, dim = d - 1;
     M = pow(2, 32/k);
     for (int i = 0; i < a->size(); i++){
@@ -113,7 +111,7 @@ void amplify_hash(vector<int>* amplified_g, vector<vector<int>>* hash_functions,
     /* For every item it amplifies the hash from K dimensions to 1
      * g(x) = [h1(x)|h2(x)|h3(x)....|hk(x)] */
     int g;
-    int concat_dist = 31/k; // TODO: check for overflow
+    int concat_dist = 31/k;
     /* for all points in dataset */
     for (int i = 0; i < (*hash_functions)[0].size(); i++) {
         g=0;

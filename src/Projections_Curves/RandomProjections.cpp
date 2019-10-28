@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* variable declaration | k = 4 default value */
-    int k = 4, L = 5, d = 2, L_vec = 1;
+    int k = 1, L = 5, d = 2, L_vec = 1;
     double epsilon = 0.5;
     int m1, m2, error_code, min;
     double delta;
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     vector<vector<double*>> dataset;
     vector<vector<double*>> searchset;
     /* read data set and query set and load them in vectors */
-    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 4.00);
+    error_code = Read_curve_files_max_dim(&dataset, &searchset, argv[1], argv[2], 3.00);
     if (error_code == -1) return -1;
 
     /* dataset sizes */
@@ -91,18 +91,21 @@ int main(int argc, char* argv[]) {
                 pair_ids.push_back((double)j);
                 pair_coords.push_back(pair_ids);
                 traverse_with_coords.push_back(pair_coords);
+                vector<vector<double>>().swap(pair_coords);
                 for (int t = 0; t < traversals[k].size(); t++) {
-                    /* for U and V */
-                    vector<vector<double>>().swap(pair_coords);
+                    /* U */
                     index_x = traversals[k][t][0];
                     index_y = traversals[k][t][1];
                     coords.push_back(dataset[i][index_x][0]);
                     coords.push_back(dataset[i][index_x][1]);
                     pair_coords.push_back(coords);
                     vector<double>().swap(coords);
+                    /* V */
                     coords.push_back(searchset[j][index_y][0]);
                     coords.push_back(searchset[j][index_y][1]);
                     pair_coords.push_back(coords);
+                    vector<double>().swap(coords);
+                    /* push pair */
                     traverse_with_coords.push_back(pair_coords);
                     vector<vector<double>>().swap(pair_coords);
                 }
@@ -137,7 +140,7 @@ int main(int argc, char* argv[]) {
     cout << "Vector G is ready" << endl;
 
     /* -- LSH structures -- */
-    double w = 600;
+    double w = 400;
     double R = 0;
     /* results */
     double *min_distance;
@@ -154,31 +157,45 @@ int main(int argc, char* argv[]) {
     vector<double> termV;
     vector<vector<double>> Vectored_Traversals_X;
     vector<vector<double>> Vectored_Traversals_Y;
+    vector<double> Map_TraversalX_to_Curve;
+    vector<double> Map_TraversalY_to_Curve;
+
+    double Unew, Vnew;
+    /* traversal counter */
+    double traversal_counter = 0;
     /* for 1st dim of MxM table */
     for (int i = 0; i < M; i++) {
+        traversal_counter = 0.0;
         /* for 2nd dim of MxM  table */
         for (int j = 0; j < M; j++) {
             /* For all traversals of size (i,j) */
+            /* window is 4 | constant */
+            if (abs(i - j) > 0) break;
             for (int h = 0; h < TraversalsTable[i][j].size(); h++) {
                 /* For all pairs of traversal h -- index 0 there are ids */
+                termU.push_back(traversal_counter);
+                termV.push_back(traversal_counter);
+                Map_TraversalX_to_Curve.push_back(TraversalsTable[i][j][h][0][0][0]);
+                Map_TraversalY_to_Curve.push_back(TraversalsTable[i][j][h][0][0][1]);
                 for (int t = 1; t < TraversalsTable[i][j][h].size(); t++) {
-                    termU.push_back(TraversalsTable[i][j][h][0][0][0]);
-                    termV.push_back(TraversalsTable[i][j][h][0][0][1]);
                     vector<double> U = TraversalsTable[i][j][h][t][0];
                     vector<double> V = TraversalsTable[i][j][h][t][1];
                     for (int k = 0; k < G.size(); k++){
+                        Unew = 0.0;
+                        Vnew = 0.0;
                         for (int dim = 0; dim < d; dim++) {
-                            termU.push_back(G[k][dim] * U[dim]);
-                            termV.push_back(G[k][dim] * V[dim]);
+                            Unew += G[k][dim] * U[dim];
+                            Vnew += G[k][dim] * V[dim];
                         }
+                        termU.push_back(Unew);
+                        termV.push_back(Vnew);
                     }
                 }
                 Vectored_Traversals_X.push_back(termU);
-                /* window is 4 | constant */
-                if (abs(i - j) < 4)
-                    Vectored_Traversals_Y.push_back(termV);
+                Vectored_Traversals_Y.push_back(termV);
                 vector<double>().swap(termU);
                 vector<double>().swap(termV);
+                traversal_counter += 1;
             }
         }
         min_distance = new double [Vectored_Traversals_Y.size()];
@@ -191,20 +208,26 @@ int main(int argc, char* argv[]) {
             time[i] = 0;
         }
         cout << "Calling LSH ... " << Vectored_Traversals_X.size() << " " << Vectored_Traversals_Y.size() << endl;
+        // for (int m = 0; m < Vectored_Traversals_X.size(); m++ ) {
+        //     cout << Vectored_Traversals_X[m].size() << endl;
+        // }
         LSH(&Vectored_Traversals_X, &Vectored_Traversals_Y, k, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
-        vector<vector<double>>().swap(Vectored_Traversals_X);
-        vector<vector<double>>().swap(Vectored_Traversals_Y);
         /* index the nearest neighbor traversal to nearest neighbor id */
         vector<vector<int>> pair_ids;
         vector<int> ids;
         for (int n = 0; n < Vectored_Traversals_Y.size(); n++) {
-            ids.push_back((int)Vectored_Traversals_Y[n][0]);
-            ids.push_back((int)Vectored_Traversals_X[nearest_neighbor[n]][0]);
+            /* LSH returns the ids of the traversals, and we map them to the curve that they belong */
+            ids.push_back((int)Map_TraversalY_to_Curve[Vectored_Traversals_Y[n][0]]);
+            ids.push_back((int)Map_TraversalX_to_Curve[Vectored_Traversals_X[nearest_neighbor[n]][0]]);
             pair_ids.push_back(ids);
             traversal_neighbors.push_back(pair_ids);
             vector<int>().swap(ids);
             vector<vector<int>>().swap(pair_ids);
         }
+        vector<vector<double>>().swap(Vectored_Traversals_X);
+        vector<vector<double>>().swap(Vectored_Traversals_Y);
+        vector<double>().swap(Map_TraversalX_to_Curve);
+        vector<double>().swap(Map_TraversalY_to_Curve);
         delete[] min_distance;
         delete[] time;
         delete[] nearest_neighbor;
@@ -221,26 +244,35 @@ int main(int argc, char* argv[]) {
     min_distance = new double[searchset.size()];
     nearest_neighbor = new int[searchset.size()];
     for (int i = 0; i < searchset.size(); i++) {
-        min_distance[i] = INT_MAX;
+        min_distance[i] = -1;
         nearest_neighbor[i] = -1;
     }
 
-    /* ---- edit the results of the lsh ----*/
-    double dtw_dist;
     /* for all lengths */
     for (int i = 0; i < traversal_neighbors.size(); i++){
         /* for all traversal curves */
         for (int j = 0; j < traversal_neighbors[i].size(); j++){
-            dtw_dist = DTW(&dataset[traversal_neighbors[i][j][0]], &searchset[traversal_neighbors[i][j][1]]);
-            if (min_distance[traversal_neighbors[i][j][1]] == INT_MAX) {
-                min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
-                nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
-            } else if (distance < min_distance[traversal_neighbors[i][j][1]]) {
-                min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
-                nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
-            }
+            cout <<traversal_neighbors[i][j][0]<< " | " << traversal_neighbors[i][j][1] << endl;
         }
     }
+    /* ---- edit the results of the lsh ----*/
+    double dtw_dist;
+    // /* for all lengths */
+    // for (int i = 0; i < traversal_neighbors.size(); i++){
+    //     /* for all traversal curves */
+    //     for (int j = 0; j < traversal_neighbors[i].size(); j++){
+    //         if (traversal_neighbors[i][j][1] != -1 ) {
+        //         dtw_dist = DTW(&dataset[traversal_neighbors[i][j][1]], &searchset[traversal_neighbors[i][j][0]]);
+        //         if (min_distance[traversal_neighbors[i][j][1]] == -1) {
+        //             min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+        //             nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+        //         } else if (distance < min_distance[traversal_neighbors[i][j][1]]) {
+        //             min_distance[traversal_neighbors[i][j][1]] = dtw_dist;
+        //             nearest_neighbor[traversal_neighbors[i][j][1]] = traversal_neighbors[i][j][0];
+        //         }
+    //          }
+    //     }
+    // }
     /* ----- */
 
     /* Statistics available only when Brute Force is on */

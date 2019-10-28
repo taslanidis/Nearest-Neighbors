@@ -146,12 +146,12 @@ int main(int argc, char* argv[]) {
     m2 = searchset.size();
     /* calculate delta */
     min = (m1 < m2) ? m1 : m2;
-    delta = 0.0005; // ~(4*d*min - 1)/1000 -> 0.15 gave us good results
+    delta = 0.000025; // ~(4*d*min - 1)/1000 -> 0.000006, 0.000025
 
 
     /* compute window for all hash tables (try *4 or *10) */
     //double w = 4*compute_window(dataset);
-    double w = 10*30; // computed w and its ~28-32
+    double w = 40; // computed w, 25, 125
     double max_element = 0.0;
     int max_points = 0, elements = 0;
 
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
     vector<double> TrueDistances;
     vector<double> TrueTimes;
     vector<int> TrueNeighbors;
-    cout << "Do you want to run Brute Force for extra statistics at the end?" << endl << " (Press y or Y + enter to run, else press any other character)." << endl;
+    cout << endl << "Do you want to run Brute Force for extra statistics at the end?" << endl << "(Press y or Y + enter to run, else press any other character)." << endl;
     cin >> bfsearch;
     if (bfsearch == 'y' || bfsearch == 'Y') {
         cout << "Exhaustive Search using DTW. It might take a while ..." << endl;
@@ -211,10 +211,10 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < hashed_curves.size(); i++) {
             for (int j = 0; j < hashed_curves[i].size(); j++) {
                 curve.push_back(hashed_curves[i][j][0]);
-                curve.push_back(hashed_curves[i][j][1]);
                 /* find max element */
                 /* j != 0 because at index 0 there is the id and length of curve */
                 if (j != 0) {
+                    curve.push_back(hashed_curves[i][j][1]);
                     if (hashed_curves[i][j][0] > max_element) {
                         max_element = hashed_curves[i][j][0];
                     }
@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
     #endif
     ofstream neighbors_file;
     /* open file to dump all query results */
-    neighbors_file.open("./output/" + results_file);
+    neighbors_file.open(results_file);
     for (int i = 0; i < searchset.size(); i++) {
         neighbors_file << "Query: " << i + 1 << endl;
         neighbors_file << "Method: LSH" << endl;

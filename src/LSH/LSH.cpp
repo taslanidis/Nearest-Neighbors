@@ -81,7 +81,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         for (int i = 0; i < dataset->size(); i++) {
             MyHashTable[l]->Insert(data_amplified_g[l][i], (*dataset)[i]);
         }
-
         /* ------------------------ SEARCH SET ----------------------------*/
         /* do the same for the queries, and put them inside the hash table */
         /* loop for K */
@@ -106,10 +105,10 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
 
         /* calculate approximate nearest neighbors */
         for (int i = 0; i < searchset->size(); i++) {
+            //cout << "query g: " << query_amplified_g[l][i] << " | data g: " << data_amplified_g[l][i] << endl;
             ANNi.push_back(*MyHashTable[l]->Search_Neighbors(query_amplified_g[l][i]));
         }
         ANN.push_back(ANNi);
-
         /* clear hash functions and s for next iteration */
         vector<vector<vector<Point>>>().swap(ANNi);
         vector<vector<double>>().swap(s);
@@ -126,6 +125,7 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
             computations = 0;
             for (int j = 0; j < ANN[i][q].size(); j++) {
                 if (computations == 25 && R == 0) break;
+                //cout << query_amplified_g[i][q] << " | " << data_amplified_g[i][(int)ANN[i][q][j][0]] << endl;
                 if (query_amplified_g[i][q] == data_amplified_g[i][(int)ANN[i][q][j][0]]) {
                     distance = dist(&ANN[i][q][j], &searchset->at(q), dataset->at(0).size(), Metric);
                     if(distance <= R){
