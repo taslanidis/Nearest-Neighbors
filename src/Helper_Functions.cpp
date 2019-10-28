@@ -316,7 +316,7 @@ void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, v
     int d = (*dataset)[0].size();
     /* open file to write results */
     ofstream neighbors_file;
-    neighbors_file.open ("./output/nneighbors_bf.txt");
+    neighbors_file.open ("./output/nneighbors_brute_force.txt");
     for (int i = 0; i < s_size; i++) {
         P1 = (*searchset)[i];
         L1 = 0;
