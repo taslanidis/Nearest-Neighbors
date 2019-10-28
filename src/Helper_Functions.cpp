@@ -293,27 +293,12 @@ int moduloMultiplication(int a, int b, int mod) {
     }
     return res;
 }
-int moduloPower(int base, int exp, int mod)
-{
-    // Base cases
-    if (base == 0)
-        return 0;
-    if (exp == 0)
-        return 1;
 
-    // If B is even
-    long y;
-    if (exp % 2 == 0) {
-        y = moduloPower(base, exp / 2, mod);
-        y = (y * y) % mod;
-    }
-    // If B is odd
-    else {
-        y = base % mod;
-        y = (y * moduloPower(base, exp - 1, mod) % mod) % mod;
-    }
-
-    return (int)((y + mod) % mod);
+long moduloPower(long base,long exp,long div) {
+    if (exp == 0)   return 1;
+    if (exp == 1)   return base % div;
+    if (exp % 2 == 0)   return (moduloPower(base, exp / 2, div) * moduloPower(base, exp / 2, div)) % div;
+    return (moduloPower(base, exp - 1, div) * moduloPower(base, 1, div)) % div;
 }
 
 void brute_force(vector<vector<int>>* dataset, vector<vector<int>>* searchset, vector<int>* TrueDistances, vector<double>* TrueTimes) {

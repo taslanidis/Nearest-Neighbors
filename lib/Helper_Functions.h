@@ -10,7 +10,7 @@ double point_dist(double*, double*, int);
 double DTW(vector<double*>*, vector<double*>*);
 int modulo (int, int);
 int moduloMultiplication(int, int, int);
-int moduloPower(int, int, int);
+long moduloPower(long, long, long);
 void brute_force(vector<vector<int>>*, vector<vector<int>>*, vector<int>*, vector<double>*);
 void read_vectors_brute_force_file(string, vector<int>*, vector<double>*);
 void curves_brute_force(vector<vector<double*>>*, vector<vector<double*>>*, vector<double>*, vector<double>*, vector<int>*);
