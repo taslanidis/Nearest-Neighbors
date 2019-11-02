@@ -1,5 +1,6 @@
 <h1>Hashing and Searching for Vectors and Curves in C++</h1>
-<hr>
+<h2>Description</h2>
+Implemented different Algorithms for searching nearest neighbors on vectors and curves. Hashing, Grids, Projections.
 <h2>Compilation</h2>
 <b>Compile all</b><br>
 make all<br><br>
@@ -13,7 +14,6 @@ make grid_curves_lsh<br>
 make grid_curves_hypercube<br>
 <b>Random Projections LSH: </b>
 make random_projections<br>
-<hr>
 <h2>Run commands</h2>
 <b>Usage for all executables: </b><br>
 -d input_file<br>
@@ -38,7 +38,7 @@ make random_projections<br>
 <br>
 
 
-### Collaborators
+<h2>Collaborators</h2>
 [Konstantinos Athinaios](https://github.com/KostasA97)
 <br>
 [Theofanis Aslanidis](https://github.com/Fanarosss)
