@@ -1,20 +1,41 @@
-# LSH
-Hashing and Searching for Vectors and Curves in C++
-
-### Compilation
+<h1>Hashing and Searching for Vectors and Curves in C++</h1>
+<hr>
+<h2>Compilation</h2>
+<b>Compile all</b><br>
+make all<br><br>
+<b>LSH: </b>
 make lsh<br>
+<b>HyperCube: </b>
 make hypercube<br>
-make curves<br>
------------<br>
-make all<br>
-make clean<br>
-
-### Run commands
-#### LSH:
-./lsh.x ./datasets/siftsmall/input_small_id ./datasets/siftsmall/query_small_id<br>
-#### Hypercube
-./hypercube.x ./datasets/siftsmall/input_small_id ./datasets/siftsmall/query_small_id<br>
-#### Curves
+<b>Grid Curves LSH: </b>
+make grid_curves_lsh<br>
+<b>Grid Curves HyperCube: </b>
+make grid_curves_hypercube<br>
+<b>Random Projections LSH: </b>
+make random_projections<br>
+<hr>
+<h2>Run commands</h2>
+<b>Usage for all executables: </b><br>
+-d input_file<br>
+-q query_file<br>
+-o output_file<br>
+<h4>LSH</h4>
+./build/lsh.x<br>
+<b>Usage: </b><br>
+-k int<br>
+-L int<br>
+<h4>Hypercube</h4>
+./build/hypercube.x<br>
+-k int<br>
+-M int<br>
+-probes int<br>
+<h4>Curves LSH</h4>
+./build/grid_curves_lsh.x<br>
+-k_vec int<br>
+-L_grid int<br>
+<h4>Curves HyperCube</h4>
+./build/grid_curves_hypercube.x<br>
+<br>
 
 
 ### Collaborators
