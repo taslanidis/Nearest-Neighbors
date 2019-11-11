@@ -58,22 +58,27 @@ double compute_window(vector<vector<Point>>* dataset) {
     return w;
 }
 
-void generate_shifts(vector<vector<double>>* s, double w, int d, int k){
+void generate_shifts(vector<vector<vector<double>>>* s, double w, int d, int k, int L){
     /* Generate K * Si for every dimension
      * At the end, s will be a vector of size (k,d) */
 
     unsigned seed;
     uniform_real_distribution<double> distribution (0, w);
     vector<double> Sj;
+    vector<vector<double>> Sl;
 
-    for (int i = 0; i < k; i++) {
-        seed = chrono::system_clock::now().time_since_epoch().count();
-        default_random_engine generator (seed);
-        for (int j = 1; j < d; j++) {
-            Sj.push_back(distribution(generator));
+    for (int l = 0; l < L; l++) {
+        for (int i = 0; i < k; i++) {
+            seed = chrono::system_clock::now().time_since_epoch().count();
+            default_random_engine generator(seed);
+            for (int j = 1; j < d; j++) {
+                Sj.push_back(distribution(generator));
+            }
+            Sl.push_back(Sj);
+            vector<double>().swap(Sj);
         }
-        s->push_back(Sj);
-        Sj.clear();
+        s->push_back(Sl);
+        vector<vector<double>>().swap(Sl);
     }
 }
 

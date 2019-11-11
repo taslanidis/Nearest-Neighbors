@@ -2,7 +2,6 @@
 #include "LSH.h"
 #include "LSH_Functions.h"
 #include "Helper_Functions.h"
-#include "HashTable.h"
 
 using namespace std;
 
@@ -158,9 +157,11 @@ int main(int argc, char* argv[]){
         /* Vector for R-Neighbors (BONUS) */
         vector<vector<int>> R_neighbors;
 
-        /* ---- CALL LSH ---- */
-        LSH(&dataset, &searchset, k, L, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
-
+        /* ---- LSH model ---- */
+        LSH <int>* model = new LSH <int> (k, L, w);
+        model->fit(&dataset);
+        model->evaluate(&searchset, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
+        delete (model);
         /* Variables for effectiveness and time*/
         double max_af = 0.0;
         double average_af = 0.0;

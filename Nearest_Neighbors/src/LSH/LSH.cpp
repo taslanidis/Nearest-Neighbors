@@ -1,36 +1,93 @@
 #include "LSH.h"
 #include "LSH_Functions.h"
 #include "Helper_Functions.h"
-#include "HashTable.h"
 
 using namespace std;
 
-template void LSH <int>(vector<vector<int>>*, vector<vector<int>>*, int, int, int, double, vector<vector<int>>*, int**, double**, int**);
-template void LSH <double>(vector<vector<double>>*, vector<vector<double>>*, int, int, double, double, vector<vector<int>>*, double**, double**, int**);
+template <class Point>
+LSH<Point>::LSH(int k, int L, Point w) {
+    this->k = k;
+    this->L = L;
+    this->w = w;
+    this->power = NULL;
+    MyHashTable = new HashTable <Point>* [L];
+    for (int i = 0; i < L; i++)
+        MyHashTable[i] = NULL;
+}
 
-template <typename Point>
-void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int k, int L, Point w, double R, vector<vector<int>>* R_Neighbors, Point** min_distance, double** time, int** nearest_neighbor){
+template <class Point>
+void LSH<Point>::fit(vector<vector<Point>>* dataset) {
+    /* ----------------------- DATA SET FIT -------------------------------*/
 
-    /* Size of dataset and searchset */
+    this->dataset = dataset;
+    /* Size of dataset */
     int d_size = dataset->size();
-    int s_size = searchset->size();
     /* Size of Vectors (d-dimensional vectors) */
-    int d = (*dataset)[0].size();
-    /* Size of Hash Table */
-    int TableSize = d_size / 8;
-    HashTable <Point> **MyHashTable = new HashTable <Point>* [L];
-    /* Vector containing shifts of size(k,d) */
-    vector<vector<double>> s;
+    this->d = (*dataset)[0].size();
     /* Vector containing H of size (k, d_size) */
     vector<vector<int>> hash_functions;
     /* Vector containing projections of data */
     vector<vector<int>> a_projects;
     /* Internal vector H for pushing */
     vector<int> H;
-    /* Amplified hash for dataset*/
-    vector<vector<int>> data_amplified_g;
+    /* Temporary g vector for push back */
+    vector<int> temp_g;
+    /* hash table size */
+    this->TableSize = d_size/8;
+
+    /* Computing big numbers */
+    int M = pow(2, 32/k);
+    int m = 3;                              //chosen after testing because of the results that it gave us
+    power = new int [d-1];
+    for (int j = 0; j < d-1; j++)
+        power[j] = moduloPower(m, j, M);
+
+    /* Shifts Generation */
+    generate_shifts(&s, w, d, k, L);
+
+    /* Loop for creation of L hash tables */
+    for (int l = 0; l < L; l++) {
+        /* Loop for creation of K hi to create amplified g*/
+        for (int i = 0; i < k; i++) {
+            /* Projections Computation */
+            projections(&a_projects, dataset, &(s[l][i]), w, d);
+            /* Hash Computation */
+            compute_hash(&H, &a_projects, &power, d, k, w);
+            hash_functions.push_back(H);
+            /* clear only deletes data, but does not free the underlying storage
+            so we use swap */
+            vector<int>().swap(H);
+            vector < vector < int >> ().swap(a_projects);
+        }
+
+        /* Amplified hash computation */
+        amplify_hash(&temp_g, &hash_functions, k);
+        data_amplified_g.push_back(temp_g);
+
+        /* clean vectors */
+        vector<vector<int>>().swap(hash_functions);
+        vector<int>().swap(temp_g);
+
+        /* Insert all items inside the Hash Table */
+        MyHashTable[l] = new HashTable<Point>(TableSize);
+        for (int i = 0; i < dataset->size(); i++) {
+            MyHashTable[l]->Insert(data_amplified_g[l][i], (*dataset)[i]);
+        }
+    }
+}
+
+template <class Point>
+void LSH<Point>::evaluate(vector<vector<Point>>* searchset, double R, vector<vector<int>>* R_Neighbors, Point** min_distance, double** time, int** nearest_neighbor) {
+    /* ------------------------ QUERY SEARCH ----------------------------*/
+
+    /* Vector containing H of size (k, d_size) */
+    vector <vector<int>> hash_functions;
+    /* Vector containing projections of data */
+    vector <vector<int>> a_projects;
+    /* Internal vector H for pushing */
+    vector<int> H;
     /* Amplified hash for searchset */
-    vector<vector<int>> query_amplified_g;
+    vector <vector<int>> query_amplified_g;
     /* Temporary g vector for push back */
     vector<int> temp_g;
     /* ANN results */
@@ -40,54 +97,12 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
     /* Vector for R-Neighbors (BONUS) */
     vector<int> Curr_R_Neighbors;
 
-    /* Computing big numbers */
-    int M = pow(2, 32/k);
-    int m = 3;                              //chosen after testing because of the results that it gave us
-    int * power = new int [d-1];
-    for (int j = 0; j < d-1; j++)
-        power[j] = moduloPower(m, j, M);
-
     /* Loop for creation of L hash tables */
     for (int l = 0; l < L; l++) {
-
-        /* Shifts Generation */
-        generate_shifts(&s, w, d, k);
-
-        /* ----------------------- DATA SET -------------------------------*/
-
         /* Loop for creation of K hi to create amplified g*/
         for (int i = 0; i < k; i++) {
             /* Projections Computation */
-            projections(&a_projects, dataset, &(s[i]), w, d);
-            /* Hash Computation */
-            compute_hash(&H, &a_projects, &power, d, k, w);
-            hash_functions.push_back(H);
-
-            /* clear only deletes data, but does not free the underlying storage
-            so we use swap */
-            vector<int>().swap(H);
-            vector<vector<int>>().swap(a_projects);
-        }
-
-        /* Amplified hash computation */
-        amplify_hash(&temp_g, &hash_functions, k);
-        data_amplified_g.push_back(temp_g);
-
-        vector<vector<int>>().swap(hash_functions);
-        vector<int>().swap(temp_g);
-
-        /* Insert all items inside the Hash Table */
-        MyHashTable[l] = new HashTable<Point>(TableSize);
-        for (int i = 0; i < dataset->size(); i++) {
-            MyHashTable[l]->Insert(data_amplified_g[l][i], (*dataset)[i]);
-        }
-
-        /* ------------------------ SEARCH SET ----------------------------*/
-
-        /* Loop for creation of K hi to create amplified g*/
-        for (int i = 0; i < k; i++) {
-            /* Projections Computation */
-            projections(&a_projects, searchset, &(s[i]), w, d);
+            projections(&a_projects, searchset, &(s[l][i]), w, d);
             /* Hash Computation */
             compute_hash(&H, &a_projects, &power, d, k, w);
             hash_functions.push_back(H);
@@ -111,7 +126,6 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
 
         /* clear hash functions and s for next iteration */
         vector<vector<vector<Point>>>().swap(ANNi);
-        vector<vector<double>>().swap(s);
     }
 
     double distance;
@@ -157,12 +171,19 @@ void LSH (vector<vector<Point>>* dataset, vector<vector<Point>>* searchset, int 
         /* clean underlying memory of the vector */
         vector<int>().swap(Curr_R_Neighbors);
     }
-
     /* clean memory */
     vector<vector<vector<vector<Point>>>>().swap(ANN);
-    delete[] power;
+}
+
+template <class Point>
+LSH<Point>::~LSH() {
+    /* clean memory */
+    if (power != NULL)  delete[] power;
     for (int l = 0; l < L; l++) {
-        delete MyHashTable[l];
+        if (MyHashTable[l] != NULL) delete MyHashTable[l];
     }
     delete[] MyHashTable;
 }
+
+template class LSH<int>;
+template class LSH<double>;

@@ -349,7 +349,10 @@ int main(int argc, char* argv[]) {
 
 #ifdef _LSH_
         /* ---------------- Hashing them again with LSH ------------------ */
-        LSH(&data_vectored_curves, &search_vectored_curves, k_vec, L_vec, w, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
+         LSH <double>* model = new LSH <double> (k_vec, L_vec, w);
+        model->fit(&data_vectored_curves);
+        model->evaluate(&search_vectored_curves, R, &R_neighbors, &min_distance, &time, &nearest_neighbor);
+        delete (model);
 #endif
 
         /* store results for all iterations of hashing */
