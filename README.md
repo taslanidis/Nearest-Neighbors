@@ -1,7 +1,13 @@
 # Data Science Algorithms
-### Description
 Implemented different Algorithms for nearest neighbors and clustering.
 
+#### Nearest Neighbors:
+* LSH
+* Hypercube
+* Random Projections
+
+#### Clustering:
+* Still working...
 ### Collaborators
 [Konstantinos Athinaios](https://github.com/KostasA97)
 <br>
