@@ -1,5 +1,7 @@
-<h1>Hashing and Searching for Vectors and Curves in C++</h1>
+<h1>Nearest Neighbors</h1>
 <h2>Description</h2>
+
+Hashing and Searching for Vectors and Curves in C++<br>
 Implemented different Algorithms for searching nearest neighbors on vectors and curves. Hashing, Grids, Projections.
 <h2>Compilation</h2>
 <b>Compile all</b><br>
