@@ -1,0 +1,1 @@
+Item:01, Neighbor: 0011 | Distance: 43.4877 | Duration: 33.1202

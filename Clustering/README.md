@@ -1,6 +1,6 @@
-<h1>Data Science Algorithms</h1>
+<h1>Clustering with K-Means</h1>
 <h2>Description</h2>
-Implemented different Algorithms for nearest neighbors and clustering.
+Implemented different Algorithms for searching nearest neighbors on vectors and curves. Hashing, Grids, Projections.
 
 <h2>Collaborators</h2>
 [Konstantinos Athinaios](https://github.com/KostasA97)
