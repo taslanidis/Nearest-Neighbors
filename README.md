@@ -1,8 +1,8 @@
-<h1>Data Science Algorithms</h1>
-<h2>Description</h2>
+# Data Science Algorithms
+### Description
 Implemented different Algorithms for nearest neighbors and clustering.
 
-<h2>Collaborators</h2>
+### Collaborators
 [Konstantinos Athinaios](https://github.com/KostasA97)
 <br>
 [Theofanis Aslanidis](https://github.com/Fanarosss)
