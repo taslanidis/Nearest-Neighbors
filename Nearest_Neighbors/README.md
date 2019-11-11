@@ -40,7 +40,7 @@ make random_projections<br>
 <br>
 
 
-<h2>Collaborators</h2>
+### Collaborators
 [Konstantinos Athinaios](https://github.com/KostasA97)
 <br>
 [Theofanis Aslanidis](https://github.com/Fanarosss)
