@@ -1,4 +1,5 @@
 #include "Library.h"
+#include "K_Means.h"
 #include "Helper_Functions.h"
 
 using namespace std;
@@ -78,19 +79,21 @@ int main(int argc, char* argv[]){
     } else rf = 0;
 
     /* Read input.dat and cluster.conf and load them in vectors*/
-    vector <vector<int>> cluster_config;
+    int cluster_config[4];
     int file_data = Read_input_file(input_file);      // 1 for vectors - 2 for curves - 0 for error
     if(file_data == 1){
         vector <vector<int>> cluster_data;
     }else if(file_data == 2){
         vector <vector<double*>> cluster_data;
     }else{
-        cout << "Input file error!"
+        cout << "Input file error!" << endl;
         return -1;
     }
 
-    int error_code = Read_files(&dataset, &searchset, input_file, config_file);
-    if (error_code == -1) return -1;
+
+
+//    int error_code = Read_files(&cluster_data, &cluster_config, input_file, config_file);
+//    if (error_code == -1) return -1;
 
 
     cout << "Clustering ..." << endl;

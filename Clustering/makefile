@@ -1,7 +1,7 @@
 all : cluster
 
 cluster : Initializers.o Helper_Functions.o K_Means.o Clustering.o
-	@echo "Compile lsh ...";
+	@echo "Compile Cluster ...";
 	g++ -std=c++11 -I ./lib ./build/Initializers.o ./build/K_Means.o ./build/Clustering.o ./build/Helper_Functions.o -o ./build/cluster.x
 
 Clustering.o :
