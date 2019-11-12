@@ -9,10 +9,10 @@ K_Means <Point>::K_Means(int K, string Initializer) {
     this->K = K;
     /* initializer */
     if (Initializer == "Random Selection") {
-        this->initializer = new Random_Selection(K);
+        this->initializer = new Random_Selection<Point>(K);
         cout << initializer->get_name() << endl;
     } else if (Initializer == "K-Means++") {
-        this->initializer = new KMeans_plusplus(K);
+        this->initializer = new KMeans_plusplus<Point>(K);
         cout << initializer->get_name() << endl;
     } else {
         cerr << "Unknown initializer";
