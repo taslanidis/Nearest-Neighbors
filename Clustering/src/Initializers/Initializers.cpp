@@ -6,9 +6,9 @@ using namespace std;
 
 template <class Point>
 vector<int>* Random_Selection<Point>::init(vector<vector<Point>>* dataset) {
-    vector<int> centroids;
+    vector<int>* centroids = new vector<int>;
     cout << '\t' << "Initializing with Random Selection" << endl;
-    return &centroids;
+    return centroids;
 }
 
 template <class Point>
@@ -24,7 +24,7 @@ vector<int>* KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
     /* # of data */
     int n = dataset->size();
     /* ids of points in dataset */
-    vector<int> centroids;
+    vector<int>* centroids = new vector<int>;
     /* array with min distances of points from centroids */
     vector<double> D;
     /* vector for partial sums */
@@ -35,12 +35,12 @@ vector<int>* KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
     seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
     /* Step 1: Choose a centroid uniformly at random; t←1 */
-    centroids.push_back(distribution(generator));
+    centroids->push_back(distribution(generator));
     /* Step 2: for all non-centroid point i=1,...,n−t, letD(i)←min distance to some centroid,
      * among t chosen centroids. */
     for (int i = 0; i < n; i++) {
         // for all non centroids
-        D.push_back(min_distance(i, &centroids, dataset));
+        D.push_back(min_distance(i, centroids, dataset));
     }
 
     /* Normalization */
@@ -55,7 +55,7 @@ vector<int>* KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
     vector<double>().swap(D);
     vector<double>().swap(P);
 
-    return &centroids;
+    return centroids;
 }
 
 template <class Point>
