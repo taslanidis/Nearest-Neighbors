@@ -4,10 +4,10 @@
 using namespace std;
 
 template <class Point>
-Cluster <Point>::Cluster(int K, string Initializer) {
+Cluster <Point>::Cluster(int K, string Initializer, string Assigner) {
     /* k for k means */
     this->K = K;
-    /* initializer */
+    /* Initializer */
     if (Initializer == "Random Selection") {
         this->initializer = new Random_Selection<Point>(K);
         cout << initializer->get_name() << endl;
@@ -15,7 +15,17 @@ Cluster <Point>::Cluster(int K, string Initializer) {
         this->initializer = new KMeans_plusplus<Point>(K);
         cout << initializer->get_name() << endl;
     } else {
-        cerr << "Unknown initializer";
+        cerr << "Unknown Initializer";
+    }
+    /* Assigner */
+    if (Assigner == "Lloyd's Assignment") {
+        this->assigner = new Lloyd_assignment<Point>();
+        cout << assigner->get_name() << endl;
+    } else if (Assigner == "Inverse Assignment") {
+        this->assigner = new Inverse_assignment<Point>();
+        cout << assigner->get_name() << endl;
+    } else {
+        cerr << "Unknown Assigner";
     }
 }
 
@@ -25,7 +35,8 @@ void Cluster <Point>::fit(vector<vector<Point>>* dataset) {
     cout << '\t' << "Initializer call ..." << endl;
     initializer->init(dataset);
     /* assignment */
-    cout << '\t' << "Assignment ..." << endl;
+    cout << '\t' << "Assigner call ..." << endl;
+    assigner->assign(dataset);
     /* update */
 }
 
