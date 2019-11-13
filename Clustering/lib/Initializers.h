@@ -9,7 +9,7 @@ protected:
     int K;
 public:
     Initializer(){}
-    virtual void init(vector<vector<Point>>*) {}
+    virtual vector<int>* init(vector<vector<Point>>*) {return NULL;}
     virtual string get_name() {}
 };
 
@@ -19,7 +19,7 @@ private:
     string name = "Random Selection";
 public:
     Random_Selection(int K){this->K = K;}
-    void init(vector<vector<Point>>*);
+    vector<int>* init(vector<vector<Point>>*);
     string get_name();
 };
 
@@ -29,6 +29,6 @@ private:
     string name = "K-Means++";
 public:
     KMeans_plusplus(int K){this->K = K;}
-    void init(vector<vector<Point>>*);
+    vector<int>* init(vector<vector<Point>>*);
     string get_name();
 };

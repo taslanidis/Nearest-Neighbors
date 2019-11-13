@@ -2,6 +2,9 @@
 
 using namespace std;
 
+template double min_distance<int>(int, vector<int>*, vector<vector<int>>*);
+template double min_distance<double>(int, vector<int>*, vector<vector<double>>*);
+
 void show_cluster_usage(string name)
 {
     cerr      << "Usage:   " << name << " -letter(s) <option(s)>\n"
@@ -130,3 +133,17 @@ int Read_files(vector<vector<double*>>* cluster_data, int* cluster_config, strin
     }
     return 1;
 }
+
+void normalize(vector<double>* D) {
+    return;
+}
+
+double Sum(int start, int end, vector<double>* D, int power) {
+    return 0.0;
+}
+
+template <typename Point>
+double min_distance(int index, vector<int>* centroids, vector<vector<Point>>* dataset) {
+    return 0.0;
+}
+
