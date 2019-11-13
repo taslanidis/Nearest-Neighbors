@@ -1,10 +1,10 @@
 #include "Library.h"
-#include "K_Means.h"
+#include "Cluster.h"
 
 using namespace std;
 
 template <class Point>
-K_Means <Point>::K_Means(int K, string Initializer) {
+Cluster <Point>::Cluster(int K, string Initializer) {
     /* k for k means */
     this->K = K;
     /* initializer */
@@ -20,9 +20,19 @@ K_Means <Point>::K_Means(int K, string Initializer) {
 }
 
 template <class Point>
-K_Means <Point>::~K_Means(){
+void Cluster <Point>::fit(vector<vector<Point>>* dataset) {
+    /* initialization */
+    cout << '\t' << "Initializer call ..." << endl;
+    initializer->init(dataset);
+    /* assignment */
+    cout << '\t' << "Assignment ..." << endl;
+    /* update */
+}
+
+template <class Point>
+Cluster <Point>::~Cluster(){
     delete (this->initializer);
 }
 
-template class K_Means<int>;
-template class K_Means<double>;
+template class Cluster<int>;
+template class Cluster<double>;

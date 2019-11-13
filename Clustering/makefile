@@ -1,14 +1,17 @@
 all : cluster
 
-cluster : Initializers.o Helper_Functions.o K_Means.o Clustering.o
+cluster : Initializers.o Helper_Functions.o Cluster.o Cluster_DataTypes.o main.o
 	@echo "Compile Cluster ...";
-	g++ -std=c++11 -I ./lib ./build/Initializers.o ./build/K_Means.o ./build/Clustering.o ./build/Helper_Functions.o -o ./build/cluster.x
+	g++ -std=c++11 -I ./lib ./build/Initializers.o ./build/Cluster.o ./build/Cluster_DataTypes.o ./build/main.o ./build/Helper_Functions.o -o ./build/cluster.x
 
-Clustering.o :
-	g++ -std=c++11 -I ./lib -c ./src/Clustering.cpp -o ./build/Clustering.o
+main.o :
+	g++ -std=c++11 -I ./lib -c ./src/Clustering_main.cpp -o ./build/main.o
 
-K_Means.o :
-	g++ -std=c++11 -I ./lib -c ./src/K_Means.cpp -o ./build/K_Means.o
+Cluster_DataTypes.o :
+	g++ -std=c++11 -I ./lib -c ./src/Clusters/Cluster_DataTypes.cpp -o ./build/Cluster_DataTypes.o
+
+Cluster.o :
+	g++ -std=c++11 -I ./lib -c ./src/Clusters/Cluster.cpp -o ./build/Cluster.o
 
 Initializers.o :
 	g++ -std=c++11 -I ./lib -c ./src/Initializers/Initializers.cpp -o ./build/Initializers.o

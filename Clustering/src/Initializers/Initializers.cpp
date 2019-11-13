@@ -5,7 +5,7 @@ using namespace std;
 
 template <class Point>
 void Random_Selection<Point>::init(vector<vector<Point>>* dataset) {
-
+    cout << '\t' << "Initializing with Random Selection" << endl;
 }
 
 template <class Point>
@@ -15,6 +15,7 @@ string Random_Selection<Point>::get_name() {
 
 template <class Point>
 void KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
+    cout << '\t' << "Initializing with K-Means++" << endl;
     /* Choose a centroid uniformly at random;t←1 */
     for (int i = 0; i < this->K; i++) {
 

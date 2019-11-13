@@ -1,6 +1,7 @@
 #include "Library.h"
-#include "K_Means.h"
+#include "Cluster.h"
 #include "Helper_Functions.h"
+#include "Cluster_DataTypes.h"
 
 using namespace std;
 
@@ -78,25 +79,18 @@ int main(int argc, char* argv[]){
         cin >> results_file;
     } else rf = 0;
 
-    /* Read input.dat and cluster.conf and load them in vectors*/
-    int cluster_config[4];
+    /* Scan the type of data */
     int file_data = Read_input_file(input_file);      // 1 for vectors - 2 for curves - 0 for error
     if(file_data == 1){
-        vector <vector<int>> cluster_data;
+        Cluster_Vectors(input_file, config_file);
     }else if(file_data == 2){
-        vector <vector<double*>> cluster_data;
+        Cluster_Curves(input_file, config_file);
     }else{
         cout << "Input file error!" << endl;
         return -1;
     }
 
-
-
-//    int error_code = Read_files(&cluster_data, &cluster_config, input_file, config_file);
-//    if (error_code == -1) return -1;
-
-
-    cout << "Clustering ..." << endl;
     return 0;
 }
+
 
