@@ -13,7 +13,7 @@ int Cluster_Vectors(string input_file, string config_file){
     if (error_code == -1) return -1;
 
     cout << "Clustering vectors..." << endl;
-    string initializer = "K-Means++";
+    string initializer = "Random Selection";
     string assigner = "Lloyd's Assignment";
     Cluster <int>* cluster = new Cluster<int>(5, initializer, assigner);
     cluster->fit(&cluster_data);

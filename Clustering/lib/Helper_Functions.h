@@ -2,6 +2,7 @@
 
 using namespace std;
 
+template <typename Point> double dist(vector<Point>*, vector<Point>*, int, int=1);
 template <typename Point> double min_distance(int, vector<int>*, vector<vector<Point>>*);
 
 void show_cluster_usage(string name);

@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdlib>
 #include <string>
+#include <array>
 #include <cmath>
 #include <numeric>
 #include <random>
@@ -11,3 +12,4 @@
 #include <map>
 #include <iomanip>
 #include <unistd.h>
+#include <typeinfo>

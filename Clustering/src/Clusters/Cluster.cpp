@@ -33,10 +33,10 @@ template <class Point>
 void Cluster <Point>::fit(vector<vector<Point>>* dataset) {
     /* initialization */
     cout << '\t' << "Initializer call ..." << endl;
-    initializer->init(dataset);
+    this->centroids = initializer->init(dataset);
     /* assignment */
     cout << '\t' << "Assigner call ..." << endl;
-    assigner->assign(dataset);
+    assigner->assign(dataset, this->centroids);
     /* update */
 }
 

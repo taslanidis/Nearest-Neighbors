@@ -2,6 +2,8 @@
 
 using namespace std;
 
+template double dist<int>(vector<int>*, vector<int>*, int, int=1);
+template double dist<double>(vector<double>*, vector<double>*, int, int=1);
 template double min_distance<int>(int, vector<int>*, vector<vector<int>>*);
 template double min_distance<double>(int, vector<int>*, vector<vector<double>>*);
 
@@ -132,6 +134,18 @@ int Read_files(vector<vector<double*>>* cluster_data, int* cluster_config, strin
         return -1;
     }
     return 1;
+}
+
+template <typename Point>
+double dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
+    /* Lk metric
+     * for metric = 1 we have L1 metric
+     * for metric = 2 we have L2 metric etc.
+     * (default value = L1 Metric) -> Manhattan distance */
+    double dist = 0;
+    for (int dim = 1; dim < d; dim++)
+        dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
+    return pow(dist,1/(double)Metric);
 }
 
 void normalize(vector<double>* D) {

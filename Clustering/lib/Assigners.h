@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "Library.h"
 
 using namespace std;
 
@@ -7,7 +8,7 @@ template <class Point>
 class Assigner {
 public:
     Assigner(){}
-    virtual void assign(vector<vector<Point>>*) {}
+    virtual vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*) {return NULL;}
     virtual string get_name() {}
 };
 
@@ -17,7 +18,7 @@ private:
     string name = "Lloyd's Assignment";
 public:
     Lloyd_assignment(){};
-    void assign(vector<vector<Point>>*);
+    vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*);
     string get_name();
 };
 
@@ -27,6 +28,6 @@ private:
     string name = "Inverse Assignment";
 public:
     Inverse_assignment(){};
-    void assign(vector<vector<Point>>*);
+    vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*);
     string get_name();
 };
