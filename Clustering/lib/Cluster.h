@@ -1,5 +1,6 @@
 #include "Initializers.h"
 #include "Assigners.h"
+#include "Updaters.h"
 
 using namespace std;
 
@@ -8,11 +9,12 @@ class Cluster {
 private:
     Initializer<Point>* initializer;
     Assigner<Point>* assigner;
+    Updater<Point>* updater;
     int K;
     vector<int>* centroids;
     vector<vector<int>>* clusters;
 public:
-    Cluster(int, string, string);
+    Cluster(int, string, string, string);
     void fit(vector<vector<Point>>*);
     ~Cluster();
 };
