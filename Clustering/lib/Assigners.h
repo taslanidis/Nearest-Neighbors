@@ -6,10 +6,13 @@ using namespace std;
 
 template <class Point>
 class Assigner {
+protected:
+    int K;
 public:
     Assigner(){}
-    virtual vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*) {return NULL;}
+    virtual vector<int>** assign(vector<vector<Point>>*, vector<int>*) {return NULL;}
     virtual string get_name() {}
+    virtual int get_K() {return K;}
 };
 
 template <class Point>
@@ -17,8 +20,8 @@ class Lloyd_assignment : public Assigner<Point> {
 private:
     string name = "Lloyd's Assignment";
 public:
-    Lloyd_assignment(){};
-    vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*);
+    Lloyd_assignment(int K){this->K = K;}
+    vector<int>** assign(vector<vector<Point>>*, vector<int>*);
     string get_name();
 };
 
@@ -27,7 +30,7 @@ class Inverse_assignment : public Assigner<Point> {
 private:
     string name = "Inverse Assignment";
 public:
-    Inverse_assignment(){};
-    vector<vector<int>>* assign(vector<vector<Point>>*, vector<int>*);
+    Inverse_assignment(int K){this->K = K;}
+    vector<int>** assign(vector<vector<Point>>*, vector<int>*);
     string get_name();
 };
