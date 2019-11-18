@@ -2,10 +2,13 @@
 
 using namespace std;
 
-template double dist<int>(vector<int>*, vector<int>*, int, int=1);
-template double dist<double>(vector<double>*, vector<double>*, int, int=1);
+template double DTW<double*>(vector<double*>* P, vector<double*>* Q);
+//template double DTW<int>(vector<int>* P, vector<int>* Q);
+template double dist<int>(vector<int>*, vector<int>*, int=1);
+template double dist<double*>(vector<double*>*, vector<double*>*, int=1);
 template double min_distance<int>(int, vector<int>*, vector<vector<int>>*);
-template double min_distance<double>(int, vector<int>*, vector<vector<double>>*);
+template double min_distance<double*>(int, vector<int>*, vector<vector<double*>>*);
+template double point_dist<double*>(double* p, double* q, int Metric);
 
 void show_cluster_usage(string name)
 {
@@ -136,28 +139,99 @@ int Read_files(vector<vector<double*>>* cluster_data, int* cluster_config, strin
     return 1;
 }
 
+/* distance of vectors-curves */
 template <typename Point>
-double dist(vector<Point>* P1, vector<Point>* P2, int d, int Metric) {
+double dist(vector<Point>* P1, vector<Point>* P2, int Metric) {
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
-    double dist = 0;
-    for (int dim = 1; dim < d; dim++)
-        dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
-    return pow(dist,1/(double)Metric);
+    if(typeid(Point) == typeid(int)) {
+        double dist = 0;
+        for (int dim = 1; dim < P1->size(); dim++)
+            dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
+        return pow(dist,1/(double)Metric);
+    } else {
+        return DTW(P1, P2);
+    }
+}
+
+template <typename Point>
+double point_dist(Point p, Point q, int Metric){
+    /* Lk metric
+     * for metric = 1 we have L1 metric
+     * for metric = 2 we have L2 metric etc.
+     * (default value = L1 Metric) -> Manhattan distance */
+    double d1, d2;
+    d1 = pow(fabs(p[0] - q[0]), Metric);
+    d2 = pow(fabs(p[1] - q[1]), Metric);
+    return pow(d1+d2,1/(double)Metric);
 }
 
 void normalize(vector<double>* D) {
+    auto it = max_element(D->begin(), D->end());
+    double max_D = D->at(distance(D->begin(), it));
+    for (int i = 0; i < D->size(); i++) {
+        (*D)[i] = (*D)[i] / max_D;
+    }
     return;
 }
 
 double Sum(int start, int end, vector<double>* D, int power) {
-    return 0.0;
+    double sum = 0.0;
+    for (int i = start; i <= end; i++) {
+        sum += pow((*D)[i], power);
+    }
+    return sum;
 }
 
 template <typename Point>
 double min_distance(int index, vector<int>* centroids, vector<vector<Point>>* dataset) {
-    return 0.0;
+    double distance = 0.0;
+    double min_distance = DBL_MAX;
+    for (int i = 0; i < centroids->size(); i++) {
+        distance = dist(&dataset->at(centroids->at(i)), &dataset->at(index));
+        if (distance < min_distance)
+            min_distance = distance;
+    }
+    return min_distance;
 }
 
+template <typename Point>
+double DTW(vector<Point>* P, vector<Point>* Q) {
+    /* Initialize c(1,1) = ||p1-q1||
+    * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
+   * if i > 1, then c(i,1) = c(i-1,1) + ||pi - qj||
+   * if i > 1, j > 1, then c(i,j) = min{c(i-1,j), c(i-1,j-1), c(i,j-1)} + ||pi - qj|| */
+    int m1 = P->size() - 1;
+    int m2 = Q->size() - 1;
+
+    /* allocate space */
+    double ** c = new double* [m1];
+    for (int i = 0; i < m1; i++) {
+        c[i] = new double [m2];
+    }
+
+    c[0][0] = point_dist((*P)[1], (*Q)[1], 2);
+    for (int i = 0; i < m1; i++) {
+        for (int j = 0; j < m2; j++) {
+            if (i == 0 && j == 0) continue;
+            if (j > 0 && i == 0) {
+                c[i][j] = c[i][j - 1] + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            } else if (i > 0 && j == 0) {
+                c[i][j] = c[i - 1][j] + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            } else {
+                c[i][j] = min(c[i - 1][j], c[i - 1][j - 1], c[i][j - 1]) + point_dist((*P)[i+1], (*Q)[j+1], 2);
+            }
+        }
+    }
+    double res = c[m1-1][m2-1];
+
+    /* Free allocated space */
+    for (int i = 0; i < m1; i++) {
+        delete[] c[i];
+    }
+    delete[] c;
+
+    return res;
+}
