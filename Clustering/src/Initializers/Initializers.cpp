@@ -1,7 +1,7 @@
 #include "Initializers.h"
 #include "Library.h"
 #include "Helper_Functions.h"
-#include <algorthm>
+#include <algorithm>
 
 using namespace std;
 
@@ -42,7 +42,7 @@ vector<int>* KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
          * among t chosen centroids. */
         for (int i = 0; i < n; i++) {
             // for all non centroids
-            if (find(centroids.begin(), centroids.end(), i) != centroids.end()) {
+            if (find(centroids->begin(), centroids->end(), i) != centroids->end()) {
                 D.push_back(min_distance(i, centroids, dataset));
             }else {
                 D.push_back(0);
@@ -80,7 +80,7 @@ vector<int>* KMeans_plusplus<Point>::init(vector<vector<Point>>* dataset) {
         vector<double>().swap(D);
         vector<double>().swap(P);
     }
-    while (t < k);
+    while (t < this->get_K());
     return centroids;
 }
 
@@ -90,6 +90,6 @@ string KMeans_plusplus<Point>::get_name() {
 }
 
 template class KMeans_plusplus<int>;
-template class KMeans_plusplus<double>;
+template class KMeans_plusplus<double*>;
 template class Random_Selection<int>;
-template class Random_Selection<double>;
+template class Random_Selection<double*>;

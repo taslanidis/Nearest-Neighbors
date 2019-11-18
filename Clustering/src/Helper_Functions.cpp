@@ -2,13 +2,8 @@
 
 using namespace std;
 
-template double DTW<double*>(vector<double*>* P, vector<double*>* Q);
-//template double DTW<int>(vector<int>* P, vector<int>* Q);
-template double dist<int>(vector<int>*, vector<int>*, int=1);
-template double dist<double*>(vector<double*>*, vector<double*>*, int=1);
 template double min_distance<int>(int, vector<int>*, vector<vector<int>>*);
 template double min_distance<double*>(int, vector<int>*, vector<vector<double*>>*);
-template double point_dist<double*>(double* p, double* q, int Metric);
 
 void show_cluster_usage(string name)
 {
@@ -140,24 +135,23 @@ int Read_files(vector<vector<double*>>* cluster_data, int* cluster_config, strin
 }
 
 /* distance of vectors-curves */
-template <typename Point>
-double dist(vector<Point>* P1, vector<Point>* P2, int Metric) {
+double dist(vector<int>* P1, vector<int>* P2, int Metric) {
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
      * (default value = L1 Metric) -> Manhattan distance */
-    if(typeid(Point) == typeid(int)) {
-        double dist = 0;
-        for (int dim = 1; dim < P1->size(); dim++)
-            dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
-        return pow(dist,1/(double)Metric);
-    } else {
-        return DTW(P1, P2);
-    }
+    double dist = 0;
+    for (int dim = 1; dim < P1->size(); dim++)
+        dist += pow(fabs((*P1)[dim] - (*P2)[dim]),Metric);
+    return pow(dist,1/(double)Metric);
 }
 
-template <typename Point>
-double point_dist(Point p, Point q, int Metric){
+/* distance of vectors-curves */
+double dist(vector<double*>* P1, vector<double*>* P2, int Metric) {
+    return DTW(P1, P2);
+}
+
+double point_dist(double* p, double* q, int Metric){
     /* Lk metric
      * for metric = 1 we have L1 metric
      * for metric = 2 we have L2 metric etc.
@@ -197,8 +191,7 @@ double min_distance(int index, vector<int>* centroids, vector<vector<Point>>* da
     return min_distance;
 }
 
-template <typename Point>
-double DTW(vector<Point>* P, vector<Point>* Q) {
+double DTW(vector<double*>* P, vector<double*>* Q) {
     /* Initialize c(1,1) = ||p1-q1||
     * * if j > 1, then c(1,j) = c(1,j-1) + ||pi - qj||
    * if i > 1, then c(i,1) = c(i-1,1) + ||pi - qj||
@@ -234,4 +227,10 @@ double DTW(vector<Point>* P, vector<Point>* Q) {
     delete[] c;
 
     return res;
+}
+
+double min(double x, double y, double z) {
+    /* get the min out of 3 real numbers */
+    double temp = (x < y) ? x : y;
+    return (z < temp) ? z : temp;
 }

@@ -50,6 +50,6 @@ string Inverse_assignment<Point>::get_name() {
 }
 
 template class Lloyd_assignment<int>;
-template class Lloyd_assignment<double>;
+template class Lloyd_assignment<double*>;
 template class Inverse_assignment<int>;
-template class Inverse_assignment<double>;
+template class Inverse_assignment<double*>;

@@ -11,6 +11,7 @@ public:
     Initializer(){}
     virtual vector<int>* init(vector<vector<Point>>*) {return NULL;}
     virtual string get_name() {}
+    virtual int get_K() {return K;}
 };
 
 template <class Point>

@@ -46,4 +46,4 @@ Cluster <Point>::~Cluster(){
 }
 
 template class Cluster<int>;
-template class Cluster<double>;
+template class Cluster<double*>;

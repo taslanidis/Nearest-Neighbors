@@ -32,7 +32,7 @@ int Cluster_Curves(string input_file, string config_file){
     cout << "Clustering vectors..." << endl;
     string initializer = "K-Means++";
     string assigner = "Lloyd's Assignment";
-    Cluster <double>* cluster = new Cluster<double>(5, initializer, assigner);
+    Cluster <double*>* cluster = new Cluster<double*>(5, initializer, assigner);
     // cluster->fit(&cluster_data);
     delete (cluster);
     delete[] cluster_config;
