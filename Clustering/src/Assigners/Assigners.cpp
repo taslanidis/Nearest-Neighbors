@@ -23,15 +23,12 @@ vector<int>** Lloyd_assignment<Point>::assign(vector<vector<Point>>* dataset, ve
         min_dist = DBL_MAX;
         for (int j = 0; j < num_of_centroids; j++) {
             curr_dist = dist(&(*dataset)[(*centroids)[j]], &(*dataset)[i], dimension);
-            cout << curr_dist << endl;
             if (curr_dist < min_dist) {
                 min_dist = curr_dist;
                 centroid = j;
             }
         }
-        cout << centroid << endl;
         clusters[centroid]->push_back(i);
-        cout << "hereeee" << endl;
     }
     return clusters;
 }

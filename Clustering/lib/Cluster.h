@@ -12,7 +12,7 @@ private:
     Updater<Point>* updater;
     int K;
     vector<int>* centroids;
-    vector<vector<int>>* clusters;
+    vector<int>** clusters;
 public:
     Cluster(int, string, string, string);
     void fit(vector<vector<Point>>*);
