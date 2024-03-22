@@ -1,22 +1,21 @@
-# Nearest Neighbors
-Hashing and Searching for Vectors and Curves in C++<br>
-Implemented different Algorithms for searching nearest neighbors on vectors and curves. Hashing, Grids, Projections.
+# ANN - Approximate Nearest Neighbors
+Implementation of an ANN index with locality-sensitive hashing in C++, for efficient vector lookup of nearest neighbors.
 
-## Vectors
+## Vector Projections (2D)
 - LSH
 - HyperCube
 
 
 ### [LSH:](https://github.com/Fanarosss/Nearest_Neighbors/tree/master/src/LSH)
-Hashing Vectors with amplified hash functions and use Hash Table for storage.<br>
+Hash Vectors with amplified hash functions and use Hash Table for storage.<br>
 Get approximate nearest neighbor - Or R-nearest neighbors, with M1 metric.
 
 ### [HyperCube:](https://github.com/Fanarosss/Nearest_Neighbors/tree/master/src/Hypercube)
-Hashing Vectors with amplified hash functions and use Hyper Cube for storage.
+Hash Vectors with amplified hash functions and use Hyper Cube for storage.
 Get approximate nearest neighbor Or R-nearest neighbors, with M1 metric
 
 
-## Curves
+## Curve Projections (3D)
 - Grid LSH
 - Projections
 
@@ -24,7 +23,7 @@ Get approximate nearest neighbor Or R-nearest neighbors, with M1 metric
 Curve Vectorization with Grid, then calling LSH for vectors on the vectorized curves. (Poor method)
 
 ### [Projections:](https://github.com/Fanarosss/Nearest_Neighbors/blob/master/src/Projections_Curves/RandomProjections.cpp)
-Find all relevant traversals, and project the nearest traversals and use LSH on vectorized traversals, instead of vectorizing Curves. (Better method for curves)
+Find all relevant traversals, and project the nearest traversals, and use LSH on vectorized traversals, instead of vectorizing Curves. (Better method for curves)
 
 ### General Use functions for I\O and searching:
 [Helper Functions](https://github.com/Fanarosss/Nearest_Neighbors/blob/master/src/Helper_Functions.cpp)
